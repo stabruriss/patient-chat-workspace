@@ -1,0 +1,32 @@
+{
+  "name": "patient-chat-workspace",
+  "version": "1.0.0",
+  "description": "A unified healthcare communication platform for managing patient interactions across multiple channels",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8080",
+    "preview": "open http://localhost:8000"
+  },
+  "keywords": [
+    "healthcare",
+    "patient-communication",
+    "medical",
+    "chat",
+    "messaging",
+    "appointment-scheduling",
+    "telemedicine"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/patient-chat-workspace.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/patient-chat-workspace/issues"
+  },
+  "homepage": "https://github.com/yourusername/patient-chat-workspace#readme",
+  "devDependencies": {},
+  "dependencies": {}
+}
