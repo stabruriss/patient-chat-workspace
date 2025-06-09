@@ -21,12 +21,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/patient-chat-workspace.git"
+    "url": "https://github.com/stabruriss/patient-chat-workspace.git"
   },
   "bugs": {
-    "url": "https://github.com/yourusername/patient-chat-workspace/issues"
+    "url": "https://github.com/stabruriss/patient-chat-workspace/issues"
   },
-  "homepage": "https://github.com/yourusername/patient-chat-workspace#readme",
+  "homepage": "https://github.com/stabruriss/patient-chat-workspace#readme",
   "devDependencies": {},
   "dependencies": {}
 }

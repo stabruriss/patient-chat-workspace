@@ -55,7 +55,7 @@ A unified healthcare communication platform that enables medical providers to ma
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/patient-chat-workspace.git
+   git clone https://github.com/stabruriss/patient-chat-workspace.git
    cd patient-chat-workspace
    ```
 
