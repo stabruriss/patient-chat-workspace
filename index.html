@@ -1,0 +1,2753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Patient Chat Workspace</title>
+<script src="https://cdn.tailwindcss.com/3.4.16"></script>
+<script>tailwind.config={theme:{extend:{colors:{primary:'#4f46e5',secondary:'#8b5cf6'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+<style>
+:where([class^="ri-"])::before { content: "\f3c2"; }
+body {
+font-family: 'Inter', sans-serif;
+overflow: hidden;
+}
+.message-list::-webkit-scrollbar, .patient-list::-webkit-scrollbar, .profile-panel::-webkit-scrollbar {
+width: 6px;
+}
+.message-list::-webkit-scrollbar-thumb, .patient-list::-webkit-scrollbar-thumb, .profile-panel::-webkit-scrollbar-thumb {
+background-color: #d1d5db;
+border-radius: 999px;
+}
+.message-list::-webkit-scrollbar-track, .patient-list::-webkit-scrollbar-track, .profile-panel::-webkit-scrollbar-track {
+background-color: transparent;
+}
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+-webkit-appearance: none;
+margin: 0;
+}
+.custom-checkbox {
+position: relative;
+display: inline-block;
+width: 18px;
+height: 18px;
+border-radius: 4px;
+border: 2px solid #d1d5db;
+background-color: white;
+transition: all 0.2s ease;
+}
+.custom-checkbox.checked {
+background-color: #4f46e5;
+border-color: #4f46e5;
+}
+.custom-checkbox.checked::after {
+content: '';
+position: absolute;
+left: 5px;
+top: 2px;
+width: 5px;
+height: 9px;
+border: solid white;
+border-width: 0 2px 2px 0;
+transform: rotate(45deg);
+}
+.custom-switch {
+position: relative;
+display: inline-block;
+width: 40px;
+height: 22px;
+}
+.custom-switch input {
+opacity: 0;
+width: 0;
+height: 0;
+}
+.switch-slider {
+position: absolute;
+cursor: pointer;
+top: 0;
+left: 0;
+right: 0;
+bottom: 0;
+background-color: #e5e7eb;
+transition: .4s;
+border-radius: 34px;
+}
+.switch-slider:before {
+position: absolute;
+content: "";
+height: 18px;
+width: 18px;
+left: 2px;
+bottom: 2px;
+background-color: white;
+transition: .4s;
+border-radius: 50%;
+}
+input:checked + .switch-slider {
+background-color: #4f46e5;
+}
+input:checked + .switch-slider:before {
+transform: translateX(18px);
+}
+.channel-selector {
+position: relative;
+}
+.channel-options {
+display: none;
+position: absolute;
+bottom: 100%;
+left: 0;
+background-color: white;
+border-radius: 8px;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+width: 140px;
+z-index: 10;
+}
+.channel-selector.active .channel-options {
+display: block;
+}
+.tab-content {
+display: none;
+}
+.tab-content.active {
+display: block;
+}
+.patient-item.active {
+background-color: #f3f4f6;
+border-left: 3px solid #4f46e5;
+}
+.message-bubble {
+max-width: 80%;
+word-wrap: break-word;
+}
+.patient-message {
+background-color: #f3f4f6;
+border-radius: 16px 16px 16px 4px;
+}
+.provider-message {
+background-color: #4f46e5;
+color: white;
+border-radius: 16px 16px 4px 16px;
+}
+.message-channel {
+font-size: 10px;
+padding: 2px 6px;
+border-radius: 999px;
+}
+.message-channel.sms {
+background-color: #e0f2fe;
+color: #0369a1;
+}
+.message-channel.email {
+background-color: #dcfce7;
+color: #166534;
+}
+.message-channel.app {
+background-color: #f3e8ff;
+color: #7e22ce;
+}
+.action-panel {
+display: none;
+position: absolute;
+bottom: 100%;
+left: 0;
+width: 100%;
+background-color: white;
+border-radius: 8px 8px 0 0;
+box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
+z-index: 20;
+}
+.action-panel.active {
+display: block;
+}
+</style>
+</head>
+<body class="bg-gray-50 h-screen flex flex-col">
+<!-- Page Switch Tabs -->
+<div class="w-full bg-white border-b border-gray-200">
+<div class="max-w-screen-2xl mx-auto px-4">
+<div class="grid grid-cols-4 gap-4">
+<a href="https://readdy.ai/home/87b0e20c-cb8f-4bbb-b497-62afd2f09171/293fb158-1fa6-4f64-bf16-f8d542a0bc8e" data-readdy="true" class="page-tab py-4 text-sm font-medium text-primary bg-primary/5 flex items-center justify-center whitespace-nowrap active" data-page="patients">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-user-heart-line"></i>
+</div>
+My Patients
+</a>
+<button class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="calendar">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-calendar-2-line"></i>
+</div>
+My Calendar
+</button>
+<button class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="workbench">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-dashboard-line"></i>
+</div>
+My Workbench
+</button>
+<button class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="practice">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-hospital-line"></i>
+</div>
+My Practice
+</button>
+</div>
+</div>
+</div>
+<!-- Main Content Container -->
+<div class="flex flex-1 h-full">
+<!-- Left Sidebar - Navigation and Patient List -->
+<div class="w-72 bg-white border-r border-gray-200 flex flex-col h-full">
+<!-- App Header -->
+<div class="flex flex-col">
+<!-- Universal Search and Actions -->
+<div class="p-3 border-b border-gray-200">
+<div id="ai-assistant-chat" class="mb-2">
+<button class="ai-chat-toggle w-full py-2 px-3 bg-primary/10 text-primary rounded-button text-sm font-medium flex items-center justify-center whitespace-nowrap hover:bg-primary/20">
+<div class="w-5 h-5 flex items-center justify-center mr-1">
+<i class="ri-robot-line"></i>
+</div>
+AI Assistant
+<div class="ml-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-medium">3</div>
+</button>
+</div>
+<div class="ai-chat-window hidden fixed bottom-24 right-6 w-96 bg-white rounded-xl shadow-2xl flex flex-col border border-gray-200">
+<div class="p-4 border-b border-gray-200 flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-robot-line"></i>
+</div>
+</div>
+<div class="ml-3">
+<h3 class="text-base font-medium text-gray-900">AI Assistant</h3>
+<p class="text-xs text-gray-500">Always here to help</p>
+</div>
+</div>
+<button class="ai-chat-close p-2 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="flex-1 p-4 overflow-y-auto max-h-96">
+<div class="flex justify-center mb-4">
+<span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Today</span>
+</div>
+<div class="flex mb-4">
+<div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mr-2">
+<div class="w-4 h-4 flex items-center justify-center text-primary">
+<i class="ri-robot-line"></i>
+</div>
+</div>
+<div>
+<div class="message-bubble patient-message p-3">
+<p class="text-sm">Hello! I'm your AI assistant. How can I help you today?</p>
+</div>
+<span class="text-xs text-gray-500 mt-1">9:00 AM</span>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-gray-200">
+<div class="flex items-center">
+<textarea class="flex-1 p-2 border border-gray-200 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none" rows="1" placeholder="Type your message..."></textarea>
+<button class="ml-2 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary/90">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-send-plane-fill"></i>
+</div>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Universal Search and Actions -->
+<div class="p-3 border-b border-gray-200">
+<div class="relative mb-2">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none w-5 h-5">
+<i class="ri-search-line text-gray-400"></i>
+</div>
+<input type="text" id="universal-search" class="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Search patients, chats, or documents...">
+</div>
+<div class="flex space-x-2">
+<button class="flex-1 py-2 px-3 bg-primary text-white rounded-button text-sm font-medium flex items-center justify-center whitespace-nowrap" id="new-patient-btn">
+<div class="w-5 h-5 flex items-center justify-center mr-1">
+<i class="ri-user-add-line"></i>
+</div>
+New Patient
+</button>
+</div>
+</div>
+<!-- Patient List -->
+<div class="patient-list flex-1 overflow-y-auto">
+<div class="patient-item active cursor-pointer p-3 pl-2 border-b border-gray-200">
+<div class="flex items-center">
+<div class="relative">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20woman%20with%20short%20brown%20hair%2C%20friendly%20smile%2C%20light%20blue%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=40&height=40&seq=1&orientation=squarish" class="w-10 h-10 rounded-full object-cover" alt="Patient Photo">
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+</div>
+<div class="ml-3 flex-1 min-w-0">
+<div class="flex justify-between items-center">
+<h3 class="text-sm font-medium text-gray-900 truncate">Sarah Johnson</h3>
+<span class="text-xs text-gray-500">10:32 AM</span>
+</div>
+<div id="message-preview" class="flex justify-between items-center mt-1">
+<p class="text-xs text-gray-500 truncate">I'll send over my latest blood work results this afternoon.</p>
+<span id="unread-badge" class="w-5 h-5 bg-primary rounded-full flex items-center justify-center text-white text-xs font-medium">2</span>
+</div>
+</div>
+</div>
+</div>
+<div class="patient-item cursor-pointer p-3 pl-2 border-b border-gray-200">
+<div class="flex items-center">
+<div class="relative">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20man%20with%20glasses%2C%20short%20dark%20hair%2C%20friendly%20smile%2C%20light%20gray%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=40&height=40&seq=2&orientation=squarish" class="w-10 h-10 rounded-full object-cover" alt="Patient Photo">
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-gray-300 rounded-full border-2 border-white"></div>
+</div>
+<div class="ml-3 flex-1 min-w-0">
+<div class="flex justify-between items-center">
+<h3 class="text-sm font-medium text-gray-900 truncate">Michael Chen</h3>
+<span class="text-xs text-gray-500">Yesterday</span>
+</div>
+<div class="flex justify-between items-center mt-1">
+<p class="text-xs text-gray-500 truncate">Thanks for the appointment reminder.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="patient-item cursor-pointer p-3 pl-2 border-b border-gray-200">
+<div class="flex items-center">
+<div class="relative">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20an%20elderly%20woman%20with%20gray%20hair%2C%20warm%20smile%2C%20light%20beige%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=40&height=40&seq=3&orientation=squarish" class="w-10 h-10 rounded-full object-cover" alt="Patient Photo">
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-gray-300 rounded-full border-2 border-white"></div>
+</div>
+<div class="ml-3 flex-1 min-w-0">
+<div class="flex justify-between items-center">
+<h3 class="text-sm font-medium text-gray-900 truncate">Eleanor Rodriguez</h3>
+<span class="text-xs text-gray-500">Jun 4</span>
+</div>
+<div class="flex justify-between items-center mt-1">
+<p class="text-xs text-gray-500 truncate">I've completed the nutrition questionnaire.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="patient-item cursor-pointer p-3 pl-2 border-b border-gray-200">
+<div class="flex items-center">
+<div class="relative">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20man%20with%20salt%20and%20pepper%20hair%2C%20confident%20smile%2C%20light%20blue%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=40&height=40&seq=4&orientation=squarish" class="w-10 h-10 rounded-full object-cover" alt="Patient Photo">
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-gray-300 rounded-full border-2 border-white"></div>
+</div>
+<div class="ml-3 flex-1 min-w-0">
+<div class="flex justify-between items-center">
+<h3 class="text-sm font-medium text-gray-900 truncate">Robert Thompson</h3>
+<span class="text-xs text-gray-500">Jun 3</span>
+</div>
+<div class="flex justify-between items-center mt-1">
+<p class="text-xs text-gray-500 truncate">Payment completed for the lab tests.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="patient-item cursor-pointer p-3 pl-2 border-b border-gray-200">
+<div class="flex items-center">
+<div class="relative">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20woman%20with%20long%20black%20hair%2C%20friendly%20smile%2C%20light%20green%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=40&height=40&seq=5&orientation=squarish" class="w-10 h-10 rounded-full object-cover" alt="Patient Photo">
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-gray-300 rounded-full border-2 border-white"></div>
+</div>
+<div class="ml-3 flex-1 min-w-0">
+<div class="flex justify-between items-center">
+<h3 class="text-sm font-medium text-gray-900 truncate">Jasmine Patel</h3>
+<span class="text-xs text-gray-500">Jun 2</span>
+</div>
+<div class="flex justify-between items-center mt-1">
+<p class="text-xs text-gray-500 truncate">Looking forward to our next session.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="patient-item cursor-pointer p-3 pl-2 border-b border-gray-200">
+<div class="flex items-center">
+<div class="relative">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20man%20with%20beard%2C%20friendly%20smile%2C%20light%20gray%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=40&height=40&seq=6&orientation=squarish" class="w-10 h-10 rounded-full object-cover" alt="Patient Photo">
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-gray-300 rounded-full border-2 border-white"></div>
+</div>
+<div class="ml-3 flex-1 min-w-0">
+<div class="flex justify-between items-center">
+<h3 class="text-sm font-medium text-gray-900 truncate">David Wilson</h3>
+<span class="text-xs text-gray-500">May 31</span>
+</div>
+<div class="flex justify-between items-center mt-1">
+<p class="text-xs text-gray-500 truncate">Need to reschedule my appointment next week.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Area - Chat Interface -->
+<div class="flex-1 flex flex-col h-full relative">
+<!-- Chat Header -->
+<div class="p-4 border-b border-gray-200 flex items-center justify-between bg-white">
+<div class="flex items-center">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20woman%20with%20short%20brown%20hair%2C%20friendly%20smile%2C%20light%20blue%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=40&height=40&seq=1&orientation=squarish" class="w-10 h-10 rounded-full object-cover" alt="Patient Photo">
+<div class="ml-3">
+<h2 class="text-base font-medium text-gray-900">Sarah Johnson</h2>
+<div class="flex items-center">
+<span class="text-xs text-gray-500">Last active: 5 minutes ago</span>
+<span class="mx-1 text-gray-300">•</span>
+<span class="text-xs text-green-600 font-medium">Online</span>
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-phone-line"></i>
+</div>
+</button>
+<button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-vidicon-line"></i>
+</div>
+</button>
+<button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-more-2-fill"></i>
+</div>
+</button>
+</div>
+</div>
+<!-- Message Thread -->
+<div id="message-list" class="message-list flex-1 overflow-y-auto p-4 bg-white">
+<!-- Date Separator -->
+<div class="flex justify-center my-4">
+<span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Today, June 5, 2025</span>
+</div>
+<!-- Patient Message -->
+<div class="flex mb-4">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20woman%20with%20short%20brown%20hair%2C%20friendly%20smile%2C%20light%20blue%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=32&height=32&seq=1&orientation=squarish" class="w-8 h-8 rounded-full object-cover mr-2" alt="Patient Photo">
+<div>
+<div class="flex items-center mb-1">
+<span class="text-xs font-medium text-gray-900 mr-2">Sarah Johnson</span>
+<span class="message-channel sms">SMS</span>
+</div>
+<div class="message-bubble patient-message p-3">
+<p class="text-sm">Good morning Dr. Martinez! I wanted to check if my latest blood work results have been analyzed yet? I'm a bit concerned about my cholesterol levels.</p>
+</div>
+<span class="text-xs text-gray-500 mt-1">9:45 AM</span>
+</div>
+</div>
+<!-- Provider Message -->
+<div class="flex mb-4 justify-end">
+<div class="text-right">
+<div class="flex items-center justify-end mb-1">
+<span class="message-channel email">Email</span>
+<span class="text-xs font-medium text-gray-900 ml-2">Dr. Martinez</span>
+</div>
+<div class="message-bubble provider-message p-3">
+<p class="text-sm">Good morning Sarah! Yes, I've reviewed your results. Your cholesterol is slightly elevated but not concerning. I'll send the full report shortly.</p>
+</div>
+<span class="text-xs text-gray-500 mt-1">10:02 AM</span>
+</div>
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20man%20with%20glasses%2C%20short%20dark%20hair%2C%20white%20coat%2C%20professional%20medical%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=32&height=32&seq=7&orientation=squarish" class="w-8 h-8 rounded-full object-cover ml-2" alt="Provider Photo">
+</div>
+<!-- System Message - Form Sent -->
+<div class="flex justify-center my-4">
+<div class="bg-gray-50 border border-gray-200 rounded-lg p-3 max-w-md">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-primary">
+<i class="ri-file-list-3-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Lab Results Report</h4>
+<p class="text-xs text-gray-500 mt-1">Sent via email • 10:05 AM</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Patient Message -->
+<div class="flex mb-4">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20woman%20with%20short%20brown%20hair%2C%20friendly%20smile%2C%20light%20blue%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=32&height=32&seq=1&orientation=squarish" class="w-8 h-8 rounded-full object-cover mr-2" alt="Patient Photo">
+<div>
+<div class="flex items-center mb-1">
+<span class="text-xs font-medium text-gray-900 mr-2">Sarah Johnson</span>
+<span class="message-channel app">In-App</span>
+</div>
+<div class="message-bubble patient-message p-3">
+<p class="text-sm">Thank you for sending the report! I see the cholesterol is at 210. Would you recommend any dietary changes or should we discuss this at my next appointment?</p>
+</div>
+<span class="text-xs text-gray-500 mt-1">10:15 AM</span>
+</div>
+</div>
+<!-- Provider Message -->
+<div class="flex mb-4 justify-end">
+<div class="text-right">
+<div class="flex items-center justify-end mb-1">
+<span class="message-channel app">In-App</span>
+<span class="text-xs font-medium text-gray-900 ml-2">Dr. Martinez</span>
+</div>
+<div class="message-bubble provider-message p-3">
+<p class="text-sm">Let's discuss this in more detail during your next appointment. In the meantime, I'll send over some dietary recommendations that could help lower your cholesterol naturally.</p>
+</div>
+<span class="text-xs text-gray-500 mt-1">10:22 AM</span>
+</div>
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20man%20with%20glasses%2C%20short%20dark%20hair%2C%20white%20coat%2C%20professional%20medical%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=32&height=32&seq=7&orientation=squarish" class="w-8 h-8 rounded-full object-cover ml-2" alt="Provider Photo">
+</div>
+<!-- System Message - Appointment Scheduled -->
+<div class="flex justify-center my-4">
+<div class="bg-gray-50 border border-gray-200 rounded-lg p-3 max-w-md">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-green-600">
+<i class="ri-calendar-check-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Follow-up Appointment Scheduled</h4>
+<p class="text-xs text-gray-500 mt-1">June 12, 2025 • 2:00 PM</p>
+</div>
+</div>
+</div>
+</div>
+<!-- System Message - Program Content Sent -->
+<div class="flex justify-center my-4">
+<div class="bg-gray-50 border border-gray-200 rounded-lg p-3 max-w-md">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-purple-600">
+<i class="ri-heart-pulse-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Heart-Healthy Diet Guide</h4>
+<p class="text-xs text-gray-500 mt-1">Sent via email • 10:30 AM</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Patient Message -->
+<div class="flex mb-4">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20woman%20with%20short%20brown%20hair%2C%20friendly%20smile%2C%20light%20blue%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=32&height=32&seq=1&orientation=squarish" class="w-8 h-8 rounded-full object-cover mr-2" alt="Patient Photo">
+<div>
+<div class="flex items-center mb-1">
+<span class="text-xs font-medium text-gray-900 mr-2">Sarah Johnson</span>
+<span class="message-channel sms">SMS</span>
+</div>
+<div class="message-bubble patient-message p-3">
+<p class="text-sm">I'll send over my latest blood work results this afternoon. Also, I've been following the diet guide you sent - already cutting back on saturated fats and adding more fiber!</p>
+</div>
+<span class="text-xs text-gray-500 mt-1">10:32 AM</span>
+</div>
+</div>
+</div>
+<!-- Quick Action Bar -->
+<div class="bg-white border-t border-gray-200 p-2 flex justify-between items-center">
+<div class="flex space-x-1">
+<button class="scheduler-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-calendar-2-line"></i>
+</div>
+</button>
+<button class="action-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap" data-action="task">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-task-line"></i>
+</div>
+</button>
+<button class="document-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-folder-shared-line"></i>
+</div>
+</button>
+<button class="action-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap" data-action="order">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-shopping-cart-line"></i>
+</div>
+</button>
+<button class="internal-note-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-sticky-note-line"></i>
+</div>
+</button>
+<button class="workflow-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-flow-chart"></i>
+</div>
+</button>
+</div>
+</div>
+<!-- Action Panels -->
+<!-- Appointment Panel -->
+<div id="appointment-panel" class="action-panel p-4 h-80">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-medium text-gray-900">Schedule Appointment</h3>
+<button class="close-panel p-1 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Appointment Type</label>
+<select class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+<option>Follow-up Consultation</option>
+<option>Initial Consultation</option>
+<option>Lab Review</option>
+<option>Treatment Session</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+<select class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+<option>30 minutes</option>
+<option>45 minutes</option>
+<option>60 minutes</option>
+<option>90 minutes</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+<input type="date" class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Time</label>
+<select class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+<option>9:00 AM</option>
+<option>9:30 AM</option>
+<option>10:00 AM</option>
+<option>10:30 AM</option>
+<option>11:00 AM</option>
+<option>11:30 AM</option>
+<option>1:00 PM</option>
+<option>1:30 PM</option>
+<option>2:00 PM</option>
+<option>2:30 PM</option>
+<option>3:00 PM</option>
+<option>3:30 PM</option>
+<option>4:00 PM</option>
+<option>4:30 PM</option>
+</select>
+</div>
+<div class="col-span-2">
+<label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+<textarea class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" rows="2" placeholder="Add appointment details..."></textarea>
+</div>
+</div>
+<div class="mt-4 flex justify-end">
+<button class="mr-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-button text-sm font-medium hover:bg-gray-50 whitespace-nowrap">Cancel</button>
+<button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90 whitespace-nowrap">Schedule & Send</button>
+</div>
+</div>
+<!-- Task Panel -->
+<div id="task-panel" class="action-panel p-4 h-72">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-medium text-gray-900">Create Task</h3>
+<button class="close-panel p-1 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+<input type="text" class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter task title...">
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+<input type="date" class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+<select class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+<option>Low</option>
+<option>Medium</option>
+<option>High</option>
+<option>Urgent</option>
+</select>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+<textarea class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" rows="2" placeholder="Add task details..."></textarea>
+</div>
+</div>
+<div class="mt-4 flex justify-end">
+<button class="mr-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-button text-sm font-medium hover:bg-gray-50 whitespace-nowrap">Cancel</button>
+<button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90 whitespace-nowrap">Create Task</button>
+</div>
+</div>
+<!-- Form/Template Panel -->
+<div id="form-panel" class="action-panel p-4 h-72">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-medium text-gray-900">Send Form or Template</h3>
+<button class="close-panel p-1 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="mb-4">
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none w-5 h-5">
+<i class="ri-search-line text-gray-400"></i>
+</div>
+<input type="text" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Search forms and templates...">
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 overflow-y-auto h-32">
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-primary">
+<i class="ri-file-list-3-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Health History Form</h4>
+<p class="text-xs text-gray-500">Comprehensive</p>
+</div>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-green-600">
+<i class="ri-file-list-3-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Nutrition Questionnaire</h4>
+<p class="text-xs text-gray-500">Diet assessment</p>
+</div>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-purple-600">
+<i class="ri-file-list-3-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Sleep Journal</h4>
+<p class="text-xs text-gray-500">7-day tracking</p>
+</div>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-yellow-600">
+<i class="ri-file-list-3-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Consent Form</h4>
+<p class="text-xs text-gray-500">Treatment consent</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-4 flex justify-end">
+<button class="mr-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-button text-sm font-medium hover:bg-gray-50 whitespace-nowrap">Cancel</button>
+<button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90 whitespace-nowrap">Send Form</button>
+</div>
+</div>
+<!-- Payment/Order Panel -->
+<div id="order-panel" class="action-panel p-4 h-[520px]">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-medium text-gray-900">Create Order</h3>
+<button class="close-panel p-1 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="space-y-4">
+<div class="grid grid-cols-3 gap-3">
+<button class="order-type-btn active p-3 border border-primary bg-primary/5 rounded-lg text-left cursor-pointer">
+<div class="flex items-center mb-2">
+<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+<div class="w-4 h-4 flex items-center justify-center text-primary">
+<i class="ri-test-tube-line"></i>
+</div>
+</div>
+<span class="text-sm font-medium text-gray-900">Vibrant Products</span>
+</div>
+<p class="text-xs text-gray-500">Order lab tests from Vibrant Lab</p>
+</button>
+<button class="order-type-btn p-3 border border-gray-200 hover:border-primary/50 rounded-lg text-left cursor-pointer">
+<div class="flex items-center mb-2">
+<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-2">
+<div class="w-4 h-4 flex items-center justify-center text-purple-600">
+<i class="ri-store-2-line"></i>
+</div>
+</div>
+<span class="text-sm font-medium text-gray-900">Practice Products</span>
+</div>
+<p class="text-xs text-gray-500">Clinic's sellable items</p>
+</button>
+<button class="order-type-btn p-3 border border-gray-200 hover:border-primary/50 rounded-lg text-left cursor-pointer">
+<div class="flex items-center mb-2">
+<div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-2">
+<div class="w-4 h-4 flex items-center justify-center text-green-600">
+<i class="ri-bill-line"></i>
+</div>
+</div>
+<span class="text-sm font-medium text-gray-900">Quick Bill</span>
+</div>
+<p class="text-xs text-gray-500">Create custom payment</p>
+</button>
+</div>
+<!-- Vibrant Products Content -->
+<div id="vibrant-content" class="order-content active">
+<div class="flex items-center justify-between mb-3">
+<h4 class="text-sm font-medium text-gray-900">Vibrant Lab Tests</h4>
+<div class="flex items-center space-x-2">
+<div class="relative">
+<input type="text" class="w-48 pl-8 pr-3 py-1.5 border border-gray-300 rounded-button text-sm" placeholder="Search tests...">
+<div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-search-line"></i>
+</div>
+</div>
+<button class="px-3 py-1.5 text-primary text-sm font-medium hover:bg-primary/5 rounded-button whitespace-nowrap">
+Order Page
+</button>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 max-h-[280px] overflow-y-auto pr-2">
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer">
+<div class="flex justify-between items-start">
+<h5 class="text-sm font-medium text-gray-900">Comprehensive Blood Panel</h5>
+<span class="text-sm font-medium text-gray-900">$199</span>
+</div>
+<p class="text-xs text-gray-500 mt-1">Complete blood count, metabolic panel, lipids</p>
+<div class="flex items-center mt-2">
+<span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Most Popular</span>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer">
+<div class="flex justify-between items-start">
+<h5 class="text-sm font-medium text-gray-900">Thyroid Function Test</h5>
+<span class="text-sm font-medium text-gray-900">$89</span>
+</div>
+<p class="text-xs text-gray-500 mt-1">TSH, T3, T4, antibodies</p>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer">
+<div class="flex justify-between items-start">
+<h5 class="text-sm font-medium text-gray-900">Vitamin D Test</h5>
+<span class="text-sm font-medium text-gray-900">$49</span>
+</div>
+<p class="text-xs text-gray-500 mt-1">25-hydroxy vitamin D levels</p>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer">
+<div class="flex justify-between items-start">
+<h5 class="text-sm font-medium text-gray-900">Hormone Panel</h5>
+<span class="text-sm font-medium text-gray-900">$159</span>
+</div>
+<p class="text-xs text-gray-500 mt-1">Estrogen, testosterone, cortisol</p>
+</div>
+</div>
+</div>
+<!-- Practice Products Content -->
+<div id="practice-content" class="order-content hidden">
+<div class="flex items-center justify-between mb-3">
+<h4 class="text-sm font-medium text-gray-900">Practice Products</h4>
+<div class="relative">
+<input type="text" class="w-48 pl-8 pr-3 py-1.5 border border-gray-300 rounded-button text-sm" placeholder="Search products...">
+<div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-search-line"></i>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 max-h-[280px] overflow-y-auto pr-2">
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer">
+<div class="flex justify-between items-start">
+<h5 class="text-sm font-medium text-gray-900">Probiotic Supplement</h5>
+<span class="text-sm font-medium text-gray-900">$45</span>
+</div>
+<p class="text-xs text-gray-500 mt-1">60 capsules, monthly supply</p>
+<div class="flex items-center justify-between mt-2">
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">In Stock</span>
+<div class="flex items-center space-x-2">
+<button class="w-6 h-6 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded">-</button>
+<span class="text-sm">1</span>
+<button class="w-6 h-6 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded">+</button>
+</div>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer">
+<div class="flex justify-between items-start">
+<h5 class="text-sm font-medium text-gray-900">Omega-3 Fish Oil</h5>
+<span class="text-sm font-medium text-gray-900">$35</span>
+</div>
+<p class="text-xs text-gray-500 mt-1">90 softgels, 3-month supply</p>
+<div class="flex items-center justify-between mt-2">
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">In Stock</span>
+<div class="flex items-center space-x-2">
+<button class="w-6 h-6 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded">-</button>
+<span class="text-sm">1</span>
+<button class="w-6 h-6 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded">+</button>
+</div>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer">
+<div class="flex justify-between items-start">
+<h5 class="text-sm font-medium text-gray-900">Vitamin B Complex</h5>
+<span class="text-sm font-medium text-gray-900">$28</span>
+</div>
+<p class="text-xs text-gray-500 mt-1">120 tablets, 4-month supply</p>
+<div class="flex items-center justify-between mt-2">
+<span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Low Stock</span>
+<div class="flex items-center space-x-2">
+<button class="w-6 h-6 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded">-</button>
+<span class="text-sm">1</span>
+<button class="w-6 h-6 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded">+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Quick Bill Content -->
+<div id="quick-bill-content" class="order-content hidden">
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
+<input type="text" class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter item name...">
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="text-gray-500">$</span>
+</div>
+<input type="number" class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="0.00">
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+<input type="date" class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+<textarea class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" rows="3" placeholder="Add payment details..."></textarea>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-4 flex justify-end space-x-2">
+<button class="close-panel px-4 py-2 border border-gray-300 text-gray-700 rounded-button text-sm font-medium hover:bg-gray-50 whitespace-nowrap">Cancel</button>
+<button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90 whitespace-nowrap">Create Order</button>
+</div>
+</div>
+<!-- Internal Note Panel -->
+<div id="internal-note-panel" class="action-panel p-4 h-80">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center">
+<h3 class="text-lg font-medium text-gray-900">Internal Notes</h3>
+<span class="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Staff Only</span>
+</div>
+<button class="close-panel p-1 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Add Note</label>
+<textarea class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" rows="3" placeholder="Type your internal note here..."></textarea>
+</div>
+<div class="flex justify-end">
+<button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90 whitespace-nowrap">Add Note</button>
+</div>
+<div class="border-t border-gray-200 pt-4">
+<h4 class="text-sm font-medium text-gray-900 mb-3">Previous Notes</h4>
+<div class="space-y-3 overflow-y-auto max-h-40">
+<div class="p-3 bg-gray-50 rounded-lg">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="text-sm font-medium text-gray-900">Dr. Martinez</span>
+<span class="text-xs text-gray-500 ml-2">Today at 10:30 AM</span>
+</div>
+<div class="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer">
+<i class="ri-more-2-fill"></i>
+</div>
+</div>
+<p class="text-sm text-gray-700">Patient shows good compliance with medication schedule. Blood pressure readings are improving.</p>
+</div>
+<div class="p-3 bg-gray-50 rounded-lg">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="text-sm font-medium text-gray-900">Nurse Thompson</span>
+<span class="text-xs text-gray-500 ml-2">Yesterday at 3:45 PM</span>
+</div>
+<div class="w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600 cursor-pointer">
+<i class="ri-more-2-fill"></i>
+</div>
+</div>
+<p class="text-sm text-gray-700">Follow-up needed on latest lab results. Some values need further discussion.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Message Composer -->
+<div class="bg-white border-t border-gray-200 p-3 sticky bottom-0 w-full">
+<div id="quick-reply-bar" class="flex items-center justify-start space-x-2 mb-3">
+<button class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 whitespace-nowrap">
+Thank you for sending your results
+</button>
+<button class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 whitespace-nowrap">
+I'll review them as soon as they arrive
+</button>
+</div>
+<div class="flex items-center">
+<div class="channel-selector mr-2 relative">
+<button class="channel-toggle flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200 whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-message-3-line"></i>
+</div>
+</button>
+<div class="channel-options p-1">
+<button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-message-3-line"></i>
+</div>
+In-App
+</button>
+<button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-message-2-line"></i>
+</div>
+SMS
+</button>
+<button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-mail-line"></i>
+</div>
+Email
+</button>
+</div>
+</div>
+<div class="flex-1 relative">
+<textarea class="w-full p-2 pr-10 border border-gray-200 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" rows="1" placeholder="Type your message..." style="resize: none;"></textarea>
+<div class="absolute right-2 bottom-2 flex items-center">
+<button class="p-1 text-gray-400 hover:text-gray-600 whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-attachment-2"></i>
+</div>
+</button>
+<button class="p-1 text-gray-400 hover:text-gray-600 whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-emotion-line"></i>
+</div>
+</button>
+</div>
+</div>
+<button class="ml-2 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary/90 whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-send-plane-fill"></i>
+</div>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Sidebar - Patient Profile -->
+<div class="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
+<!-- Profile Header -->
+<div class="p-4 border-b border-gray-200 flex items-center justify-between">
+<h2 class="text-lg font-medium text-gray-900">Patient Profile</h2>
+<button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-more-2-fill"></i>
+</div>
+</button>
+</div>
+<!-- Patient Info -->
+<div class="p-4 border-b border-gray-200 flex items-center">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20woman%20with%20short%20brown%20hair%2C%20friendly%20smile%2C%20light%20blue%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=64&height=64&seq=1&orientation=squarish" class="w-16 h-16 rounded-full object-cover" alt="Patient Photo">
+<div class="ml-4">
+<h3 class="text-base font-medium text-gray-900">Sarah Johnson</h3>
+<p class="text-sm text-gray-500">Patient ID: #87654321</p>
+<div class="flex items-center mt-1">
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Active Patient</span>
+</div>
+</div>
+</div>
+<!-- Profile Tabs -->
+<div class="border-b border-gray-200">
+<div class="flex">
+<button class="profile-tab flex-1 py-2 px-1 text-sm font-medium text-primary border-b-2 border-primary" data-tab="info">Info</button>
+<button class="profile-tab flex-1 py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="medical">Medical</button>
+<button class="profile-tab flex-1 py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="calendar">Calendar</button>
+<button class="profile-tab flex-1 py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="billing">Billing</button>
+</div>
+</div>
+<!-- Profile Content -->
+<div class="profile-panel flex-1 overflow-y-auto p-4">
+<!-- Info Tab Content -->
+<div id="info-tab" class="tab-content active">
+<div class="flex justify-between items-center mb-4">
+<h4 class="text-sm font-medium text-gray-900">Patient Management</h4>
+<div class="flex space-x-2">
+<button class="px-2 py-1 text-xs text-primary border border-primary rounded-button hover:bg-primary/5 whitespace-nowrap">Edit Profile</button>
+<button class="px-2 py-1 text-xs text-red-600 border border-red-600 rounded-button hover:bg-red-50 whitespace-nowrap">Deactivate</button>
+</div>
+</div>
+<div class="mb-6">
+<div class="flex items-center mb-2">
+<h4 class="text-sm font-medium text-gray-900">Contact Information</h4>
+<button class="ml-2 p-1 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-pencil-line"></i>
+</div>
+</button>
+</div>
+<div class="space-y-2">
+<div class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5 mr-2">
+<i class="ri-mail-line"></i>
+</div>
+<div>
+<p class="text-sm text-gray-900">sarah.johnson@example.com</p>
+<p class="text-xs text-gray-500">Primary Email</p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5 mr-2">
+<i class="ri-smartphone-line"></i>
+</div>
+<div>
+<p class="text-sm text-gray-900">(555) 123-4567</p>
+<p class="text-xs text-gray-500">Mobile</p>
+</div>
+</div>
+<div class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5 mr-2">
+<i class="ri-map-pin-line"></i>
+</div>
+<div>
+<p class="text-sm text-gray-900">123 Main Street, Apt 4B</p>
+<p class="text-sm text-gray-900">San Francisco, CA 94107</p>
+<p class="text-xs text-gray-500">Home Address</p>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-6">
+<div class="flex items-center mb-2">
+<h4 class="text-sm font-medium text-gray-900">Personal Information</h4>
+<button class="ml-2 p-1 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-pencil-line"></i>
+</div>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<p class="text-xs text-gray-500">Date of Birth</p>
+<p class="text-sm text-gray-900">May 12, 1978</p>
+</div>
+<div>
+<p class="text-xs text-gray-500">Age</p>
+<p class="text-sm text-gray-900">47 years</p>
+</div>
+<div>
+<p class="text-xs text-gray-500">Gender</p>
+<p class="text-sm text-gray-900">Female</p>
+</div>
+<div>
+<p class="text-xs text-gray-500">Occupation</p>
+<p class="text-sm text-gray-900">Marketing Director</p>
+</div>
+</div>
+</div>
+<div class="mb-6">
+<div class="flex items-center mb-2">
+<h4 class="text-sm font-medium text-gray-900">Emergency Contact</h4>
+<button class="ml-2 p-1 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-pencil-line"></i>
+</div>
+</button>
+</div>
+<div class="space-y-2">
+<div>
+<p class="text-sm text-gray-900">David Johnson</p>
+<p class="text-xs text-gray-500">Spouse</p>
+</div>
+<div class="flex items-start">
+<div class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5 mr-2">
+<i class="ri-smartphone-line"></i>
+</div>
+<p class="text-sm text-gray-900">(555) 987-6543</p>
+</div>
+</div>
+</div>
+<div class="mb-6">
+<div class="flex items-center mb-2">
+<h4 class="text-sm font-medium text-gray-900">Notes</h4>
+<button class="ml-2 p-1 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-add-line"></i>
+</div>
+</button>
+</div>
+<div class="border border-gray-200 rounded-lg p-3">
+<div class="flex justify-between items-start mb-2">
+<p class="text-xs text-gray-500">Added by Dr. Martinez • June 5, 2025</p>
+<button class="p-1 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-more-2-fill"></i>
+</div>
+</button>
+</div>
+<p class="text-sm text-gray-900">Patient is following the recommended diet plan. Showing good progress with lifestyle changes.</p>
+</div>
+</div>
+<div>
+<div class="flex items-center mb-2">
+<h4 class="text-sm font-medium text-gray-900">Communication Preferences</h4>
+<button class="ml-2 p-1 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-pencil-line"></i>
+</div>
+</button>
+</div>
+<div class="space-y-2">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-5 h-5 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-message-2-line"></i>
+</div>
+<span class="text-sm text-gray-900">SMS Notifications</span>
+</div>
+<label class="custom-switch">
+<input type="checkbox" checked>
+<span class="switch-slider"></span>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-5 h-5 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-mail-line"></i>
+</div>
+<span class="text-sm text-gray-900">Email Updates</span>
+</div>
+<label class="custom-switch">
+<input type="checkbox" checked>
+<span class="switch-slider"></span>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-5 h-5 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-notification-line"></i>
+</div>
+<span class="text-sm text-gray-900">App Notifications</span>
+</div>
+<label class="custom-switch">
+<input type="checkbox">
+<span class="switch-slider"></span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Medical Tab Content -->
+<div id="medical-tab" class="tab-content">
+<div class="mb-6">
+<div class="flex justify-between items-center mb-2">
+<h4 class="text-sm font-medium text-gray-900">Recent Test Results</h4>
+<button class="text-xs text-primary font-medium whitespace-nowrap">View All</button>
+</div>
+<div class="space-y-3">
+<div class="p-3 border border-gray-200 rounded-lg">
+<div class="flex justify-between items-start">
+<div>
+<h5 class="text-sm font-medium text-gray-900">Comprehensive Metabolic Panel</h5>
+<p class="text-xs text-gray-500">June 1, 2025</p>
+</div>
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Normal</span>
+</div>
+<div class="mt-2">
+<div class="flex justify-between text-xs">
+<span class="text-gray-500">Cholesterol (Total)</span>
+<span class="font-medium text-gray-900">210 mg/dL</span>
+</div>
+<div class="flex justify-between text-xs mt-1">
+<span class="text-gray-500">HDL</span>
+<span class="font-medium text-gray-900">55 mg/dL</span>
+</div>
+<div class="flex justify-between text-xs mt-1">
+<span class="text-gray-500">LDL</span>
+<span class="font-medium text-gray-900">130 mg/dL</span>
+</div>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg">
+<div class="flex justify-between items-start">
+<div>
+<h5 class="text-sm font-medium text-gray-900">Complete Blood Count</h5>
+<p class="text-xs text-gray-500">May 15, 2025</p>
+</div>
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Normal</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mb-6">
+<h4 class="text-sm font-medium text-gray-900 mb-2">Medications</h4>
+<div class="space-y-3">
+<div class="p-3 border border-gray-200 rounded-lg">
+<h5 class="text-sm font-medium text-gray-900">Lisinopril</h5>
+<p class="text-xs text-gray-500">10mg, once daily</p>
+<p class="text-xs text-gray-500 mt-1">For hypertension</p>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg">
+<h5 class="text-sm font-medium text-gray-900">Vitamin D3</h5>
+<p class="text-xs text-gray-500">2000 IU, once daily</p>
+<p class="text-xs text-gray-500 mt-1">Supplement</p>
+</div>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900 mb-2">Allergies</h4>
+<div class="space-y-2">
+<div class="flex items-center">
+<div class="w-5 h-5 flex items-center justify-center text-red-500 mr-2">
+<i class="ri-alert-line"></i>
+</div>
+<p class="text-sm text-gray-900">Penicillin</p>
+</div>
+<div class="flex items-center">
+<div class="w-5 h-5 flex items-center justify-center text-yellow-500 mr-2">
+<i class="ri-alert-line"></i>
+</div>
+<p class="text-sm text-gray-900">Seasonal Pollen</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Calendar Tab Content -->
+<div id="calendar-tab" class="tab-content">
+<div class="mb-4 flex justify-between items-center">
+<h4 class="text-sm font-medium text-gray-900">Calendar</h4>
+<button class="text-xs text-primary font-medium whitespace-nowrap">Schedule New</button>
+</div>
+<div class="mb-6 border border-gray-200 rounded-lg p-4">
+<div class="flex items-center justify-between mb-4">
+<button class="p-1 text-gray-500 hover:bg-gray-100 rounded whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-arrow-left-s-line"></i>
+</div>
+</button>
+<h5 class="text-sm font-medium text-gray-900">June 2025</h5>
+<button class="p-1 text-gray-500 hover:bg-gray-100 rounded whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-arrow-right-s-line"></i>
+</div>
+</button>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center mb-2">
+<div class="text-xs text-gray-500">Sun</div>
+<div class="text-xs text-gray-500">Mon</div>
+<div class="text-xs text-gray-500">Tue</div>
+<div class="text-xs text-gray-500">Wed</div>
+<div class="text-xs text-gray-500">Thu</div>
+<div class="text-xs text-gray-500">Fri</div>
+<div class="text-xs text-gray-500">Sat</div>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center">
+<div class="p-2 text-gray-400 text-sm">28</div>
+<div class="p-2 text-gray-400 text-sm">29</div>
+<div class="p-2 text-gray-400 text-sm">30</div>
+<div class="p-2 text-gray-400 text-sm">31</div>
+<div class="p-2 text-sm">1</div>
+<div class="p-2 text-sm">2</div>
+<div class="p-2 text-sm">3</div>
+<div class="p-2 text-sm">4</div>
+<div class="p-2 text-sm">5</div>
+<div class="p-2 text-sm">6</div>
+<div class="p-2 text-sm">7</div>
+<div class="p-2 text-sm">8</div>
+<div class="p-2 text-sm">9</div>
+<div class="p-2 text-sm">10</div>
+<div class="p-2 text-sm">11</div>
+<div class="p-2 text-sm bg-primary/10 text-primary font-medium rounded">12</div>
+<div class="p-2 text-sm">13</div>
+<div class="p-2 text-sm">14</div>
+<div class="p-2 text-sm">15</div>
+<div class="p-2 text-sm">16</div>
+<div class="p-2 text-sm">17</div>
+<div class="p-2 text-sm">18</div>
+<div class="p-2 text-sm">19</div>
+<div class="p-2 text-sm">20</div>
+<div class="p-2 text-sm">21</div>
+<div class="p-2 text-sm">22</div>
+<div class="p-2 text-sm">23</div>
+<div class="p-2 text-sm">24</div>
+<div class="p-2 text-sm">25</div>
+<div class="p-2 text-sm">26</div>
+<div class="p-2 text-sm">27</div>
+<div class="p-2 text-sm">28</div>
+<div class="p-2 text-sm">29</div>
+<div class="p-2 text-sm">30</div>
+<div class="p-2 text-gray-400 text-sm">1</div>
+</div>
+</div>
+<div class="mb-4 flex justify-between items-center">
+<h4 class="text-sm font-medium text-gray-900">Upcoming Appointments</h4>
+</div>
+<div class="space-y-3 mb-6">
+<div class="p-3 border border-gray-200 rounded-lg">
+<div class="flex justify-between">
+<h5 class="text-sm font-medium text-gray-900">Follow-up Consultation</h5>
+<div class="flex items-center">
+<button class="p-1 text-gray-400 hover:text-gray-600 whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-pencil-line"></i>
+</div>
+</button>
+<button class="p-1 text-gray-400 hover:text-gray-600 whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+</div>
+<div class="mt-2 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-calendar-line"></i>
+</div>
+<p class="text-sm text-gray-900">June 12, 2025 • 2:00 PM</p>
+</div>
+<div class="mt-1 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-time-line"></i>
+</div>
+<p class="text-sm text-gray-900">30 minutes</p>
+</div>
+<div class="mt-1 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-user-line"></i>
+</div>
+<p class="text-sm text-gray-900">Dr. Martinez</p>
+</div>
+</div>
+</div>
+<div class="mb-4 flex justify-between items-center">
+<h4 class="text-sm font-medium text-gray-900">Past Appointments</h4>
+</div>
+<div class="space-y-3">
+<div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+<div class="flex justify-between">
+<h5 class="text-sm font-medium text-gray-900">Initial Consultation</h5>
+<span class="text-xs bg-gray-200 text-gray-800 px-2 py-0.5 rounded-full">Completed</span>
+</div>
+<div class="mt-2 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-calendar-line"></i>
+</div>
+<p class="text-sm text-gray-900">May 15, 2025 • 10:30 AM</p>
+</div>
+<div class="mt-1 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-user-line"></i>
+</div>
+<p class="text-sm text-gray-900">Dr. Martinez</p>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg bg-gray-50">
+<div class="flex justify-between">
+<h5 class="text-sm font-medium text-gray-900">Lab Review</h5>
+<span class="text-xs bg-gray-200 text-gray-800 px-2 py-0.5 rounded-full">Completed</span>
+</div>
+<div class="mt-2 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-calendar-line"></i>
+</div>
+<p class="text-sm text-gray-900">April 28, 2025 • 3:15 PM</p>
+</div>
+<div class="mt-1 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-user-line"></i>
+</div>
+<p class="text-sm text-gray-900">Dr. Martinez</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Billing Tab Content -->
+<div id="billing-tab" class="tab-content">
+<div class="mb-4 flex justify-between items-center">
+<h4 class="text-sm font-medium text-gray-900">Recent Payments</h4>
+<button class="text-xs text-primary font-medium whitespace-nowrap">Create Invoice</button>
+</div>
+<div class="space-y-3 mb-6">
+<div class="p-3 border border-gray-200 rounded-lg">
+<div class="flex justify-between">
+<h5 class="text-sm font-medium text-gray-900">Lab Tests</h5>
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Paid</span>
+</div>
+<div class="mt-2 flex justify-between">
+<p class="text-sm text-gray-500">Invoice #INV-2025-0428</p>
+<p class="text-sm font-medium text-gray-900">$175.00</p>
+</div>
+<div class="mt-1 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-calendar-line"></i>
+</div>
+<p class="text-sm text-gray-900">May 2, 2025</p>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg">
+<div class="flex justify-between">
+<h5 class="text-sm font-medium text-gray-900">Initial Consultation</h5>
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Paid</span>
+</div>
+<div class="mt-2 flex justify-between">
+<p class="text-sm text-gray-500">Invoice #INV-2025-0415</p>
+<p class="text-sm font-medium text-gray-900">$150.00</p>
+</div>
+<div class="mt-1 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-calendar-line"></i>
+</div>
+<p class="text-sm text-gray-900">April 15, 2025</p>
+</div>
+</div>
+</div>
+<div class="mb-4">
+<h4 class="text-sm font-medium text-gray-900 mb-2">Payment Methods</h4>
+<div class="space-y-3">
+<div class="p-3 border border-gray-200 rounded-lg flex items-center">
+<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-blue-600">
+<i class="ri-visa-fill"></i>
+</div>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium text-gray-900">Visa ending in 4567</p>
+<p class="text-xs text-gray-500">Expires 09/27</p>
+</div>
+<span class="text-xs bg-gray-100 text-gray-800 px-2 py-0.5 rounded-full">Default</span>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg flex items-center">
+<div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-indigo-600">
+<i class="ri-bank-card-line"></i>
+</div>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium text-gray-900">HSA Card</p>
+<p class="text-xs text-gray-500">Expires 12/26</p>
+</div>
+</div>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900 mb-2">Insurance Claims</h4>
+<div class="space-y-3">
+<div class="p-3 border border-gray-200 rounded-lg">
+<div class="flex justify-between">
+<h5 class="text-sm font-medium text-gray-900">Lab Tests</h5>
+<span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Processed</span>
+</div>
+<div class="mt-2 flex justify-between">
+<p class="text-sm text-gray-500">Claim #CL-2025-0502</p>
+<p class="text-sm font-medium text-gray-900">$125.00</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script id="pageTabsScript">
+document.addEventListener('DOMContentLoaded', function() {
+// AI Chat Toggle Functionality
+const aiChatToggle = document.querySelector('.ai-chat-toggle');
+const aiChatWindow = document.querySelector('.ai-chat-window');
+const aiChatClose = document.querySelector('.ai-chat-close');
+if(aiChatToggle && aiChatWindow && aiChatClose) {
+aiChatToggle.addEventListener('click', () => {
+aiChatWindow.classList.toggle('hidden');
+});
+aiChatClose.addEventListener('click', () => {
+aiChatWindow.classList.add('hidden');
+});
+// Close chat window when clicking outside
+document.addEventListener('click', (e) => {
+if (!aiChatWindow.contains(e.target) && !aiChatToggle.contains(e.target)) {
+aiChatWindow.classList.add('hidden');
+}
+});
+}
+const messagePreview = document.getElementById('message-preview');
+const unreadBadge = document.getElementById('unread-badge');
+const messageListContainer = document.getElementById('message-list');
+const quickReplyBar = document.getElementById('quick-reply-bar');
+const patientItems = document.querySelectorAll('.patient-item');
+patientItems.forEach(item => {
+item.addEventListener('click', function() {
+// Remove active class from all items
+patientItems.forEach(p => p.classList.remove('active'));
+// Add active class to clicked item
+this.classList.add('active');
+// Show message preview and quick reply bar
+const messagePreview = document.getElementById('message-preview');
+const unreadBadge = document.getElementById('unread-badge');
+const messageListContainer = document.getElementById('message-list');
+const quickReplyBar = document.getElementById('quick-reply-bar');
+// Keep page tabs visible
+const pageTabs = document.querySelector('.w-full.bg-white.border-b.border-gray-200');
+if(pageTabs) {
+pageTabs.style.display = 'block';
+}
+// Remove unread badge
+if(unreadBadge) {
+unreadBadge.remove();
+}
+// Find unread messages and highlight them
+const unreadMessages = messageListContainer.querySelectorAll('.patient-message');
+unreadMessages.forEach((message, index) => {
+if(index >= unreadMessages.length - 2) {
+message.style.transition = 'background-color 0.5s ease';
+message.style.backgroundColor = 'rgba(79, 70, 229, 0.05)';
+setTimeout(() => {
+message.style.backgroundColor = 'transparent';
+}, 2000);
+}
+});
+// Scroll to the latest unread message
+const lastUnreadMessage = unreadMessages[unreadMessages.length - 1];
+if(lastUnreadMessage) {
+lastUnreadMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+// Show quick reply suggestions
+quickReplyBar.classList.remove('hidden');
+// Add click handlers for quick reply buttons
+const quickReplyButtons = quickReplyBar.querySelectorAll('button');
+quickReplyButtons.forEach(button => {
+button.addEventListener('click', function() {
+const replyText = this.textContent.trim();
+const textarea = document.querySelector('textarea');
+if(textarea) {
+textarea.value = replyText;
+textarea.focus();
+}
+quickReplyBar.classList.add('hidden');
+});
+});
+});
+});
+// AI Assistant Chat Functionality
+const aiAssistantChat = document.getElementById('ai-assistant-chat');
+const chatHeader = document.querySelector('.p-4.border-b.border-gray-200.flex.items-center.justify-between');
+const messageList = document.querySelector('.message-list');
+const profilePanel = document.querySelector('.w-80.bg-white.border-l');
+aiAssistantChat.addEventListener('click', function() {
+// Keep page tabs visible
+const pageTabs = document.querySelector('.w-full.bg-white.border-b.border-gray-200');
+if(pageTabs) {
+pageTabs.style.display = 'block';
+}
+// Update chat header
+chatHeader.innerHTML = `
+<div class="flex items-center">
+<div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-robot-line"></i>
+</div>
+</div>
+<div class="ml-3">
+<h2 class="text-base font-medium text-gray-900">AI Assistant</h2>
+<div class="flex items-center">
+<span class="text-xs text-gray-500">Always available</span>
+<span class="mx-1 text-gray-300">•</span>
+<span class="text-xs text-green-600 font-medium">Online</span>
+</div>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-settings-3-line"></i>
+</div>
+</button>
+<button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-more-2-fill"></i>
+</div>
+</button>
+</div>
+`;
+// Update message thread
+messageList.innerHTML = `
+<div class="flex justify-center my-4">
+<span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Today</span>
+</div>
+<div class="flex mb-4">
+<div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mr-2">
+<div class="w-4 h-4 flex items-center justify-center text-primary">
+<i class="ri-robot-line"></i>
+</div>
+</div>
+<div>
+<div class="flex items-center mb-1">
+<span class="text-xs font-medium text-gray-900 mr-2">AI Assistant</span>
+</div>
+<div class="message-bubble patient-message p-3">
+<p class="text-sm">Hello! I'm your AI assistant. I can help you with managing appointments, reviewing patient data, and answering general questions. How can I assist you today?</p>
+</div>
+<span class="text-xs text-gray-500 mt-1">9:00 AM</span>
+</div>
+</div>
+`;
+// Hide or update right sidebar
+profilePanel.style.display = 'none';
+// Update active states
+document.querySelectorAll('.patient-item').forEach(item => {
+item.classList.remove('active');
+});
+aiAssistantChat.classList.add('active');
+});
+const pageTabs = document.querySelectorAll('.page-tab');
+pageTabs.forEach(tab => {
+if(!tab.hasAttribute('href')) {
+tab.addEventListener('click', () => {
+pageTabs.forEach(t => {
+t.classList.remove('text-primary', 'bg-primary/5');
+t.classList.add('text-gray-500');
+});
+tab.classList.remove('text-gray-500');
+tab.classList.add('text-primary', 'bg-primary/5');
+const page = tab.getAttribute('data-page');
+// Here you can handle page content switching
+// For now we'll just show a notification
+const notification = document.createElement('div');
+notification.className = 'fixed bottom-4 right-4 bg-gray-800 text-white px-4 py-2 rounded-lg flex items-center z-50';
+notification.innerHTML = `
+<div class="w-5 h-5 flex items-center justify-center mr-2">
+<i class="ri-information-line"></i>
+</div>
+Switching to ${page} page...
+`;
+document.body.appendChild(notification);
+setTimeout(() => notification.remove(), 2000);
+});
+}
+});
+});
+</script>
+<script id="channelSelectorScript">
+document.addEventListener('DOMContentLoaded', function() {
+const channelToggle = document.querySelector('.channel-toggle');
+const channelSelector = document.querySelector('.channel-selector');
+channelToggle.addEventListener('click', function() {
+channelSelector.classList.toggle('active');
+});
+document.addEventListener('click', function(event) {
+if (!channelSelector.contains(event.target)) {
+channelSelector.classList.remove('active');
+}
+});
+const channelOptions = document.querySelectorAll('.channel-options button');
+channelOptions.forEach(option => {
+option.addEventListener('click', function() {
+const icon = option.querySelector('i').className;
+channelToggle.querySelector('i').className = icon;
+channelSelector.classList.remove('active');
+});
+});
+});
+</script>
+<script id="profileTabsScript">
+document.addEventListener('DOMContentLoaded', function() {
+const tabs = document.querySelectorAll('.profile-tab');
+const tabContents = document.querySelectorAll('.tab-content');
+tabs.forEach(tab => {
+tab.addEventListener('click', function() {
+const tabName = this.getAttribute('data-tab');
+// Remove active class from all tabs
+tabs.forEach(t => {
+t.classList.remove('text-primary', 'border-primary');
+t.classList.add('text-gray-500');
+});
+// Add active class to clicked tab
+this.classList.add('text-primary', 'border-b-2', 'border-primary');
+this.classList.remove('text-gray-500');
+// Hide all tab contents
+tabContents.forEach(content => {
+content.classList.remove('active');
+});
+// Show selected tab content
+document.getElementById(`${tabName}-tab`).classList.add('active');
+});
+});
+// Initialize calendar date highlighting
+const today = new Date();
+const calendarDays = document.querySelectorAll('#calendar-tab .grid:last-child div');
+calendarDays.forEach(day => {
+const dayNum = parseInt(day.textContent);
+if (!isNaN(dayNum)) {
+if (dayNum === today.getDate() && !day.classList.contains('text-gray-400')) {
+day.classList.add('bg-primary/10', 'text-primary', 'font-medium', 'rounded');
+}
+day.addEventListener('click', () => {
+calendarDays.forEach(d => d.classList.remove('bg-primary/10', 'text-primary', 'font-medium', 'rounded'));
+if (!day.classList.contains('text-gray-400')) {
+day.classList.add('bg-primary/10', 'text-primary', 'font-medium', 'rounded');
+}
+});
+}
+});
+});
+</script>
+<script id="quickActionsScript">
+document.addEventListener('DOMContentLoaded', function() {
+const internalNoteTrigger = document.querySelector('.internal-note-trigger');
+internalNoteTrigger.addEventListener('click', function() {
+const internalNoteModal = document.createElement('div');
+internalNoteModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+internalNoteModal.innerHTML = `
+<div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center">
+<h3 class="text-lg font-medium text-gray-900">Internal Notes</h3>
+<span class="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Staff Only</span>
+</div>
+<button class="close-internal-note-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Add New Note</label>
+<textarea id="new-note-content" class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" rows="4" placeholder="Type your internal note here..."></textarea>
+</div>
+<div class="flex items-center space-x-4">
+<div class="flex-1">
+<label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+<select class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+<option>General Note</option>
+<option>Treatment Note</option>
+<option>Follow-up Required</option>
+<option>Important Alert</option>
+</select>
+</div>
+<div class="flex-1">
+<label class="block text-sm font-medium text-gray-700 mb-1">Visibility</label>
+<select class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+<option>All Staff</option>
+<option>Doctors Only</option>
+<option>Admin Only</option>
+</select>
+</div>
+</div>
+<div class="flex justify-end">
+<button id="add-note-btn" class="px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary/90">Add Note</button>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between mb-3">
+<h4 class="text-sm font-medium text-gray-900">Previous Notes</h4>
+<div class="flex items-center space-x-2">
+<select class="text-xs border border-gray-300 rounded-lg px-2 py-1">
+<option>All Categories</option>
+<option>General Note</option>
+<option>Treatment Note</option>
+<option>Follow-up Required</option>
+<option>Important Alert</option>
+</select>
+<button class="p-1 text-gray-500 hover:bg-gray-100 rounded">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-filter-3-line"></i>
+</div>
+</button>
+</div>
+</div>
+<div class="space-y-3 overflow-y-auto max-h-[400px] pr-2">
+<div class="p-3 bg-gray-50 rounded-lg">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="text-sm font-medium text-gray-900">Dr. Martinez</span>
+<span class="text-xs text-gray-500 ml-2">Today at 10:30 AM</span>
+</div>
+<div class="flex items-center space-x-1">
+<button class="p-1 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-edit-line"></i>
+</div>
+</button>
+<button class="p-1 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-delete-bin-line"></i>
+</div>
+</button>
+</div>
+</div>
+<div class="flex items-center mb-2">
+<span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Treatment Note</span>
+<span class="text-xs text-gray-500 ml-2">Visible to All Staff</span>
+</div>
+<p class="text-sm text-gray-700">Patient shows good compliance with medication schedule. Blood pressure readings are improving.</p>
+<div class="mt-2 flex items-center space-x-2">
+<button class="text-xs text-gray-500 hover:text-gray-700">Reply</button>
+<span class="text-gray-300">•</span>
+<button class="text-xs text-gray-500 hover:text-gray-700">2 Comments</button>
+</div>
+</div>
+<div class="p-3 bg-gray-50 rounded-lg">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="text-sm font-medium text-gray-900">Nurse Thompson</span>
+<span class="text-xs text-gray-500 ml-2">Yesterday at 3:45 PM</span>
+</div>
+<div class="flex items-center space-x-1">
+<button class="p-1 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-edit-line"></i>
+</div>
+</button>
+<button class="p-1 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-delete-bin-line"></i>
+</div>
+</button>
+</div>
+</div>
+<div class="flex items-center mb-2">
+<span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Follow-up Required</span>
+<span class="text-xs text-gray-500 ml-2">Visible to Doctors Only</span>
+</div>
+<p class="text-sm text-gray-700">Follow-up needed on latest lab results. Some values need further discussion.</p>
+<div class="mt-2 flex items-center space-x-2">
+<button class="text-xs text-gray-500 hover:text-gray-700">Reply</button>
+<span class="text-gray-300">•</span>
+<button class="text-xs text-gray-500 hover:text-gray-700">1 Comment</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+`;
+document.body.appendChild(internalNoteModal);
+const closeButtons = internalNoteModal.querySelectorAll('.close-internal-note-modal');
+closeButtons.forEach(button => {
+button.addEventListener('click', () => {
+internalNoteModal.remove();
+});
+});
+const addNoteBtn = internalNoteModal.querySelector('#add-note-btn');
+addNoteBtn.addEventListener('click', () => {
+const noteContent = internalNoteModal.querySelector('#new-note-content').value;
+if (noteContent.trim()) {
+const successNotification = document.createElement('div');
+successNotification.className = 'fixed bottom-4 right-4 bg-green-100 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center';
+successNotification.innerHTML = `
+<div class="w-5 h-5 flex items-center justify-center mr-2">
+<i class="ri-checkbox-circle-line"></i>
+</div>
+Note added successfully
+`;
+document.body.appendChild(successNotification);
+setTimeout(() => {
+successNotification.remove();
+}, 3000);
+internalNoteModal.querySelector('#new-note-content').value = '';
+}
+});
+});
+const documentTrigger = document.querySelector('.document-trigger');
+documentTrigger.addEventListener('click', function() {
+const documentModal = document.createElement('div');
+documentModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+documentModal.innerHTML = `
+<div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-medium text-gray-900">Share Documents</h3>
+<button class="close-document-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="flex space-x-4 mb-4">
+<button class="doc-tab flex-1 py-2 px-4 text-sm font-medium text-primary bg-primary/5 rounded-full" data-tab="templates">Templates</button>
+<button class="doc-tab flex-1 py-2 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 rounded-full" data-tab="patient-docs">Patient Documents</button>
+<button class="doc-tab flex-1 py-2 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 rounded-full" data-tab="upload">Upload New</button>
+</div>
+<div class="doc-content active" id="templates-content">
+<div class="relative mb-4">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none w-5 h-5">
+<i class="ri-search-line text-gray-400"></i>
+</div>
+<input type="text" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-button text-sm" placeholder="Search templates...">
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-primary">
+<i class="ri-file-text-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">New Patient Intake Form</h4>
+<p class="text-xs text-gray-500">Standard intake questionnaire</p>
+</div>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-purple-600">
+<i class="ri-file-text-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Treatment Consent Form</h4>
+<p class="text-xs text-gray-500">Legal waiver and consent</p>
+</div>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-green-600">
+<i class="ri-file-text-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Medical History Form</h4>
+<p class="text-xs text-gray-500">Comprehensive health record</p>
+</div>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-yellow-600">
+<i class="ri-file-text-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Privacy Policy</h4>
+<p class="text-xs text-gray-500">HIPAA compliance document</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="doc-content hidden" id="patient-docs-content">
+<div class="relative mb-4">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none w-5 h-5">
+<i class="ri-search-line text-gray-400"></i>
+</div>
+<input type="text" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-button text-sm" placeholder="Search patient documents...">
+</div>
+<div class="space-y-3">
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-primary">
+<i class="ri-file-chart-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Lab Results - June 2025</h4>
+<p class="text-xs text-gray-500">PDF • 2.4 MB • Added Jun 5, 2025</p>
+</div>
+</div>
+<div class="w-5 h-5 flex items-center justify-center text-gray-400">
+<i class="ri-download-line"></i>
+</div>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-green-600">
+<i class="ri-file-list-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Treatment Plan</h4>
+<p class="text-xs text-gray-500">PDF • 1.1 MB • Added May 15, 2025</p>
+</div>
+</div>
+<div class="w-5 h-5 flex items-center justify-center text-gray-400">
+<i class="ri-download-line"></i>
+</div>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-purple-600">
+<i class="ri-file-paper-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Medical History</h4>
+<p class="text-xs text-gray-500">PDF • 3.2 MB • Added May 1, 2025</p>
+</div>
+</div>
+<div class="w-5 h-5 flex items-center justify-center text-gray-400">
+<i class="ri-download-line"></i>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="doc-content hidden" id="upload-content">
+<div class="border-2 border-dashed border-gray-300 rounded-lg p-8">
+<div class="text-center">
+<div class="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+<div class="w-6 h-6 flex items-center justify-center text-gray-500">
+<i class="ri-upload-cloud-line"></i>
+</div>
+</div>
+<h4 class="text-sm font-medium text-gray-900 mb-1">Upload Document</h4>
+<p class="text-xs text-gray-500 mb-4">Drag and drop your files here, or click to browse</p>
+<button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90">
+Choose File
+</button>
+</div>
+</div>
+<div class="mt-4">
+<label class="block text-sm font-medium text-gray-700 mb-1">Document Type</label>
+<select class="w-full p-2 border border-gray-300 rounded-button text-sm">
+<option>Medical Record</option>
+<option>Lab Report</option>
+<option>Treatment Plan</option>
+<option>Prescription</option>
+<option>Other</option>
+</select>
+</div>
+<div class="mt-4">
+<label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+<textarea class="w-full p-2 border border-gray-300 rounded-button text-sm" rows="2" placeholder="Add document description..."></textarea>
+</div>
+</div>
+<div class="mt-6 flex justify-end space-x-2">
+<button class="close-document-modal px-4 py-2 border border-gray-300 text-gray-700 rounded-button text-sm font-medium hover:bg-gray-50">Cancel</button>
+<button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90">Share Document</button>
+</div>
+</div>
+`;
+document.body.appendChild(documentModal);
+const docTabs = documentModal.querySelectorAll('.doc-tab');
+const docContents = documentModal.querySelectorAll('.doc-content');
+docTabs.forEach(tab => {
+tab.addEventListener('click', () => {
+docTabs.forEach(t => {
+t.classList.remove('text-primary', 'bg-primary/5');
+t.classList.add('text-gray-500');
+});
+tab.classList.remove('text-gray-500');
+tab.classList.add('text-primary', 'bg-primary/5');
+const tabId = tab.getAttribute('data-tab');
+docContents.forEach(content => {
+content.classList.add('hidden');
+if (content.id === `${tabId}-content`) {
+content.classList.remove('hidden');
+}
+});
+});
+});
+const closeButtons = documentModal.querySelectorAll('.close-document-modal');
+closeButtons.forEach(button => {
+button.addEventListener('click', () => {
+documentModal.remove();
+});
+});
+});
+const taskTrigger = document.querySelector('.action-trigger[data-action="task"]');
+taskTrigger.addEventListener('click', function() {
+const taskModal = document.createElement('div');
+taskModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+taskModal.innerHTML = `
+<div class="bg-white rounded-lg p-6 w-[480px]">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-medium text-gray-900">Create New Task</h3>
+<button class="close-task-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<form id="task-form" class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+<input type="text" required class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Enter task title...">
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+<input type="date" required class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+<select required class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+<option value="low">Low</option>
+<option value="medium">Medium</option>
+<option value="high">High</option>
+<option value="urgent">Urgent</option>
+</select>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Assign To</label>
+<select required class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+<option value="self">Myself</option>
+<option value="team">Team Member</option>
+<option value="patient">Patient</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+<textarea required class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" rows="3" placeholder="Add task details..."></textarea>
+</div>
+<div class="pt-4 flex justify-end space-x-2">
+<button type="button" class="close-task-modal px-4 py-2 border border-gray-300 text-gray-700 rounded-button text-sm font-medium hover:bg-gray-50">Cancel</button>
+<button type="submit" class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90">Create Task</button>
+</div>
+</form>
+</div>
+`;
+document.body.appendChild(taskModal);
+const closeButtons = taskModal.querySelectorAll('.close-task-modal');
+closeButtons.forEach(button => {
+button.addEventListener('click', () => {
+taskModal.remove();
+});
+});
+const form = taskModal.querySelector('#task-form');
+form.addEventListener('submit', function(e) {
+e.preventDefault();
+// Here you would typically send the data to your backend
+const successNotification = document.createElement('div');
+successNotification.className = 'fixed bottom-4 right-4 bg-green-100 border border-green-200 text-green-800 px-4 py-3 rounded-lg flex items-center';
+successNotification.innerHTML = `
+<div class="w-5 h-5 flex items-center justify-center mr-2">
+<i class="ri-checkbox-circle-line"></i>
+</div>
+Task created successfully
+`;
+document.body.appendChild(successNotification);
+setTimeout(() => {
+successNotification.remove();
+}, 3000);
+taskModal.remove();
+});
+});
+const schedulerTrigger = document.querySelector('.scheduler-trigger');
+schedulerTrigger.addEventListener('click', function() {
+const schedulerModal = document.createElement('div');
+schedulerModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+schedulerModal.innerHTML = `
+<div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-medium text-gray-900">Schedule Appointment</h3>
+<button class="close-scheduler p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="grid grid-cols-7 gap-4">
+<div class="col-span-2 border-r border-gray-200 pr-4">
+<div class="mb-4">
+<label class="block text-sm font-medium text-gray-700 mb-1">Appointment Type</label>
+<select class="w-full p-2 border border-gray-300 rounded-button text-sm">
+<option>Follow-up Consultation</option>
+<option>Initial Consultation</option>
+<option>Lab Review</option>
+<option>Treatment Session</option>
+</select>
+</div>
+<div class="mb-4">
+<label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+<select class="w-full p-2 border border-gray-300 rounded-button text-sm">
+<option>30 minutes</option>
+<option>45 minutes</option>
+<option>60 minutes</option>
+<option>90 minutes</option>
+</select>
+</div>
+<div class="mb-4">
+<label class="block text-sm font-medium text-gray-700 mb-1">Provider</label>
+<select class="w-full p-2 border border-gray-300 rounded-button text-sm">
+<option>Dr. Martinez</option>
+<option>Dr. Thompson</option>
+<option>Dr. Chen</option>
+</select>
+</div>
+</div>
+<div class="col-span-5 pl-4">
+<div class="flex items-center justify-between mb-4">
+<button class="p-1 text-gray-500 hover:bg-gray-100 rounded">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-arrow-left-s-line"></i>
+</div>
+</button>
+<h5 class="text-sm font-medium text-gray-900">June 2025</h5>
+<button class="p-1 text-gray-500 hover:bg-gray-100 rounded">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-arrow-right-s-line"></i>
+</div>
+</button>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center mb-2">
+<div class="text-xs text-gray-500">Sun</div>
+<div class="text-xs text-gray-500">Mon</div>
+<div class="text-xs text-gray-500">Tue</div>
+<div class="text-xs text-gray-500">Wed</div>
+<div class="text-xs text-gray-500">Thu</div>
+<div class="text-xs text-gray-500">Fri</div>
+<div class="text-xs text-gray-500">Sat</div>
+</div>
+<div class="grid grid-cols-7 gap-1">
+${Array(35).fill().map((_, i) => `
+<div class="aspect-square p-1 border border-gray-100 hover:bg-gray-50 cursor-pointer rounded">
+<div class="text-sm ${i < 3 || i > 30 ? 'text-gray-400' : ''}">${((i + 29) % 31) + 1}</div>
+</div>
+`).join('')}
+</div>
+<div class="mt-4 grid grid-cols-4 gap-2">
+<div class="p-2 text-center border border-gray-200 rounded cursor-pointer hover:border-primary">
+<div class="text-sm font-medium text-gray-900">9:00 AM</div>
+<div class="text-xs text-gray-500">Available</div>
+</div>
+<div class="p-2 text-center border border-gray-200 rounded cursor-pointer hover:border-primary">
+<div class="text-sm font-medium text-gray-900">10:00 AM</div>
+<div class="text-xs text-gray-500">Available</div>
+</div>
+<div class="p-2 text-center border border-gray-200 rounded cursor-pointer hover:border-primary">
+<div class="text-sm font-medium text-gray-900">11:00 AM</div>
+<div class="text-xs text-gray-500">Available</div>
+</div>
+<div class="p-2 text-center border border-gray-200 rounded cursor-pointer hover:border-primary">
+<div class="text-sm font-medium text-gray-900">2:00 PM</div>
+<div class="text-xs text-gray-500">Available</div>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex justify-end space-x-2">
+<button class="close-scheduler px-4 py-2 border border-gray-300 text-gray-700 rounded-button text-sm font-medium hover:bg-gray-50">Cancel</button>
+<button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90">Schedule Appointment</button>
+</div>
+</div>
+`;
+document.body.appendChild(schedulerModal);
+const closeButtons = schedulerModal.querySelectorAll('.close-scheduler');
+closeButtons.forEach(button => {
+button.addEventListener('click', () => {
+schedulerModal.remove();
+});
+});
+});
+// Initialize order button functionality
+const orderButton = document.querySelector('.action-trigger[data-action="order"]');
+if(orderButton) {
+orderButton.addEventListener('click', function(e) {
+e.preventDefault();
+e.stopPropagation();
+// Create and show the order modal
+const orderModal = document.createElement('div');
+orderModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+orderModal.innerHTML = `
+<div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-medium text-gray-900">Create Order</h3>
+<button class="close-order-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="grid grid-cols-3 gap-3 mb-6">
+<button class="order-type-btn p-3 border border-gray-200 hover:border-primary/50 rounded-lg text-left cursor-pointer">
+<div class="flex items-center mb-2">
+<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+<div class="w-4 h-4 flex items-center justify-center text-primary">
+<i class="ri-test-tube-line"></i>
+</div>
+</div>
+<span class="text-sm font-medium text-gray-900">Vibrant Products</span>
+</div>
+<p class="text-xs text-gray-500">Order lab tests from Vibrant Lab</p>
+</button>
+<button class="order-type-btn p-3 border border-gray-200 hover:border-primary/50 rounded-lg text-left cursor-pointer">
+<div class="flex items-center mb-2">
+<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-2">
+<div class="w-4 h-4 flex items-center justify-center text-purple-600">
+<i class="ri-store-2-line"></i>
+</div>
+</div>
+<span class="text-sm font-medium text-gray-900">Practice Products</span>
+</div>
+<p class="text-xs text-gray-500">Clinic's sellable items</p>
+</button>
+<button class="order-type-btn p-3 border border-gray-200 hover:border-primary/50 rounded-lg text-left cursor-pointer">
+<div class="flex items-center mb-2">
+<div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-2">
+<div class="w-4 h-4 flex items-center justify-center text-green-600">
+<i class="ri-bill-line"></i>
+</div>
+</div>
+<span class="text-sm font-medium text-gray-900">Quick Bill</span>
+</div>
+<p class="text-xs text-gray-500">Create custom payment</p>
+</button>
+</div>
+<!-- Content sections -->
+<div id="vibrant-content" class="order-content hidden">
+<div class="flex items-center justify-between mb-3">
+<h4 class="text-sm font-medium text-gray-900">Vibrant Lab Tests</h4>
+<div class="flex items-center space-x-2">
+<div class="relative">
+<input type="text" class="w-48 pl-8 pr-3 py-1.5 border border-gray-300 rounded-button text-sm" placeholder="Search tests...">
+<div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-search-line"></i>
+</div>
+</div>
+<button class="px-3 py-1.5 text-primary text-sm font-medium hover:bg-primary/5 rounded-button">
+Order Page
+</button>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 max-h-[280px] overflow-y-auto">
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer">
+<div class="flex justify-between items-start">
+<h5 class="text-sm font-medium text-gray-900">Comprehensive Blood Panel</h5>
+<span class="text-sm font-medium text-gray-900">$199</span>
+</div>
+<p class="text-xs text-gray-500 mt-1">Complete blood count, metabolic panel, lipids</p>
+<div class="flex items-center mt-2">
+<span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Most Popular</span>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer">
+<div class="flex justify-between items-start">
+<h5 class="text-sm font-medium text-gray-900">Thyroid Function Test</h5>
+<span class="text-sm font-medium text-gray-900">$89</span>
+</div>
+<p class="text-xs text-gray-500 mt-1">TSH, T3, T4, antibodies</p>
+</div>
+</div>
+</div>
+<div id="practice-content" class="order-content hidden">
+<div class="flex items-center justify-between mb-3">
+<h4 class="text-sm font-medium text-gray-900">Practice Products</h4>
+<div class="relative">
+<input type="text" class="w-48 pl-8 pr-3 py-1.5 border border-gray-300 rounded-button text-sm" placeholder="Search products...">
+<div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-search-line"></i>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3 max-h-[280px] overflow-y-auto">
+<div class="p-3 border border-gray-200 rounded-lg hover:border-primary/50 cursor-pointer">
+<div class="flex justify-between items-start">
+<h5 class="text-sm font-medium text-gray-900">Probiotic Supplement</h5>
+<span class="text-sm font-medium text-gray-900">$45</span>
+</div>
+<p class="text-xs text-gray-500 mt-1">60 capsules, monthly supply</p>
+<div class="flex items-center justify-between mt-2">
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">In Stock</span>
+<div class="flex items-center space-x-2">
+<button class="w-6 h-6 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded">-</button>
+<span class="text-sm">1</span>
+<button class="w-6 h-6 flex items-center justify-center text-gray-500 hover:bg-gray-100 rounded">+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="quick-bill-content" class="order-content hidden">
+<div class="space-y-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
+<input type="text" class="w-full p-2 border border-gray-300 rounded-button text-sm" placeholder="Enter item name...">
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Amount</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="text-gray-500">$</span>
+</div>
+<input type="number" class="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-button text-sm" placeholder="0.00">
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+<input type="date" class="w-full p-2 border border-gray-300 rounded-button text-sm">
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+<textarea class="w-full p-2 border border-gray-300 rounded-button text-sm" rows="3" placeholder="Add payment details..."></textarea>
+</div>
+</div>
+</div>
+<div class="mt-6 flex justify-end space-x-2">
+<button class="close-order-modal px-4 py-2 border border-gray-300 text-gray-700 rounded-button text-sm font-medium hover:bg-gray-50">Cancel</button>
+<button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90">Create Order</button>
+</div>
+</div>
+`;
+document.body.appendChild(orderModal);
+// Handle order type switching
+const orderTypeBtns = orderModal.querySelectorAll('.order-type-btn');
+const orderContents = orderModal.querySelectorAll('.order-content');
+orderTypeBtns.forEach((btn, index) => {
+if (index === 0) {
+btn.classList.add('border-primary', 'bg-primary/5');
+orderContents[0].classList.remove('hidden');
+}
+btn.addEventListener('click', () => {
+orderTypeBtns.forEach(b => {
+b.classList.remove('border-primary', 'bg-primary/5');
+b.classList.add('border-gray-200');
+});
+btn.classList.remove('border-gray-200');
+btn.classList.add('border-primary', 'bg-primary/5');
+orderContents.forEach(content => content.classList.add('hidden'));
+orderContents[index].classList.remove('hidden');
+});
+});
+// Handle modal close
+const closeButtons = orderModal.querySelectorAll('.close-order-modal');
+closeButtons.forEach(button => {
+button.addEventListener('click', () => {
+orderModal.remove();
+});
+});
+// Handle quantity controls
+const quantityBtns = orderModal.querySelectorAll('#practice-content button');
+quantityBtns.forEach(btn => {
+btn.addEventListener('click', (e) => {
+const span = btn.parentElement.querySelector('span');
+let quantity = parseInt(span.textContent);
+if (btn.textContent === '+') {
+span.textContent = quantity + 1;
+} else if (btn.textContent === '-' && quantity > 1) {
+span.textContent = quantity - 1;
+}
+e.stopPropagation();
+});
+});
+});
+}
+const actionTriggers = document.querySelectorAll('.action-trigger');
+const actionPanels = document.querySelectorAll('.action-panel');
+const closePanelButtons = document.querySelectorAll('.close-panel');
+// Order type switching functionality
+const orderTypeBtns = document.querySelectorAll('.order-type-btn');
+const orderContents = document.querySelectorAll('.order-content');
+orderTypeBtns.forEach(btn => {
+btn.addEventListener('click', () => {
+// Remove active state from all buttons
+orderTypeBtns.forEach(b => {
+b.classList.remove('active', 'border-primary', 'bg-primary/5');
+b.classList.add('border-gray-200');
+});
+// Add active state to clicked button
+btn.classList.add('active', 'border-primary', 'bg-primary/5');
+btn.classList.remove('border-gray-200');
+// Show corresponding content
+const contentId = btn.querySelector('span').textContent.trim().toLowerCase().replace(/\s+/g, '-') + '-content';
+orderContents.forEach(content => {
+content.classList.add('hidden');
+if (content.id === contentId) {
+content.classList.remove('hidden');
+}
+});
+});
+});
+// Quantity control for practice products
+const quantityBtns = document.querySelectorAll('#practice-content button');
+quantityBtns.forEach(btn => {
+btn.addEventListener('click', (e) => {
+const span = btn.parentElement.querySelector('span');
+let quantity = parseInt(span.textContent);
+if (btn.textContent === '+') {
+span.textContent = quantity + 1;
+} else if (btn.textContent === '-' && quantity > 1) {
+span.textContent = quantity - 1;
+}
+e.stopPropagation();
+});
+});
+// Universal Search Functionality
+const universalSearch = document.getElementById('universal-search');
+universalSearch.addEventListener('input', function(e) {
+const searchTerm = e.target.value.toLowerCase();
+// Search in patient list
+const patientItems = document.querySelectorAll('.patient-item');
+patientItems.forEach(item => {
+const patientName = item.querySelector('h3').textContent.toLowerCase();
+const lastMessage = item.querySelector('p').textContent.toLowerCase();
+if (patientName.includes(searchTerm) || lastMessage.includes(searchTerm)) {
+item.style.display = 'block';
+} else {
+item.style.display = 'none';
+}
+});
+// Search in messages (if visible)
+const messages = document.querySelectorAll('.message-bubble p');
+messages.forEach(message => {
+const messageText = message.textContent.toLowerCase();
+const messageContainer = message.closest('.flex.mb-4');
+if (messageText.includes(searchTerm)) {
+messageContainer.style.backgroundColor = searchTerm ? '#f3f4f6' : 'transparent';
+} else {
+messageContainer.style.backgroundColor = 'transparent';
+}
+});
+});
+// New Patient Button Functionality
+const newPatientBtn = document.getElementById('new-patient-btn');
+newPatientBtn.addEventListener('click', function() {
+const newPatientForm = document.createElement('div');
+newPatientForm.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+newPatientForm.innerHTML = `
+<div class="bg-white rounded-lg p-6 w-[480px] max-h-[80vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-medium text-gray-900">Add New Patient</h3>
+<button class="close-new-patient-form p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<form id="new-patient-form" class="space-y-4">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+<input type="text" required class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+<input type="text" required class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+<input type="email" required class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+<input type="tel" required class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+<input type="date" required class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+<select required class="w-full p-2 border border-gray-300 rounded-button text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent">
+<option value="">Select gender</option>
+<option value="male">Male</option>
+<option value="female">Female</option>
+<option value="other">Other</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Patient ID</label>
+<input type="text" disabled value="Auto-generated" class="w-full p-2 bg-gray-50 border border-gray-300 rounded-button text-sm">
+</div>
+</div>
+<div class="pt-4 flex justify-end space-x-2">
+<button type="button" class="close-new-patient-form px-4 py-2 border border-gray-300 text-gray-700 rounded-button text-sm font-medium hover:bg-gray-50">Cancel</button>
+<button type="submit" class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90">Create Patient</button>
+</div>
+</form>
+</div>
+`;
+document.body.appendChild(newPatientForm);
+// Close form handlers
+const closeButtons = newPatientForm.querySelectorAll('.close-new-patient-form');
+closeButtons.forEach(button => {
+button.addEventListener('click', () => {
+newPatientForm.remove();
+});
+});
+// Form submit handler
+const form = newPatientForm.querySelector('#new-patient-form');
+form.addEventListener('submit', function(e) {
+e.preventDefault();
+// Here you would typically send the data to your backend
+// For now, we'll just close the form
+newPatientForm.remove();
+});
+});
+actionTriggers.forEach(trigger => {
+trigger.addEventListener('click', function() {
+const actionType = this.getAttribute('data-action');
+const panel = document.getElementById(`${actionType}-panel`);
+// Close all panels first
+actionPanels.forEach(p => {
+p.classList.remove('active');
+});
+// Open selected panel
+panel.classList.add('active');
+});
+});
+closePanelButtons.forEach(button => {
+button.addEventListener('click', function() {
+const panel = this.closest('.action-panel');
+panel.classList.remove('active');
+});
+});
+// Close panels when clicking outside
+document.addEventListener('click', function(event) {
+if (!event.target.closest('.action-panel') && !event.target.closest('.action-trigger')) {
+actionPanels.forEach(panel => {
+panel.classList.remove('active');
+});
+}
+});
+});
+</script>
+<script id="customCheckboxScript">
+document.addEventListener('DOMContentLoaded', function() {
+const checkboxes = document.querySelectorAll('.custom-checkbox');
+checkboxes.forEach(checkbox => {
+checkbox.addEventListener('click', function() {
+this.classList.toggle('checked');
+});
+});
+});
+</script>
+</body>
+</html>
