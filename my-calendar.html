@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Calendar - Patient Workspace</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#4f46e5',secondary:'#8b5cf6'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .page-tab.active {
+            color: #4f46e5;
+            background-color: rgba(79, 70, 229, 0.05);
+            border-bottom: 2px solid #4f46e5;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 h-screen flex flex-col">
+    <div class="w-full bg-white border-b border-gray-200" style="display: block !important;">
+        <div class="max-w-screen-2xl mx-auto px-4">
+            <div class="grid grid-cols-4">
+                <a href="index.html" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-primary hover:bg-primary/5 flex items-center justify-center whitespace-nowrap">
+                    <i class="ri-user-heart-line mr-2"></i> My Patients
+                </a>
+                <a href="my-calendar.html" class="page-tab py-4 text-sm font-medium flex items-center justify-center whitespace-nowrap active">
+                    <i class="ri-calendar-2-line mr-2"></i> My Calendar
+                </a>
+                <a href="my-workbench.html" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-primary hover:bg-primary/5 flex items-center justify-center whitespace-nowrap">
+                    <i class="ri-dashboard-line mr-2"></i> My Workbench
+                </a>
+                <a href="my-practice.html" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-primary hover:bg-primary/5 flex items-center justify-center whitespace-nowrap">
+                    <i class="ri-hospital-line mr-2"></i> My Practice
+                </a>
+            </div>
+        </div>
+    </div>
+    <main class="flex-1 flex items-center justify-center">
+        <div class="text-center">
+            <h1 class="text-4xl font-bold text-gray-800">My Calendar</h1>
+            <p class="mt-2 text-lg text-gray-500">(Page content coming soon)</p>
+        </div>
+    </main>
+</body>
+</html>

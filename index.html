@@ -186,12 +186,12 @@ My Patients
 </div>
 My Calendar
 </button>
-<button class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="workbench">
+<a href="https://readdy.ai/home/87b0e20c-cb8f-4bbb-b497-62afd2f09171/aeb20a23-eb30-4a07-8477-b6567487af32" data-readdy="true" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="workbench">
 <div class="w-4 h-4 flex items-center justify-center mr-2">
 <i class="ri-dashboard-line"></i>
 </div>
 My Workbench
-</button>
+</a>
 <button class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="practice">
 <div class="w-4 h-4 flex items-center justify-center mr-2">
 <i class="ri-hospital-line"></i>
@@ -410,16 +410,6 @@ New Patient
 <div class="flex items-center space-x-2">
 <button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
 <div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-phone-line"></i>
-</div>
-</button>
-<button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
-<div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-vidicon-line"></i>
-</div>
-</button>
-<button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
-<div class="w-5 h-5 flex items-center justify-center">
 <i class="ri-more-2-fill"></i>
 </div>
 </button>
@@ -551,7 +541,7 @@ New Patient
 </div>
 </div>
 <!-- Quick Action Bar -->
-<div class="bg-white border-t border-gray-200 p-2 flex justify-between items-center">
+<div id="quick-action-bar" class="bg-white border-t border-gray-200 p-2 flex justify-between items-center">
 <div class="flex space-x-1">
 <button class="scheduler-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
 <div class="w-5 h-5 flex items-center justify-center">
@@ -1615,6 +1605,10 @@ const messagePreview = document.getElementById('message-preview');
 const unreadBadge = document.getElementById('unread-badge');
 const messageListContainer = document.getElementById('message-list');
 const quickReplyBar = document.getElementById('quick-reply-bar');
+const quickActionBar = document.getElementById('quick-action-bar');
+if(quickActionBar) {
+quickActionBar.style.display = 'flex';
+}
 // Keep page tabs visible
 const pageTabs = document.querySelector('.w-full.bg-white.border-b.border-gray-200');
 if(pageTabs) {
@@ -1665,8 +1659,12 @@ const profilePanel = document.querySelector('.w-80.bg-white.border-l');
 aiAssistantChat.addEventListener('click', function() {
 // Keep page tabs visible
 const pageTabs = document.querySelector('.w-full.bg-white.border-b.border-gray-200');
+const quickActionBar = document.getElementById('quick-action-bar');
 if(pageTabs) {
 pageTabs.style.display = 'block';
+}
+if(quickActionBar) {
+quickActionBar.style.display = 'none';
 }
 // Update chat header
 chatHeader.innerHTML = `
@@ -1822,6 +1820,183 @@ day.classList.add('bg-primary/10', 'text-primary', 'font-medium', 'rounded');
 </script>
 <script id="quickActionsScript">
 document.addEventListener('DOMContentLoaded', function() {
+const workflowTrigger = document.querySelector('.workflow-trigger');
+workflowTrigger.addEventListener('click', function() {
+const workflowModal = document.createElement('div');
+workflowModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+workflowModal.innerHTML = `
+<div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-4">
+<div class="flex items-center">
+<h3 class="text-lg font-medium text-gray-900 mr-4">Assign Workflow</h3>
+<button class="px-3 py-1.5 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90 flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-add-line"></i>
+</div>
+Create New
+</button>
+</div>
+<button class="close-workflow-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="mb-4">
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none w-5 h-5">
+<i class="ri-search-line text-gray-400"></i>
+</div>
+<input type="text" class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-button text-sm" placeholder="Search workflows...">
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 mb-6">
+<div class="p-4 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center mb-3">
+<div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-mail-send-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">New Patient Onboarding</h4>
+<p class="text-xs text-gray-500">Automated welcome sequence</p>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-mail-line"></i>
+</div>
+Welcome email with forms
+</div>
+<div class="flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-file-list-line"></i>
+</div>
+Auto-schedule first visit
+</div>
+</div>
+</div>
+<div class="p-4 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center mb-3">
+<div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-5 h-5 flex items-center justify-center text-green-600">
+<i class="ri-calendar-check-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Appointment Follow-up</h4>
+<p class="text-xs text-gray-500">Post-visit communication</p>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-message-2-line"></i>
+</div>
+Send satisfaction survey
+</div>
+<div class="flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-calendar-line"></i>
+</div>
+Schedule next visit
+</div>
+</div>
+</div>
+<div class="p-4 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center mb-3">
+<div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-5 h-5 flex items-center justify-center text-purple-600">
+<i class="ri-notification-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Medication Reminders</h4>
+<p class="text-xs text-gray-500">Automated adherence alerts</p>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-message-2-line"></i>
+</div>
+Daily SMS reminders
+</div>
+<div class="flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-file-chart-line"></i>
+</div>
+Track compliance
+</div>
+</div>
+</div>
+<div class="p-4 border border-gray-200 rounded-lg hover:border-primary cursor-pointer">
+<div class="flex items-center mb-3">
+<div class="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-5 h-5 flex items-center justify-center text-orange-600">
+<i class="ri-timer-line"></i>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900">Lab Results Process</h4>
+<p class="text-xs text-gray-500">Results notification flow</p>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-mail-line"></i>
+</div>
+Auto-send results
+</div>
+<div class="flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-calendar-check-line"></i>
+</div>
+Schedule review if needed
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex justify-end space-x-2">
+<button class="close-workflow-modal px-4 py-2 border border-gray-300 text-gray-700 rounded-button text-sm font-medium hover:bg-gray-50">Cancel</button>
+<button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90">Assign Workflow</button>
+</div>
+</div>
+`;
+document.body.appendChild(workflowModal);
+// Handle workflow selection
+const workflowCards = workflowModal.querySelectorAll('.rounded-lg');
+workflowCards.forEach(card => {
+card.addEventListener('click', () => {
+workflowCards.forEach(c => c.classList.remove('border-primary', 'bg-primary/5'));
+card.classList.add('border-primary', 'bg-primary/5');
+});
+});
+// Handle modal close
+const closeButtons = workflowModal.querySelectorAll('.close-workflow-modal');
+closeButtons.forEach(button => {
+button.addEventListener('click', () => {
+workflowModal.remove();
+});
+});
+// Handle workflow search
+const searchInput = workflowModal.querySelector('input[type="text"]');
+searchInput.addEventListener('input', (e) => {
+const searchTerm = e.target.value.toLowerCase();
+workflowCards.forEach(card => {
+const title = card.querySelector('h4').textContent.toLowerCase();
+const description = card.querySelector('p').textContent.toLowerCase();
+if (title.includes(searchTerm) || description.includes(searchTerm)) {
+card.style.display = 'block';
+} else {
+card.style.display = 'none';
+}
+});
+});
+});
 const internalNoteTrigger = document.querySelector('.internal-note-trigger');
 internalNoteTrigger.addEventListener('click', function() {
 const internalNoteModal = document.createElement('div');
@@ -2392,7 +2567,7 @@ orderModal.innerHTML = `
 </div>
 </button>
 </div>
-<div class="grid grid-cols-3 gap-3 mb-6">
+<div class="grid grid-cols-3 gap-4 mb-6">
 <button class="order-type-btn p-3 border border-gray-200 hover:border-primary/50 rounded-lg text-left cursor-pointer">
 <div class="flex items-center mb-2">
 <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2">
@@ -2425,6 +2600,39 @@ orderModal.innerHTML = `
 <span class="text-sm font-medium text-gray-900">Quick Bill</span>
 </div>
 <p class="text-xs text-gray-500">Create custom payment</p>
+</button>
+<button class="order-type-btn p-3 border border-gray-200 hover:border-primary/50 rounded-lg text-left cursor-pointer">
+<div class="flex items-center mb-2">
+<div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-2">
+<div class="w-4 h-4 flex items-center justify-center text-orange-600">
+<i class="ri-calendar-check-line"></i>
+</div>
+</div>
+<span class="text-sm font-medium text-gray-900">Subscription</span>
+</div>
+<p class="text-xs text-gray-500">Set up recurring orders</p>
+</button>
+<button class="order-type-btn p-3 border border-gray-200 hover:border-primary/50 rounded-lg text-left cursor-pointer">
+<div class="flex items-center mb-2">
+<div class="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center mr-2">
+<div class="w-4 h-4 flex items-center justify-center text-indigo-600">
+<i class="ri-file-list-3-line"></i>
+</div>
+</div>
+<span class="text-sm font-medium text-gray-900">Use Order Template</span>
+</div>
+<p class="text-xs text-gray-500">Pre-configured treatment plans</p>
+</button>
+<button class="order-type-btn p-3 border border-gray-200 hover:border-primary/50 rounded-lg text-left cursor-pointer">
+<div class="flex items-center mb-2">
+<div class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center mr-2">
+<div class="w-4 h-4 flex items-center justify-center text-pink-600">
+<i class="ri-health-book-line"></i>
+</div>
+</div>
+<span class="text-sm font-medium text-gray-900">Program Enrollment</span>
+</div>
+<p class="text-xs text-gray-500">Join wellness programs</p>
 </button>
 </div>
 <!-- Content sections -->
@@ -2515,6 +2723,75 @@ Order Page
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
 <textarea class="w-full p-2 border border-gray-300 rounded-button text-sm" rows="3" placeholder="Add payment details..."></textarea>
+</div>
+</div>
+</div>
+<div id="subscription-content" class="order-content hidden">
+<div class="space-y-4">
+<div class="flex items-center justify-between mb-3">
+<h4 class="text-sm font-medium text-gray-900">Subscription Details</h4>
+<div class="relative">
+<input type="text" class="w-48 pl-8 pr-3 py-1.5 border border-gray-300 rounded-button text-sm" placeholder="Search products...">
+<div class="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-search-line"></i>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Product</label>
+<select class="w-full p-2 border border-gray-300 rounded-button text-sm">
+<option>Probiotic Supplement</option>
+<option>Omega-3 Fish Oil</option>
+<option>Vitamin B Complex</option>
+<option>Vitamin D3</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Frequency</label>
+<select class="w-full p-2 border border-gray-300 rounded-button text-sm">
+<option>Every Week</option>
+<option>Every 2 Weeks</option>
+<option>Monthly</option>
+<option>Every 3 Months</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+<select class="w-full p-2 border border-gray-300 rounded-button text-sm">
+<option>3 Months</option>
+<option>6 Months</option>
+<option>1 Year</option>
+<option>Ongoing</option>
+</select>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Quantity per Delivery</label>
+<input type="number" min="1" value="1" class="w-full p-2 border border-gray-300 rounded-button text-sm">
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-1">Next Delivery Date</label>
+<input type="date" class="w-full p-2 border border-gray-300 rounded-button text-sm">
+</div>
+<div class="p-4 bg-gray-50 rounded-lg mt-4">
+<h5 class="text-sm font-medium text-gray-900 mb-2">Subscription Summary</h5>
+<div class="space-y-2">
+<div class="flex justify-between text-sm">
+<span class="text-gray-500">Product Price:</span>
+<span class="font-medium text-gray-900">$45.00</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-gray-500">Delivery Frequency:</span>
+<span class="font-medium text-gray-900">Monthly</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-gray-500">Total per Delivery:</span>
+<span class="font-medium text-gray-900">$45.00</span>
+</div>
+</div>
 </div>
 </div>
 </div>

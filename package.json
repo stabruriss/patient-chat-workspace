@@ -4,8 +4,8 @@
   "description": "A unified healthcare communication platform for managing patient interactions across multiple channels",
   "main": "index.html",
   "scripts": {
-    "start": "python -m http.server 8000",
-    "dev": "python -m http.server 8080",
+    "start": "python3 -m http.server 8000",
+    "dev": "python3 -m http.server 8080",
     "preview": "open http://localhost:8000"
   },
   "keywords": [
