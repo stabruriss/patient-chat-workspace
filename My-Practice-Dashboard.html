@@ -103,25 +103,25 @@ border-bottom: 2px solid #4f46e5;
 <div class="w-full bg-white border-b border-gray-200">
 <div class="max-w-screen-2xl mx-auto px-4">
 <div class="grid grid-cols-4 gap-4">
-<a href="https://readdy.ai/home/87b0e20c-cb8f-4bbb-b497-62afd2f09171/293fb158-1fa6-4f64-bf16-f8d542a0bc8e" data-readdy="true" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="patients">
+<a href="index.html" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="patients">
 <div class="w-4 h-4 flex items-center justify-center mr-2">
 <i class="ri-user-heart-line"></i>
 </div>
 My Patients
 </a>
-<button class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="calendar">
+<a href="my-calendar.html" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="calendar">
 <div class="w-4 h-4 flex items-center justify-center mr-2">
 <i class="ri-calendar-2-line"></i>
 </div>
 My Calendar
-</button>
-<a href="https://readdy.ai/home/87b0e20c-cb8f-4bbb-b497-62afd2f09171/aeb20a23-eb30-4a07-8477-b6567487af32" data-readdy="true" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="workbench">
+</a>
+<a href="Healthcare-Provider-Workbench.html" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="workbench">
 <div class="w-4 h-4 flex items-center justify-center mr-2">
 <i class="ri-dashboard-line"></i>
 </div>
 My Workbench
 </a>
-<a href="https://readdy.ai/home/87b0e20c-cb8f-4bbb-b497-62afd2f09171/4a9a19fd-b96d-490c-9009-45526b63ba36" data-readdy="true" class="page-tab py-4 text-sm font-medium text-primary bg-primary/5 flex items-center justify-center whitespace-nowrap active" data-page="practice">
+<a href="My-Practice-Dashboard.html" class="page-tab py-4 text-sm font-medium text-primary bg-primary/5 flex items-center justify-center whitespace-nowrap active" data-page="practice">
 <div class="w-4 h-4 flex items-center justify-center mr-2">
 <i class="ri-hospital-line"></i>
 </div>
@@ -1490,7 +1490,6 @@ Save Notification Settings
 </div>
 </div>
 </div>
-</div>
 <!-- Order History Tab -->
 <div class="tab-content" id="orders-tab">
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -1891,7 +1890,6 @@ Export
 </div>
 </div>
 </div>
-</div>
 <script id="practiceTabsScript">
 document.addEventListener('DOMContentLoaded', function() {
 const tabButtons = document.querySelectorAll('.practice-tab');
@@ -1930,7 +1928,6 @@ this.classList.add('checked');
 } else {
 this.classList.remove('checked');
 }
-});
 });
 // Handle radio button interactions
 const radioGroups = document.querySelectorAll('input[type="radio"]');
