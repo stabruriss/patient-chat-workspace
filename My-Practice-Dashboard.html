@@ -1656,7 +1656,7 @@ Add more information
 <label class="block text-sm font-medium text-gray-700 mb-3">Default Kits Shipping to</label>
 <div class="space-y-3">
 <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
-<input type="radio" name="non-blood-shipping" value="patient" class="sr-only" onchange="handleNonBloodShippingChange(this)">
+<input type="radio" name="blood-shipping" value="patient" class="sr-only">
 <div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
 <div class="w-2 h-2 rounded-full bg-transparent"></div>
 </div>
@@ -1668,7 +1668,7 @@ Add more information
 </div>
 </label>
 <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
-<input type="radio" name="non-blood-shipping" value="office" class="sr-only" checked onchange="handleNonBloodShippingChange(this)">
+<input type="radio" name="blood-shipping" value="office" class="sr-only" checked>
 <div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
 <div class="w-2 h-2 rounded-full bg-primary"></div>
 </div>
@@ -1685,40 +1685,31 @@ Add more information
 <label class="block text-sm font-medium text-gray-700 mb-3">Default Billing Method</label>
 <div class="space-y-3">
 <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
-<input type="radio" name="non-blood-billing" value="provider" class="sr-only" checked>
+<input type="radio" name="blood-billing" value="provider" class="sr-only" checked>
 <div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
 <div class="w-2 h-2 bg-primary rounded-full"></div>
 </div>
 <span class="text-sm text-gray-700">Provider Pay</span>
 </label>
-<label id="patient-pay-later-label" class="flex items-center p-3 border border-gray-200 rounded-lg cursor-not-allowed bg-white relative">
-<input type="radio" name="non-blood-billing" value="patient" class="sr-only" disabled>
-<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center opacity-50">
+<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
+<input type="radio" name="blood-billing" value="patient" class="sr-only">
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
 <div class="w-2 h-2 bg-transparent rounded-full"></div>
 </div>
-<span class="text-sm text-gray-400 line-through">Patient Pay Later</span>
-<div class="absolute right-3 top-3">
-<div class="group relative">
-<div class="w-4 h-4 flex items-center justify-center text-gray-400">
-<i class="ri-information-line"></i>
-</div>
-<div class="hidden group-hover:block absolute right-0 bottom-6 w-48 p-2 bg-gray-900 text-white text-xs rounded">
-Not supported when non-blood kit is supplied by provider office
-</div>
-</div>
-</div>
+<span class="text-sm text-gray-700">Patient Pay Later</span>
 </label>
 </div>
 </div>
 </div>
 <script>
 function handleNonBloodShippingChange(radio) {
-const patientPayLaterLabel = document.getElementById('patient-pay-later-label');
+const patientPayLaterLabel = document.getElementById('non-blood-patient-pay-later-label');
 const patientPayLaterInput = patientPayLaterLabel.querySelector('input');
 const patientPayLaterSpan = patientPayLaterLabel.querySelector('span');
 const patientPayLaterRadio = patientPayLaterLabel.querySelector('.w-4.h-4');
 const infoIcon = patientPayLaterLabel.querySelector('.group');
 if (radio.value === 'patient') {
+// Enable Patient Pay Later for "Ship to Patient"
 patientPayLaterInput.disabled = false;
 patientPayLaterLabel.classList.remove('cursor-not-allowed');
 patientPayLaterLabel.classList.add('cursor-pointer', 'hover:border-primary/20');
@@ -1727,6 +1718,7 @@ patientPayLaterSpan.classList.add('text-gray-700');
 patientPayLaterRadio.classList.remove('opacity-50');
 infoIcon.style.display = 'none';
 } else {
+// Disable Patient Pay Later for "Supply by Office"
 patientPayLaterInput.disabled = true;
 patientPayLaterInput.checked = false;
 patientPayLaterLabel.classList.add('cursor-not-allowed');
@@ -1756,7 +1748,7 @@ providerPayInput.nextElementSibling.querySelector('div').classList.add('bg-prima
 <label class="block text-sm font-medium text-gray-700 mb-3">Default Kits Shipping to</label>
 <div class="space-y-3">
 <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
-<input type="radio" name="non-blood-shipping" value="patient" class="sr-only">
+<input type="radio" name="non-blood-shipping" value="patient" class="sr-only" onchange="handleNonBloodShippingChange(this)">
 <div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
 <div class="w-2 h-2 bg-transparent rounded-full"></div>
 </div>
@@ -1768,7 +1760,7 @@ providerPayInput.nextElementSibling.querySelector('div').classList.add('bg-prima
 </div>
 </label>
 <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
-<input type="radio" name="non-blood-shipping" value="office" class="sr-only" checked>
+<input type="radio" name="non-blood-shipping" value="office" class="sr-only" checked onchange="handleNonBloodShippingChange(this)">
 <div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
 <div class="w-2 h-2 bg-primary rounded-full"></div>
 </div>
@@ -1791,7 +1783,7 @@ providerPayInput.nextElementSibling.querySelector('div').classList.add('bg-prima
 </div>
 <span class="text-sm text-gray-700">Provider Pay</span>
 </label>
-<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20 relative">
+<label id="non-blood-patient-pay-later-label" class="flex items-center p-3 border border-gray-200 rounded-lg cursor-not-allowed bg-white relative">
 <input type="radio" name="non-blood-billing" value="patient" class="sr-only" disabled>
 <div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center opacity-50">
 <div class="w-2 h-2 bg-transparent rounded-full"></div>
