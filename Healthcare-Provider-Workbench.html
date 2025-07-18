@@ -125,19 +125,37 @@ opacity: 1;
 <!-- Page Switch Tabs -->
 <div class="w-full bg-white border-b border-gray-200">
 <div class="max-w-screen-2xl mx-auto px-4">
-<div class="grid grid-cols-4 gap-4">
-<a href="index.html" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-primary hover:bg-primary/5 flex items-center justify-center whitespace-nowrap">
-    <i class="ri-user-heart-line mr-2"></i> My Patients
+<div class="flex items-center justify-between">
+<div class="grid grid-cols-4 gap-4 flex-1">
+<a href="index.html" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="patients">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-user-heart-line"></i>
+</div>
+My Patients
 </a>
-<a href="my-calendar.html" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-primary hover:bg-primary/5 flex items-center justify-center whitespace-nowrap">
-    <i class="ri-calendar-2-line mr-2"></i> My Calendar
+<a href="my-calendar.html" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="calendar">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-calendar-2-line"></i>
+</div>
+My Calendar
 </a>
-<a href="Healthcare-Provider-Workbench.html" class="page-tab py-4 text-sm font-medium text-primary bg-primary/5 flex items-center justify-center whitespace-nowrap active">
-    <i class="ri-dashboard-line mr-2"></i> My Workbench
+<a href="Healthcare-Provider-Workbench.html" class="page-tab py-4 text-sm font-medium text-primary bg-primary/5 flex items-center justify-center whitespace-nowrap active" data-page="workbench">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-dashboard-line"></i>
+</div>
+My Workbench
 </a>
-<a href="My-Practice-Dashboard.html" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-primary hover:bg-primary/5 flex items-center justify-center whitespace-nowrap">
-    <i class="ri-hospital-line mr-2"></i> My Practice
+<a href="My-Practice-Dashboard.html" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="practice">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-hospital-line"></i>
+</div>
+My Practice
 </a>
+</div>
+<button class="flex items-center space-x-3 py-2 px-3 hover:bg-gray-50 rounded-lg">
+<span class="text-sm font-medium text-gray-700">Dr. Sarah Wilson</span>
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20female%20doctor%20with%20blonde%20hair%20and%20blue%20eyes%20wearing%20a%20white%20coat%2C%20natural%20lighting%2C%20high%20quality%20studio%20portrait%2C%20clean%20medical%20background&width=32&height=32&seq=1&orientation=squarish" class="w-8 h-8 rounded-full object-cover">
+</button>
 </div>
 </div>
 </div>
@@ -145,37 +163,37 @@ opacity: 1;
 <div class="flex flex-1 h-full overflow-hidden">
 <!-- Left Sidebar - Navigation -->
 <div class="w-64 bg-white border-r border-gray-200 flex flex-col h-full">
-<!-- User Profile Header -->
-<div class="p-4 border-b border-gray-200">
-<div class="flex items-center">
-<div class="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center mr-3 overflow-hidden">
-<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20female%20doctor%20with%20a%20warm%20smile%2C%20wearing%20a%20white%20coat%2C%20natural%20lighting%2C%20high%20quality%20studio%20portrait&width=100&height=100&seq=1&orientation=squarish" alt="Dr. Sarah Mitchell" class="w-full h-full object-cover">
-</div>
-<div>
-<h2 class="text-base font-medium text-gray-900">Dr. Sarah Mitchell</h2>
-<p class="text-xs text-gray-500">Family Medicine Specialist</p>
-</div>
-</div>
-</div>
 <!-- Workbench Navigation -->
 <div class="flex-1 overflow-y-auto p-2">
 <div class="workbench-nav-item active flex items-center p-3 rounded-lg text-primary mb-1 pl-2">
 <div class="w-5 h-5 flex items-center justify-center mr-3">
 <i class="ri-bill-line"></i>
 </div>
-<span class="text-sm font-medium">eZ-bill (My Products)</span>
+<span class="text-sm font-medium">eZ-bill</span>
 </div>
 <div class="workbench-nav-item flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-50 mb-1" id="templatesNav">
 <div class="w-5 h-5 flex items-center justify-center mr-3 text-gray-500">
 <i class="ri-file-list-3-line"></i>
 </div>
-<span class="text-sm font-medium">Templates & Workflows</span>
+<span class="text-sm font-medium">Document Template</span>
 </div>
-<div class="workbench-nav-item flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-50 mb-1" id="communityNav">
+<div class="workbench-nav-item flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-50 mb-1" id="workflowNav">
 <div class="w-5 h-5 flex items-center justify-center mr-3 text-gray-500">
-<i class="ri-community-line"></i>
+<i class="ri-flow-chart"></i>
 </div>
-<span class="text-sm font-medium">Community Library</span>
+<span class="text-sm font-medium">Workflow</span>
+</div>
+<div class="workbench-nav-item flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-50 mb-1" id="reportNav">
+<div class="w-5 h-5 flex items-center justify-center mr-3 text-gray-500">
+<i class="ri-file-chart-line"></i>
+</div>
+<span class="text-sm font-medium">Report Format</span>
+</div>
+<div class="workbench-nav-item flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-50 mb-1" id="archiveNav">
+<div class="w-5 h-5 flex items-center justify-center mr-3 text-gray-500">
+<i class="ri-archive-line"></i>
+</div>
+<span class="text-sm font-medium">Archive</span>
 </div>
 </div>
 <!-- Help & Support -->
@@ -205,20 +223,587 @@ Get Support
 <div id="contentHeader" class="p-6 bg-white border-b border-gray-200">
 <div class="flex justify-between items-center">
 <div id="ezBillHeader">
-<h1 class="text-2xl font-semibold text-gray-900">eZ-bill Products</h1>
+<h1 class="text-2xl font-semibold text-gray-900">eZ-Bill Products</h1>
 <p class="text-gray-600 mt-1">Manage your billing products and fees</p>
 </div>
 <div id="templatesHeader" class="hidden">
-<h1 class="text-2xl font-semibold text-gray-900">Templates & Workflows</h1>
+<h1 class="text-2xl font-semibold text-gray-900">Document Templates</h1>
 <p class="text-gray-600 mt-1">Manage your document templates and clinical workflows</p>
+</div>
+<div id="workflowHeader" class="hidden">
+<h1 class="text-2xl font-semibold text-gray-900">Workflows</h1>
+<p class="text-gray-600 mt-1">Design and manage your clinical process workflows</p>
+</div>
+<div id="reportHeader" class="hidden">
+<h1 class="text-2xl font-semibold text-gray-900">Report Formats</h1>
+<p class="text-gray-600 mt-1">Customize and manage your clinical report templates</p>
+</div>
+<div id="archiveHeader" class="hidden">
+<h1 class="text-2xl font-semibold text-gray-900">Archive</h1>
+<p class="text-gray-600 mt-1">Access and manage your archived items</p>
 </div>
 </div>
 </div>
 <!-- Main Content -->
 <div class="p-6">
-<div id="communityContent" class="grid grid-cols-1 gap-6 hidden">
-<!-- Featured Templates Section -->
+<div id="workflowContent" class="grid grid-cols-1 gap-6 hidden">
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h2 class="text-lg font-semibold text-gray-900">Active Workflows</h2>
+<p class="text-sm text-gray-600 mt-1">Currently running clinical workflows</p>
+</div>
+<button class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-add-line"></i>
+</div>
+Create Workflow
+</button>
+</div>
+<div class="grid grid-cols-1 gap-4">
+<div class="border border-gray-200 rounded-lg p-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center mr-4">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-flow-chart"></i>
+</div>
+</div>
+<div>
+<h3 class="text-sm font-medium text-gray-900">Patient Onboarding</h3>
+<p class="text-xs text-gray-500 mt-1">5 steps • 3 active patients</p>
+</div>
+</div>
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-more-2-fill"></i>
+</div>
+</button>
+</div>
+</div>
+<div class="border border-gray-200 rounded-lg p-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center mr-4">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-flow-chart"></i>
+</div>
+</div>
+<div>
+<h3 class="text-sm font-medium text-gray-900">Chronic Care Management</h3>
+<p class="text-xs text-gray-500 mt-1">8 steps • 12 active patients</p>
+</div>
+</div>
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-more-2-fill"></i>
+</div>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h2 class="text-lg font-semibold text-gray-900">Popular Workflows</h2>
+<p class="text-sm text-gray-600 mt-1">Reusable workflow templates</p>
+</div>
+<button class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-arrow-right-line"></i>
+</div>
+Explore More
+</button>
+</div>
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-6">
+</div>
+<div class="grid grid-cols-3 gap-4">
+<div class="border border-gray-200 rounded-lg p-4">
+<div class="flex items-start justify-between mb-4">
+<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-flow-chart"></i>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<span class="text-xs text-gray-500">4.8</span>
+<div class="flex items-center">
+<i class="ri-star-fill text-yellow-400 text-xs"></i>
+</div>
+</div>
+</div>
+<h3 class="text-sm font-medium text-gray-900 mb-1">Annual Wellness Visit</h3>
+<p class="text-xs text-gray-500 mb-3">Standard wellness check workflow</p>
+<button class="text-xs text-primary font-medium">Use Template</button>
+</div>
+<div class="border border-gray-200 rounded-lg p-4">
+<div class="flex items-start justify-between mb-4">
+<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-flow-chart"></i>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<span class="text-xs text-gray-500">4.7</span>
+<div class="flex items-center">
+<i class="ri-star-fill text-yellow-400 text-xs"></i>
+</div>
+</div>
+</div>
+<h3 class="text-sm font-medium text-gray-900 mb-1">Diabetes Management</h3>
+<p class="text-xs text-gray-500 mb-3">Comprehensive diabetes care plan</p>
+<button class="text-xs text-primary font-medium">Use Template</button>
+</div>
+<div class="border border-gray-200 rounded-lg p-4">
+<div class="flex items-start justify-between mb-4">
+<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-flow-chart"></i>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<span class="text-xs text-gray-500">4.6</span>
+<div class="flex items-center">
+<i class="ri-star-fill text-yellow-400 text-xs"></i>
+</div>
+</div>
+</div>
+<h3 class="text-sm font-medium text-gray-900 mb-1">Preventive Screening</h3>
+<p class="text-xs text-gray-500 mb-3">Routine health screening process</p>
+<button class="text-xs text-primary font-medium">Use Template</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="reportContent" class="grid grid-cols-1 gap-6 hidden">
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h2 class="text-lg font-semibold text-gray-900">Column Order Settings</h2>
+<p class="text-sm text-gray-600 mt-1">Customize the order of report columns</p>
+</div>
+<button class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap" id="openColumnOrder">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-settings-line"></i>
+</div>
+Configure Order
+</button>
+</div>
+<div id="columnOrderModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 hidden flex items-center justify-center z-50">
+<div class="bg-white rounded-lg w-[600px]">
+<div class="p-6 border-b border-gray-200">
+<div class="flex items-center justify-between">
+<h3 class="text-lg font-semibold text-gray-900">Personalized Report Columns Order</h3>
+<button id="closeColumnOrder" class="text-gray-400 hover:text-gray-600">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+</div>
+<div class="p-6">
+<p class="text-sm text-gray-600 mb-6">For the Personalized Report, you can customize the ordering between these four columns "Current" (current result), "Previous" (previous result), "Result Bar", and "Reference Range", to suit your reading preferences.</p>
+<div class="space-y-3" id="columnList">
+<div class="flex items-center p-3 bg-white border border-gray-200 rounded-lg cursor-move" draggable="true" data-column="current">
+<div class="w-4 h-4 flex items-center justify-center mr-3 text-gray-400">
+<i class="ri-drag-move-line"></i>
+</div>
+<span class="text-sm text-gray-900">Current</span>
+</div>
+<div class="flex items-center p-3 bg-white border border-gray-200 rounded-lg cursor-move" draggable="true" data-column="previous">
+<div class="w-4 h-4 flex items-center justify-center mr-3 text-gray-400">
+<i class="ri-drag-move-line"></i>
+</div>
+<span class="text-sm text-gray-900">Previous</span>
+</div>
+<div class="flex items-center p-3 bg-white border border-gray-200 rounded-lg cursor-move" draggable="true" data-column="result">
+<div class="w-4 h-4 flex items-center justify-center mr-3 text-gray-400">
+<i class="ri-drag-move-line"></i>
+</div>
+<span class="text-sm text-gray-900">Result</span>
+</div>
+<div class="flex items-center p-3 bg-white border border-gray-200 rounded-lg cursor-move" draggable="true" data-column="reference">
+<div class="w-4 h-4 flex items-center justify-center mr-3 text-gray-400">
+<i class="ri-drag-move-line"></i>
+</div>
+<span class="text-sm text-gray-900">Reference</span>
+</div>
+</div>
+</div>
+<div class="p-6 border-t border-gray-200 flex items-center justify-end space-x-3">
+<button id="cancelColumnOrder" class="px-4 py-2 text-gray-700 border border-gray-200 rounded-button whitespace-nowrap">Cancel</button>
+<button id="saveColumnOrder" class="px-4 py-2 bg-primary text-white rounded-button whitespace-nowrap">Save Changes</button>
+</div>
+</div>
+</div>
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-6">
+</div>
+<div class="space-y-6">
+<div class="border border-gray-200 rounded-lg">
+<div class="p-4 border-b border-gray-200">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center mr-3">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-file-list-3-line"></i>
+</div>
+</div>
+<div>
+<h3 class="text-sm font-medium text-gray-900">Classic Report</h3>
+<p class="text-xs text-gray-500 mt-1">Traditional format with essential information</p>
+</div>
+</div>
+</div>
+<div class="p-4 space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-gray-50 rounded flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-file-text-line"></i>
+</div>
+</div>
+<span class="text-sm text-gray-700">Summary Version</span>
+</div>
+<label class="flex items-center cursor-pointer">
+<input type="radio" name="classic_version" class="hidden" value="summary">
+<div class="w-4 h-4 border border-gray-300 rounded-full flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-primary hidden"></div>
+</div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-gray-50 rounded flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-file-list-line"></i>
+</div>
+</div>
+<span class="text-sm text-gray-700">Complete Version</span>
+</div>
+<label class="flex items-center cursor-pointer">
+<input type="radio" name="classic_version" class="hidden" value="complete">
+<div class="w-4 h-4 border border-gray-300 rounded-full flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-primary hidden"></div>
+</div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-gray-50 rounded flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-printer-line"></i>
+</div>
+</div>
+<span class="text-sm text-gray-700">Printer-friendly</span>
+</div>
+<label class="flex items-center cursor-pointer">
+<input type="checkbox" class="hidden" name="classic_print">
+<div class="w-4 h-4 border border-gray-300 rounded flex items-center justify-center">
+<i class="ri-check-line text-white text-xs hidden"></i>
+</div>
+</label>
+</div>
+</div>
+</div>
+<div class="border border-gray-200 rounded-lg">
+<div class="p-4 border-b border-gray-200">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center mr-3">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-file-chart-line"></i>
+</div>
+</div>
+<div>
+<h3 class="text-sm font-medium text-gray-900">Advanced Report</h3>
+<p class="text-xs text-gray-500 mt-1">Enhanced format with detailed analytics</p>
+</div>
+</div>
+</div>
+<div class="p-4 space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-gray-50 rounded flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-file-text-line"></i>
+</div>
+</div>
+<span class="text-sm text-gray-700">Summary Version</span>
+</div>
+<label class="flex items-center cursor-pointer">
+<input type="radio" name="advanced_version" class="hidden" value="summary">
+<div class="w-4 h-4 border border-gray-300 rounded-full flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-primary hidden"></div>
+</div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-gray-50 rounded flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-file-list-line"></i>
+</div>
+</div>
+<span class="text-sm text-gray-700">Complete Version</span>
+</div>
+<label class="flex items-center cursor-pointer">
+<input type="radio" name="advanced_version" class="hidden" value="complete">
+<div class="w-4 h-4 border border-gray-300 rounded-full flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-primary hidden"></div>
+</div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-gray-50 rounded flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-printer-line"></i>
+</div>
+</div>
+<span class="text-sm text-gray-700">Printer-friendly</span>
+</div>
+<label class="flex items-center cursor-pointer">
+<input type="checkbox" class="hidden" name="advanced_print">
+<div class="w-4 h-4 border border-gray-300 rounded flex items-center justify-center">
+<i class="ri-check-line text-white text-xs hidden"></i>
+</div>
+</label>
+</div>
+</div>
+</div>
+<div class="border border-gray-200 rounded-lg">
+<div class="p-4 border-b border-gray-200">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center mr-3">
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-file-settings-line"></i>
+</div>
+</div>
+<div>
+<h3 class="text-sm font-medium text-gray-900">Customized Report</h3>
+<p class="text-xs text-gray-500 mt-1">Personalized format based on preferences</p>
+</div>
+</div>
+</div>
+<div class="p-4 space-y-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-gray-50 rounded flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-file-text-line"></i>
+</div>
+</div>
+<span class="text-sm text-gray-700">Summary Version</span>
+</div>
+<label class="flex items-center cursor-pointer">
+<input type="radio" name="custom_version" class="hidden" value="summary">
+<div class="w-4 h-4 border border-gray-300 rounded-full flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-primary hidden"></div>
+</div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-gray-50 rounded flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-file-list-line"></i>
+</div>
+</div>
+<span class="text-sm text-gray-700">Complete Version</span>
+</div>
+<label class="flex items-center cursor-pointer">
+<input type="radio" name="custom_version" class="hidden" value="complete">
+<div class="w-4 h-4 border border-gray-300 rounded-full flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-primary hidden"></div>
+</div>
+</label>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-gray-50 rounded flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-printer-line"></i>
+</div>
+</div>
+<span class="text-sm text-gray-700">Printer-friendly</span>
+</div>
+<label class="flex items-center cursor-pointer">
+<input type="checkbox" class="hidden" name="custom_print">
+<div class="w-4 h-4 border border-gray-300 rounded flex items-center justify-center">
+<i class="ri-check-line text-white text-xs hidden"></i>
+</div>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="archiveContent" class="grid grid-cols-1 gap-6 hidden">
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+<div class="p-6">
+<div class="flex items-center justify-end mb-6">
+<div class="flex items-center space-x-3">
+<div class="relative">
+<input type="text" placeholder="Search archives..." class="pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg w-64">
+<div class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-search-line"></i>
+</div>
+</div>
+<button class="px-4 py-2 text-gray-700 border border-gray-200 rounded-button flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-filter-3-line"></i>
+</div>
+Filter
+</button>
+</div>
+</div>
+<div class="space-y-6">
+<!-- eZ-bill Items -->
+<div class="border border-gray-200 rounded-lg overflow-hidden">
+<div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+<h3 class="text-sm font-medium text-gray-900">eZ-bill Items</h3>
+</div>
+<table class="w-full">
+<thead class="bg-gray-50 border-b border-gray-200">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Item Name</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date Archived</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200">
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-900">Executive Health Program</td>
+<td class="px-6 py-4 text-sm text-gray-600">Signature Program</td>
+<td class="px-6 py-4 text-sm text-gray-600">Jul 15, 2024</td>
+<td class="px-6 py-4 text-sm text-gray-600">$2,499.00</td>
+<td class="px-6 py-4 text-sm">
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-refresh-line"></i>
+</div>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-900">Annual Health Check</td>
+<td class="px-6 py-4 text-sm text-gray-600">Practice Product</td>
+<td class="px-6 py-4 text-sm text-gray-600">Jul 10, 2024</td>
+<td class="px-6 py-4 text-sm text-gray-600">$250.00</td>
+<td class="px-6 py-4 text-sm">
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-refresh-line"></i>
+</div>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Templates -->
+<div class="border border-gray-200 rounded-lg overflow-hidden">
+<div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+<h3 class="text-sm font-medium text-gray-900">Templates</h3>
+</div>
+<table class="w-full">
+<thead class="bg-gray-50 border-b border-gray-200">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Template Name</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date Archived</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Version</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200">
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-900">Patient Intake Form</td>
+<td class="px-6 py-4 text-sm text-gray-600">Patient Forms</td>
+<td class="px-6 py-4 text-sm text-gray-600">Jul 14, 2024</td>
+<td class="px-6 py-4 text-sm text-gray-600">v2.1</td>
+<td class="px-6 py-4 text-sm">
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-refresh-line"></i>
+</div>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-900">Medical History Form</td>
+<td class="px-6 py-4 text-sm text-gray-600">Medical Records</td>
+<td class="px-6 py-4 text-sm text-gray-600">Jul 12, 2024</td>
+<td class="px-6 py-4 text-sm text-gray-600">v1.3</td>
+<td class="px-6 py-4 text-sm">
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-refresh-line"></i>
+</div>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Files -->
+<div class="border border-gray-200 rounded-lg overflow-hidden">
+<div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+<h3 class="text-sm font-medium text-gray-900">Files</h3>
+</div>
+<table class="w-full">
+<thead class="bg-gray-50 border-b border-gray-200">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">File Name</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date Archived</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200">
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-900">Annual Report 2024</td>
+<td class="px-6 py-4 text-sm text-gray-600">PDF Document</td>
+<td class="px-6 py-4 text-sm text-gray-600">Jul 15, 2024</td>
+<td class="px-6 py-4 text-sm text-gray-600">2.4 MB</td>
+<td class="px-6 py-4 text-sm">
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-refresh-line"></i>
+</div>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-900">Clinical Guidelines</td>
+<td class="px-6 py-4 text-sm text-gray-600">Word Document</td>
+<td class="px-6 py-4 text-sm text-gray-600">Jul 13, 2024</td>
+<td class="px-6 py-4 text-sm text-gray-600">856 KB</td>
+<td class="px-6 py-4 text-sm">
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-refresh-line"></i>
+</div>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="communityContent" class="grid grid-cols-1 gap-6 hidden">
 <div class="p-6">
 <div class="flex items-center justify-between mb-6">
 <div>
@@ -322,153 +907,6 @@ Filter
 </div>
 </div>
 </div>
-<!-- Popular Workflows Section -->
-<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-<div class="p-6">
-<div class="flex items-center justify-between mb-6">
-<div>
-<h2 class="text-lg font-semibold text-gray-900">Popular Workflows</h2>
-<p class="text-sm text-gray-600 mt-1">Streamline your clinical processes</p>
-</div>
-</div>
-<div class="grid grid-cols-1 gap-4">
-<!-- Workflow Item 1 -->
-<div class="border border-gray-200 rounded-lg p-4 hover:border-primary/20 transition-colors">
-<div class="flex items-center justify-between">
-<div class="flex items-center flex-1">
-<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center mr-4">
-<div class="w-5 h-5 flex items-center justify-center text-primary">
-<i class="ri-flow-chart"></i>
-</div>
-</div>
-<div class="flex-1">
-<div class="flex items-center justify-between mb-1">
-<h3 class="text-sm font-medium text-gray-900">Diabetes Management Protocol</h3>
-<div class="flex items-center space-x-2">
-<span class="text-xs text-gray-500">4.9</span>
-<div class="flex items-center">
-<i class="ri-star-fill text-yellow-400 text-xs"></i>
-</div>
-<span class="text-xs text-gray-500">(3.2k)</span>
-</div>
-</div>
-<p class="text-xs text-gray-500">Comprehensive diabetes care workflow • 8 steps</p>
-</div>
-</div>
-<button class="ml-4 text-xs text-primary font-medium whitespace-nowrap">Use Workflow</button>
-</div>
-</div>
-<!-- Workflow Item 2 -->
-<div class="border border-gray-200 rounded-lg p-4 hover:border-primary/20 transition-colors">
-<div class="flex items-center justify-between">
-<div class="flex items-center flex-1">
-<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center mr-4">
-<div class="w-5 h-5 flex items-center justify-center text-primary">
-<i class="ri-flow-chart"></i>
-</div>
-</div>
-<div class="flex-1">
-<div class="flex items-center justify-between mb-1">
-<h3 class="text-sm font-medium text-gray-900">Preventive Care Checklist</h3>
-<div class="flex items-center space-x-2">
-<span class="text-xs text-gray-500">4.8</span>
-<div class="flex items-center">
-<i class="ri-star-fill text-yellow-400 text-xs"></i>
-</div>
-<span class="text-xs text-gray-500">(2.8k)</span>
-</div>
-</div>
-<p class="text-xs text-gray-500">Annual wellness visit workflow • 6 steps</p>
-</div>
-</div>
-<button class="ml-4 text-xs text-primary font-medium whitespace-nowrap">Use Workflow</button>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Featured Products Section -->
-<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
-<div class="p-6">
-<div class="flex items-center justify-between mb-6">
-<div>
-<h2 class="text-lg font-semibold text-gray-900">Featured Products</h2>
-<p class="text-sm text-gray-600 mt-1">Ready-to-use product templates</p>
-</div>
-</div>
-<div class="grid grid-cols-3 gap-4">
-<!-- Product Card 1 -->
-<div class="border border-gray-200 rounded-lg p-4 hover:border-primary/20 transition-colors">
-<div class="flex items-start justify-between mb-4">
-<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center">
-<div class="w-5 h-5 flex items-center justify-center text-primary">
-<i class="ri-shopping-bag-line"></i>
-</div>
-</div>
-<div class="flex items-center space-x-2">
-<span class="text-xs text-gray-500">4.8</span>
-<div class="flex items-center">
-<i class="ri-star-fill text-yellow-400 text-xs"></i>
-</div>
-<span class="text-xs text-gray-500">(980)</span>
-</div>
-</div>
-<h3 class="text-sm font-medium text-gray-900 mb-1">Wellness Package Bundle</h3>
-<p class="text-xs text-gray-500 mb-3">Complete health screening package</p>
-<div class="flex items-center justify-between">
-<div class="text-xs text-gray-500">Used by 1.2k clinics</div>
-<button class="text-xs text-primary font-medium">Use Template</button>
-</div>
-</div>
-<!-- Product Card 2 -->
-<div class="border border-gray-200 rounded-lg p-4 hover:border-primary/20 transition-colors">
-<div class="flex items-start justify-between mb-4">
-<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center">
-<div class="w-5 h-5 flex items-center justify-center text-primary">
-<i class="ri-shopping-bag-line"></i>
-</div>
-</div>
-<div class="flex items-center space-x-2">
-<span class="text-xs text-gray-500">4.7</span>
-<div class="flex items-center">
-<i class="ri-star-fill text-yellow-400 text-xs"></i>
-</div>
-<span class="text-xs text-gray-500">(850)</span>
-</div>
-</div>
-<h3 class="text-sm font-medium text-gray-900 mb-1">Telehealth Consultation</h3>
-<p class="text-xs text-gray-500 mb-3">Virtual care service package</p>
-<div class="flex items-center justify-between">
-<div class="text-xs text-gray-500">Used by 950 clinics</div>
-<button class="text-xs text-primary font-medium">Use Template</button>
-</div>
-</div>
-<!-- Product Card 3 -->
-<div class="border border-gray-200 rounded-lg p-4 hover:border-primary/20 transition-colors">
-<div class="flex items-start justify-between mb-4">
-<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center">
-<div class="w-5 h-5 flex items-center justify-center text-primary">
-<i class="ri-shopping-bag-line"></i>
-</div>
-</div>
-<div class="flex items-center space-x-2">
-<span class="text-xs text-gray-500">4.6</span>
-<div class="flex items-center">
-<i class="ri-star-fill text-yellow-400 text-xs"></i>
-</div>
-<span class="text-xs text-gray-500">(720)</span>
-</div>
-</div>
-<h3 class="text-sm font-medium text-gray-900 mb-1">Mental Health Program</h3>
-<p class="text-xs text-gray-500 mb-3">Comprehensive mental health care</p>
-<div class="flex items-center justify-between">
-<div class="text-xs text-gray-500">Used by 800 clinics</div>
-<button class="text-xs text-primary font-medium">Use Template</button>
-</div>
-</div>
-</div>
-</div>
-</div>
 </div>
 <div id="ezBillContent" class="grid grid-cols-1 gap-6">
 <!-- Signature Program Section -->
@@ -565,7 +1003,7 @@ Add Program
 <label class="block text-sm font-medium text-gray-700 mb-2">Included Services</label>
 <div id="servicesList" class="space-y-3">
 <div class="flex items-center gap-2">
-<div class="relative">
+<div class="relative flex-1">
 <button type="button" class="service-selector w-full px-3 py-2 border border-gray-200 rounded-lg text-sm text-left flex items-center justify-between">
 <span class="text-gray-400">Select a service</span>
 <i class="ri-arrow-down-s-line text-gray-400"></i>
@@ -640,6 +1078,77 @@ Add Service
 <td class="px-6 py-4 text-sm text-gray-900">Weight Management Plus</td>
 <td class="px-6 py-4 text-sm text-gray-600">6 months</td>
 <td class="px-6 py-4 text-sm text-gray-900">$1,299.00</td>
+<td class="px-6 py-4 text-sm">
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-more-2-fill"></i>
+</div>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Subscription Section -->
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-6">
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h2 class="text-lg font-semibold text-gray-900">Subscription Plans</h2>
+<p class="text-sm text-gray-600 mt-1">Recurring healthcare services</p>
+</div>
+<button class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-add-line"></i>
+</div>
+Add Plan
+</button>
+</div>
+<div class="border border-gray-200 rounded-lg overflow-hidden">
+<table class="w-full">
+<thead class="bg-gray-50">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Plan Name</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Billing Cycle</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Active Subscribers</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200">
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-900">Wellness Plus</td>
+<td class="px-6 py-4 text-sm text-gray-600">Monthly</td>
+<td class="px-6 py-4 text-sm text-gray-900">$199.00</td>
+<td class="px-6 py-4 text-sm text-gray-600">128</td>
+<td class="px-6 py-4 text-sm">
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-more-2-fill"></i>
+</div>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-900">Family Care</td>
+<td class="px-6 py-4 text-sm text-gray-600">Quarterly</td>
+<td class="px-6 py-4 text-sm text-gray-900">$499.00</td>
+<td class="px-6 py-4 text-sm text-gray-600">85</td>
+<td class="px-6 py-4 text-sm">
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-more-2-fill"></i>
+</div>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-900">Premium Health</td>
+<td class="px-6 py-4 text-sm text-gray-600">Annual</td>
+<td class="px-6 py-4 text-sm text-gray-900">$1,799.00</td>
+<td class="px-6 py-4 text-sm text-gray-600">42</td>
 <td class="px-6 py-4 text-sm">
 <button class="text-gray-400 hover:text-gray-600">
 <div class="w-4 h-4 flex items-center justify-center">
@@ -751,6 +1260,64 @@ Add Product
 </div>
 </div>
 </div>
+<!-- Product Bundle Section -->
+<div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<div>
+<h2 class="text-lg font-semibold text-gray-900">Product Bundle</h2>
+<p class="text-sm text-gray-600 mt-1">Create and manage product combinations</p>
+</div>
+<button class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-add-line"></i>
+</div>
+Create Bundle
+</button>
+</div>
+<div class="border border-gray-200 rounded-lg overflow-hidden">
+<table class="w-full">
+<thead class="bg-gray-50">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bundle Name</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Products Included</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Value</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Bundle Price</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200">
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-900">Complete Health Bundle</td>
+<td class="px-6 py-4 text-sm text-gray-600">Annual Health Check, Blood Test Panel, Nutrition Consultation</td>
+<td class="px-6 py-4 text-sm text-gray-600">$750.00</td>
+<td class="px-6 py-4 text-sm text-gray-900">$649.00</td>
+<td class="px-6 py-4 text-sm">
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-more-2-fill"></i>
+</div>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-900">Family Wellness Package</td>
+<td class="px-6 py-4 text-sm text-gray-600">Family Health Check, Immunizations, Dental Care</td>
+<td class="px-6 py-4 text-sm text-gray-600">$1,200.00</td>
+<td class="px-6 py-4 text-sm text-gray-900">$999.00</td>
+<td class="px-6 py-4 text-sm">
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-more-2-fill"></i>
+</div>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
 <!-- Custom Fees Section -->
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
 <div class="p-6">
@@ -835,63 +1402,113 @@ Create Template
 </button>
 </div>
 </div>
-<div class="p-4">
-<div class="grid grid-cols-1 gap-3">
-<button class="template-type-btn flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors" data-type="calendar">
-<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-3">
-<div class="w-4 h-4 flex items-center justify-center text-primary">
-<i class="ri-calendar-2-line"></i>
+<div class="p-6 flex h-[600px]">
+<div class="w-[240px] border-r border-gray-200 pr-4">
+<div class="space-y-6">
+<div>
+<h3 class="text-xs font-medium text-gray-500 uppercase mb-3">Basic Elements</h3>
+<div class="space-y-2">
+<button class="element-btn w-full flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-2">
+<i class="ri-text-line text-primary"></i>
 </div>
-</div>
-<div class="text-left">
-<div class="text-sm font-medium text-gray-900">Calendar Event</div>
-<div class="text-xs text-gray-500">Create event template</div>
-</div>
+<span class="text-sm">Title</span>
 </button>
-<button class="template-type-btn flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors" data-type="task">
-<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-3">
-<div class="w-4 h-4 flex items-center justify-center text-primary">
-<i class="ri-task-line"></i>
+<button class="element-btn w-full flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-2">
+<i class="ri-text-wrap text-primary"></i>
 </div>
-</div>
-<div class="text-left">
-<div class="text-sm font-medium text-gray-900">Task</div>
-<div class="text-xs text-gray-500">Create task template</div>
-</div>
+<span class="text-sm">Paragraph</span>
 </button>
-<button class="template-type-btn flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors" data-type="document">
-<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-3">
-<div class="w-4 h-4 flex items-center justify-center text-primary">
-<i class="ri-file-text-line"></i>
+<button class="element-btn w-full flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-2">
+<i class="ri-list-check-2 text-primary"></i>
 </div>
-</div>
-<div class="text-left">
-<div class="text-sm font-medium text-gray-900">Document</div>
-<div class="text-xs text-gray-500">Create document template</div>
-</div>
+<span class="text-sm">Checklist</span>
 </button>
-<button class="template-type-btn flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors" data-type="order">
-<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-3">
-<div class="w-4 h-4 flex items-center justify-center text-primary">
-<i class="ri-shopping-cart-line"></i>
 </div>
 </div>
-<div class="text-left">
-<div class="text-sm font-medium text-gray-900">Order</div>
-<div class="text-xs text-gray-500">Create order template</div>
+<div>
+<h3 class="text-xs font-medium text-gray-500 uppercase mb-3">Form Fields</h3>
+<div class="space-y-2">
+<button class="element-btn w-full flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-2">
+<i class="ri-questionnaire-line text-primary"></i>
 </div>
+<span class="text-sm">Question</span>
 </button>
-<button class="template-type-btn flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors" data-type="subscription">
-<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-3">
-<div class="w-4 h-4 flex items-center justify-center text-primary">
-<i class="ri-refresh-line"></i>
+<button class="element-btn w-full flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-2">
+<i class="ri-radio-button-line text-primary"></i>
 </div>
-</div>
-<div class="text-left">
-<div class="text-sm font-medium text-gray-900">Subscription</div>
-<div class="text-xs text-gray-500">Create subscription template</div>
-</div>
+<span class="text-sm">Multiple Choice</span>
 </button>
+<button class="element-btn w-full flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-2">
+<i class="ri-checkbox-line text-primary"></i>
+</div>
+<span class="text-sm">Checkboxes</span>
+</button>
+</div>
+</div>
+<div>
+<h3 class="text-xs font-medium text-gray-500 uppercase mb-3">Media</h3>
+<div class="space-y-2">
+<button class="element-btn w-full flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-2">
+<i class="ri-image-line text-primary"></i>
+</div>
+<span class="text-sm">Image</span>
+</button>
+<button class="element-btn w-full flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-2">
+<i class="ri-video-line text-primary"></i>
+</div>
+<span class="text-sm">Video</span>
+</button>
+<button class="element-btn w-full flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-2">
+<i class="ri-attachment-line text-primary"></i>
+</div>
+<span class="text-sm">File Upload</span>
+</button>
+</div>
+</div>
+<div>
+<h3 class="text-xs font-medium text-gray-500 uppercase mb-3">Advanced</h3>
+<div class="space-y-2">
+<button class="element-btn w-full flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-2">
+<i class="ri-table-line text-primary"></i>
+</div>
+<span class="text-sm">Table</span>
+</button>
+<button class="element-btn w-full flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-2">
+<i class="ri-calendar-line text-primary"></i>
+</div>
+<span class="text-sm">Date & Time</span>
+</button>
+<button class="element-btn w-full flex items-center p-2 text-gray-600 hover:bg-gray-50 rounded-lg">
+<div class="w-8 h-8 bg-primary/5 rounded-lg flex items-center justify-center mr-2">
+<i class="ri-pen-nib-line text-primary"></i>
+</div>
+<span class="text-sm">Signature</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1 pl-6">
+<div class="bg-gray-50 rounded-lg h-full p-6">
+<div class="bg-white rounded-lg h-full p-6 border border-gray-200">
+<div class="text-center text-gray-500 text-sm">
+<i class="ri-drag-drop-line text-2xl mb-2"></i>
+<p>Drag and drop elements here</p>
+<p>or click elements from the left panel to add</p>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1076,14 +1693,14 @@ Updated 1 week ago
 <div class="p-6">
 <div class="flex items-center justify-between mb-6">
 <div>
-<h2 class="text-lg font-semibold text-gray-900">Workflows</h2>
+<h2 class="text-lg font-semibold text-gray-900">Popular Templates</h2>
 <p class="text-sm text-gray-600 mt-1">Standardize your clinical processes</p>
 </div>
 <button id="createWorkflowBtn" class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap">
 <div class="w-4 h-4 flex items-center justify-center mr-2">
-<i class="ri-add-line"></i>
+<i class="ri-arrow-right-line"></i>
 </div>
-Create Workflow
+Explore More
 </button>
 <div id="createWorkflowModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 hidden flex items-center justify-center z-50">
 <div class="bg-white rounded-lg w-[800px] max-h-[90vh] flex flex-col">
@@ -1170,7 +1787,7 @@ Add Step
 </div>
 </div>
 <div class="text-left">
-<div class="text-sm font-medium text-gray-900">Order</div>
+<div class="text-sm font-medium text-gray-900">Product Bundle</div>
 <div class="text-xs text-gray-500">Create a product or service order</div>
 </div>
 </button>
@@ -1203,18 +1820,18 @@ Add Step
 </div>
 </div>
 <div class="grid grid-cols-1 gap-4">
-<!-- Workflow Item 1 -->
+<!-- Template Item 1 -->
 <div class="border border-gray-200 rounded-lg p-4">
 <div class="flex items-center justify-between">
 <div class="flex items-center">
 <div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center mr-4">
 <div class="w-5 h-5 flex items-center justify-center text-primary">
-<i class="ri-flow-chart"></i>
+<i class="ri-file-text-line"></i>
 </div>
 </div>
 <div>
-<h3 class="text-sm font-medium text-gray-900">New Patient Onboarding</h3>
-<p class="text-xs text-gray-500 mt-1">7 steps • Last updated 3 days ago</p>
+<h3 class="text-sm font-medium text-gray-900">Holistic Health Assessment</h3>
+<p class="text-xs text-gray-500 mt-1">Comprehensive wellness evaluation form</p>
 </div>
 </div>
 <button class="text-gray-400 hover:text-gray-600">
@@ -1224,18 +1841,18 @@ Add Step
 </button>
 </div>
 </div>
-<!-- Workflow Item 2 -->
+<!-- Template Item 2 -->
 <div class="border border-gray-200 rounded-lg p-4">
 <div class="flex items-center justify-between">
 <div class="flex items-center">
 <div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center mr-4">
 <div class="w-5 h-5 flex items-center justify-center text-primary">
-<i class="ri-flow-chart"></i>
+<i class="ri-file-text-line"></i>
 </div>
 </div>
 <div>
-<h3 class="text-sm font-medium text-gray-900">Annual Check-up Protocol</h3>
-<p class="text-xs text-gray-500 mt-1">5 steps • Last updated 1 week ago</p>
+<h3 class="text-sm font-medium text-gray-900">Nutrition & Lifestyle Questionnaire</h3>
+<p class="text-xs text-gray-500 mt-1">Dietary habits and lifestyle assessment</p>
 </div>
 </div>
 <button class="text-gray-400 hover:text-gray-600">
@@ -1245,18 +1862,18 @@ Add Step
 </button>
 </div>
 </div>
-<!-- Workflow Item 3 -->
+<!-- Template Item 3 -->
 <div class="border border-gray-200 rounded-lg p-4">
 <div class="flex items-center justify-between">
 <div class="flex items-center">
 <div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center mr-4">
 <div class="w-5 h-5 flex items-center justify-center text-primary">
-<i class="ri-flow-chart"></i>
+<i class="ri-file-text-line"></i>
 </div>
 </div>
 <div>
-<h3 class="text-sm font-medium text-gray-900">Lab Results Review</h3>
-<p class="text-xs text-gray-500 mt-1">4 steps • Last updated 2 weeks ago</p>
+<h3 class="text-sm font-medium text-gray-900">Wellness Progress Report</h3>
+<p class="text-xs text-gray-500 mt-1">Monthly wellness tracking template</p>
 </div>
 </div>
 <button class="text-gray-400 hover:text-gray-600">
@@ -1264,6 +1881,7 @@ Add Step
 <i class="ri-more-2-fill"></i>
 </div>
 </button>
+</div>
 </div>
 </div>
 </div>
@@ -1274,6 +1892,102 @@ Add Step
 </div>
 <script id="workbenchNavScript">
 document.addEventListener('DOMContentLoaded', function() {
+// Column order modal handlers
+const openColumnOrder = document.getElementById('openColumnOrder');
+const columnOrderModal = document.getElementById('columnOrderModal');
+const closeColumnOrder = document.getElementById('closeColumnOrder');
+const cancelColumnOrder = document.getElementById('cancelColumnOrder');
+openColumnOrder.addEventListener('click', () => {
+columnOrderModal.classList.remove('hidden');
+document.body.style.overflow = 'hidden';
+});
+closeColumnOrder.addEventListener('click', () => {
+columnOrderModal.classList.add('hidden');
+document.body.style.overflow = '';
+});
+cancelColumnOrder.addEventListener('click', () => {
+columnOrderModal.classList.add('hidden');
+document.body.style.overflow = '';
+});
+window.addEventListener('click', (e) => {
+if (e.target === columnOrderModal) {
+columnOrderModal.classList.add('hidden');
+document.body.style.overflow = '';
+}
+});
+// Report format radio and checkbox handlers
+const radioInputs = document.querySelectorAll('input[type="radio"]');
+const checkboxInputs = document.querySelectorAll('input[type="checkbox"]');
+radioInputs.forEach(radio => {
+radio.addEventListener('change', function() {
+// Reset all radio indicators in the same group
+const groupName = this.name;
+document.querySelectorAll(`input[name="${groupName}"]`).forEach(input => {
+const indicator = input.nextElementSibling.querySelector('div');
+indicator.classList.add('hidden');
+});
+// Show the selected radio indicator
+if (this.checked) {
+const indicator = this.nextElementSibling.querySelector('div');
+indicator.classList.remove('hidden');
+}
+});
+});
+checkboxInputs.forEach(checkbox => {
+checkbox.addEventListener('change', function() {
+const checkmark = this.nextElementSibling.querySelector('i');
+const container = this.nextElementSibling;
+if (this.checked) {
+container.classList.add('bg-primary', 'border-primary');
+checkmark.classList.remove('hidden');
+} else {
+container.classList.remove('bg-primary', 'border-primary');
+checkmark.classList.add('hidden');
+}
+});
+});
+const saveColumnOrder = document.getElementById('saveColumnOrder');
+const columnList = document.getElementById('columnList');
+let draggedItem = null;
+columnList.addEventListener('dragstart', (e) => {
+draggedItem = e.target;
+e.target.classList.add('opacity-50');
+});
+columnList.addEventListener('dragend', (e) => {
+e.target.classList.remove('opacity-50');
+});
+columnList.addEventListener('dragover', (e) => {
+e.preventDefault();
+const afterElement = getDragAfterElement(columnList, e.clientY);
+const draggable = document.querySelector('.opacity-50');
+if (afterElement == null) {
+columnList.appendChild(draggable);
+} else {
+columnList.insertBefore(draggable, afterElement);
+}
+});
+function getDragAfterElement(container, y) {
+const draggableElements = [...container.querySelectorAll('[draggable]:not(.opacity-50)')];
+return draggableElements.reduce((closest, child) => {
+const box = child.getBoundingClientRect();
+const offset = y - box.top - box.height / 2;
+if (offset < 0 && offset > closest.offset) {
+return { offset: offset, element: child };
+} else {
+return closest;
+}
+}, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+saveColumnOrder.addEventListener('click', () => {
+const columns = Array.from(columnList.children).map(item => item.dataset.column);
+const notification = document.createElement('div');
+notification.className = 'fixed top-4 right-4 bg-green-50 text-green-600 px-4 py-3 rounded-lg shadow-lg z-50';
+notification.innerHTML = 'Column order saved successfully!';
+document.body.appendChild(notification);
+setTimeout(() => {
+notification.remove();
+}, 2000);
+});
 const addProgramBtn = document.getElementById('addProgramBtn');
 const addProgramModal = document.getElementById('addProgramModal');
 const closeProgramModal = document.getElementById('closeProgramModal');
@@ -1768,30 +2482,37 @@ navItem.classList.add('text-gray-700');
 });
 this.classList.add('active', 'text-primary', 'pl-2');
 this.classList.remove('text-gray-700');
-if (this.id === 'templatesNav') {
-ezBillContent.classList.add('hidden');
-communityContent.classList.add('hidden');
+// Hide all content sections
+const contentSections = [ezBillContent, templatesContent, workflowContent, reportContent, archiveContent];
+contentSections.forEach(section => {
+if(section) section.classList.add('hidden');
+});
+// Hide all headers
+const headers = [ezBillHeader, templatesHeader, workflowHeader, reportHeader, archiveHeader];
+headers.forEach(header => {
+if(header) header.classList.add('hidden');
+});
+// Show appropriate content and header based on nav item
+switch(this.id) {
+case 'templatesNav':
 templatesContent.classList.remove('hidden');
-ezBillHeader.classList.add('hidden');
 templatesHeader.classList.remove('hidden');
-communityHeader.classList.add('hidden');
-} else if (this.id === 'communityNav') {
-ezBillContent.classList.add('hidden');
-templatesContent.classList.add('hidden');
-communityContent.classList.remove('hidden');
-ezBillHeader.classList.add('hidden');
-templatesHeader.classList.add('hidden');
-ezBillHeader.parentNode.appendChild(communityHeader);
-communityHeader.classList.remove('hidden');
-} else {
+break;
+case 'workflowNav':
+workflowContent.classList.remove('hidden');
+workflowHeader.classList.remove('hidden');
+break;
+case 'reportNav':
+reportContent.classList.remove('hidden');
+reportHeader.classList.remove('hidden');
+break;
+case 'archiveNav':
+archiveContent.classList.remove('hidden');
+archiveHeader.classList.remove('hidden');
+break;
+default:
 ezBillContent.classList.remove('hidden');
-templatesContent.classList.add('hidden');
-communityContent.classList.add('hidden');
 ezBillHeader.classList.remove('hidden');
-templatesHeader.classList.add('hidden');
-if (communityHeader.parentNode === ezBillHeader.parentNode) {
-communityHeader.remove();
-}
 }
 });
 }

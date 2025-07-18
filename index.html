@@ -173,8 +173,9 @@ display: block;
 <!-- Page Switch Tabs -->
 <div class="w-full bg-white border-b border-gray-200">
 <div class="max-w-screen-2xl mx-auto px-4">
-<div class="grid grid-cols-4 gap-4">
-<a href="index.html" class="page-tab py-4 text-sm font-medium text-primary bg-primary/5 flex items-center justify-center whitespace-nowrap active" data-page="patients">
+<div class="flex items-center justify-between">
+<div class="grid grid-cols-4 gap-4 flex-1">
+<a href="https://readdy.ai/home/87b0e20c-cb8f-4bbb-b497-62afd2f09171/293fb158-1fa6-4f64-bf16-f8d542a0bc8e" data-readdy="true" class="page-tab py-4 text-sm font-medium text-primary bg-primary/5 flex items-center justify-center whitespace-nowrap active" data-page="patients">
 <div class="w-4 h-4 flex items-center justify-center mr-2">
 <i class="ri-user-heart-line"></i>
 </div>
@@ -198,6 +199,14 @@ My Workbench
 </div>
 My Practice
 </a>
+</div>
+<button class="flex items-center space-x-2 py-2 px-3 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-button">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20man%20with%20glasses%2C%20short%20dark%20hair%2C%20white%20coat%2C%20professional%20medical%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=32&height=32&seq=7&orientation=squarish" class="w-8 h-8 rounded-full object-cover" alt="Provider Photo">
+<span>My Account</span>
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-arrow-down-s-line"></i>
+</div>
+</button>
 </div>
 </div>
 </div>
@@ -395,7 +404,8 @@ New Patient
 <!-- Main Content Area - Chat Interface -->
 <div class="flex-1 flex flex-col h-full relative">
 <!-- Chat Header -->
-<div class="p-4 border-b border-gray-200 flex items-center justify-between bg-white">
+<div class="p-4 border-b border-gray-200 flex flex-col bg-white w-full">
+<div class="flex items-center justify-between mb-3">
 <div class="flex items-center">
 <img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20woman%20with%20short%20brown%20hair%2C%20friendly%20smile%2C%20light%20blue%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=40&height=40&seq=1&orientation=squarish" class="w-10 h-10 rounded-full object-cover" alt="Patient Photo">
 <div class="ml-3">
@@ -412,6 +422,33 @@ New Patient
 <div class="w-5 h-5 flex items-center justify-center">
 <i class="ri-more-2-fill"></i>
 </div>
+</button>
+</div>
+</div>
+<div class="flex space-x-4">
+<button class="header-tab px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-700 rounded-full flex items-center" data-tab="info">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-user-line"></i>
+</div>
+Info
+</button>
+<button class="header-tab px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-700 rounded-full flex items-center" data-tab="medical">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-heart-pulse-line"></i>
+</div>
+Medical
+</button>
+<button class="header-tab px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-700 rounded-full flex items-center" data-tab="calendar">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-calendar-line"></i>
+</div>
+Calendar
+</button>
+<button class="header-tab px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-700 rounded-full flex items-center" data-tab="billing">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-bill-line"></i>
+</div>
+Billing and Shipping
 </button>
 </div>
 </div>
@@ -1059,202 +1096,112 @@ Email
 </div>
 <!-- Right Sidebar - Patient Profile -->
 <div class="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
-<!-- Profile Header -->
-<div class="p-4 border-b border-gray-200 flex items-center justify-between">
-<h2 class="text-lg font-medium text-gray-900">Patient Profile</h2>
-<button class="p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
-<div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-more-2-fill"></i>
-</div>
-</button>
-</div>
-<!-- Patient Info -->
-<div class="p-4 border-b border-gray-200 flex items-center">
-<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20woman%20with%20short%20brown%20hair%2C%20friendly%20smile%2C%20light%20blue%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=64&height=64&seq=1&orientation=squarish" class="w-16 h-16 rounded-full object-cover" alt="Patient Photo">
-<div class="ml-4">
-<h3 class="text-base font-medium text-gray-900">Sarah Johnson</h3>
-<p class="text-sm text-gray-500">Patient ID: #87654321</p>
-<div class="flex items-center mt-1">
-<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Active Patient</span>
-</div>
-</div>
-</div>
 <!-- Profile Tabs -->
-<div class="border-b border-gray-200">
-<div class="flex">
-<button class="profile-tab flex-1 py-2 px-1 text-sm font-medium text-primary border-b-2 border-primary" data-tab="info">Info</button>
-<button class="profile-tab flex-1 py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="medical">Medical</button>
-<button class="profile-tab flex-1 py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="calendar">Calendar</button>
-<button class="profile-tab flex-1 py-2 px-1 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="billing">Billing</button>
-</div>
-</div>
 <!-- Profile Content -->
-<div class="profile-panel flex-1 overflow-y-auto p-4">
-<!-- Info Tab Content -->
-<div id="info-tab" class="tab-content active">
-<div class="flex justify-between items-center mb-4">
-<h4 class="text-sm font-medium text-gray-900">Patient Management</h4>
-<div class="flex space-x-2">
-<button class="px-2 py-1 text-xs text-primary border border-primary rounded-button hover:bg-primary/5 whitespace-nowrap">Edit Profile</button>
-<button class="px-2 py-1 text-xs text-red-600 border border-red-600 rounded-button hover:bg-red-50 whitespace-nowrap">Deactivate</button>
-</div>
-</div>
+<div class="profile-panel flex-1 overflow-y-auto p-6" style="background-color: #F4D03F; background-image: linear-gradient(315deg, #F4D03F 0%, #D5A253 74%);">
 <div class="mb-6">
-<div class="flex items-center mb-2">
-<h4 class="text-sm font-medium text-gray-900">Contact Information</h4>
-<button class="ml-2 p-1 text-gray-400 hover:text-gray-600">
-<div class="w-4 h-4 flex items-center justify-center">
+<div class="flex items-center">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20woman%20with%20short%20brown%20hair%2C%20friendly%20smile%2C%20light%20blue%20background%2C%20professional%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=40&height=40&seq=1&orientation=squarish" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-md" alt="Patient Photo">
+<div class="ml-3">
+<h2 class="text-lg font-medium text-white">Sarah's Cork Board</h2>
+<p class="text-sm text-white/80">Last updated: June 5, 2025</p>
+</div>
+</div>
+</div>
+<!-- Cork Board Content -->
+<div id="medical-tab" class="tab-content active space-y-4">
+<div class="relative p-4 bg-white rounded-lg shadow-md transform rotate-[-1deg] hover:rotate-0 transition-transform duration-200" style="box-shadow: 2px 2px 5px rgba(0,0,0,0.2);">
+<div class="flex justify-between items-center mb-3">
+<div class="flex items-center">
+<div class="w-6 h-6 flex items-center justify-center bg-red-500 rounded-full -translate-y-8 -translate-x-6">
+<div class="w-2 h-2 bg-red-700 rounded-full"></div>
+</div>
+<h4 class="text-base font-medium text-gray-900">Recent Test Results</h4>
+</div>
+<button class="text-xs text-primary font-medium whitespace-nowrap hover:text-primary/80">View All</button>
+</div>
+<div class="space-y-3">
+<div class="p-3 border border-gray-200 rounded-lg">
+<div class="flex justify-between items-start">
+<div>
+<h5 class="text-sm font-medium text-gray-900">Comprehensive Metabolic Panel</h5>
+<p class="text-xs text-gray-500">June 1, 2025</p>
+</div>
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Normal</span>
+</div>
+<div class="mt-2">
+<div class="flex justify-between text-xs">
+<span class="text-gray-500">Cholesterol (Total)</span>
+<span class="font-medium text-gray-900">210 mg/dL</span>
+</div>
+<div class="flex justify-between text-xs mt-1">
+<span class="text-gray-500">HDL</span>
+<span class="font-medium text-gray-900">55 mg/dL</span>
+</div>
+<div class="flex justify-between text-xs mt-1">
+<span class="text-gray-500">LDL</span>
+<span class="font-medium text-gray-900">130 mg/dL</span>
+</div>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg">
+<div class="flex justify-between items-start">
+<div>
+<h5 class="text-sm font-medium text-gray-900">Complete Blood Count</h5>
+<p class="text-xs text-gray-500">May 15, 2025</p>
+</div>
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Normal</span>
+</div>
+</div>
+</div>
+</div>
+<div class="relative p-4 bg-white rounded-lg shadow-md transform rotate-[1deg] hover:rotate-0 transition-transform duration-200 mt-6" style="box-shadow: 2px 2px 5px rgba(0,0,0,0.2);">
+<div class="flex items-center justify-between mb-3">
+<div class="flex items-center">
+<div class="w-6 h-6 flex items-center justify-center bg-blue-500 rounded-full -translate-y-8 -translate-x-6">
+<div class="w-2 h-2 bg-blue-700 rounded-full"></div>
+</div>
+<h4 class="text-base font-medium text-gray-900">Medications</h4>
+</div>
+<button class="text-xs text-primary font-medium hover:text-primary/80 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
 <i class="ri-pencil-line"></i>
 </div>
+Edit
 </button>
+</div>
+<div class="space-y-3">
+<div class="p-3 border border-gray-200 rounded-lg">
+<h5 class="text-sm font-medium text-gray-900">Lisinopril</h5>
+<p class="text-xs text-gray-500">10mg, once daily</p>
+<p class="text-xs text-gray-500 mt-1">For hypertension</p>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg">
+<h5 class="text-sm font-medium text-gray-900">Vitamin D3</h5>
+<p class="text-xs text-gray-500">2000 IU, once daily</p>
+<p class="text-xs text-gray-500 mt-1">Supplement</p>
+</div>
+</div>
+</div>
+<div class="relative p-4 bg-white rounded-lg shadow-md transform rotate-[-0.5deg] hover:rotate-0 transition-transform duration-200 mt-6" style="box-shadow: 2px 2px 5px rgba(0,0,0,0.2);">
+<div class="flex items-center mb-3">
+<div class="w-6 h-6 flex items-center justify-center bg-yellow-500 rounded-full -translate-y-8 -translate-x-6">
+<div class="w-2 h-2 bg-yellow-700 rounded-full"></div>
+</div>
+<h4 class="text-base font-medium text-gray-900">Allergies</h4>
 </div>
 <div class="space-y-2">
-<div class="flex items-start">
-<div class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5 mr-2">
-<i class="ri-mail-line"></i>
-</div>
-<div>
-<p class="text-sm text-gray-900">sarah.johnson@example.com</p>
-<p class="text-xs text-gray-500">Primary Email</p>
-</div>
-</div>
-<div class="flex items-start">
-<div class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5 mr-2">
-<i class="ri-smartphone-line"></i>
-</div>
-<div>
-<p class="text-sm text-gray-900">(555) 123-4567</p>
-<p class="text-xs text-gray-500">Mobile</p>
-</div>
-</div>
-<div class="flex items-start">
-<div class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5 mr-2">
-<i class="ri-map-pin-line"></i>
-</div>
-<div>
-<p class="text-sm text-gray-900">123 Main Street, Apt 4B</p>
-<p class="text-sm text-gray-900">San Francisco, CA 94107</p>
-<p class="text-xs text-gray-500">Home Address</p>
-</div>
-</div>
-</div>
-</div>
-<div class="mb-6">
-<div class="flex items-center mb-2">
-<h4 class="text-sm font-medium text-gray-900">Personal Information</h4>
-<button class="ml-2 p-1 text-gray-400 hover:text-gray-600">
-<div class="w-4 h-4 flex items-center justify-center">
-<i class="ri-pencil-line"></i>
-</div>
-</button>
-</div>
-<div class="grid grid-cols-2 gap-3">
-<div>
-<p class="text-xs text-gray-500">Date of Birth</p>
-<p class="text-sm text-gray-900">May 12, 1978</p>
-</div>
-<div>
-<p class="text-xs text-gray-500">Age</p>
-<p class="text-sm text-gray-900">47 years</p>
-</div>
-<div>
-<p class="text-xs text-gray-500">Gender</p>
-<p class="text-sm text-gray-900">Female</p>
-</div>
-<div>
-<p class="text-xs text-gray-500">Occupation</p>
-<p class="text-sm text-gray-900">Marketing Director</p>
-</div>
-</div>
-</div>
-<div class="mb-6">
-<div class="flex items-center mb-2">
-<h4 class="text-sm font-medium text-gray-900">Emergency Contact</h4>
-<button class="ml-2 p-1 text-gray-400 hover:text-gray-600">
-<div class="w-4 h-4 flex items-center justify-center">
-<i class="ri-pencil-line"></i>
-</div>
-</button>
-</div>
-<div class="space-y-2">
-<div>
-<p class="text-sm text-gray-900">David Johnson</p>
-<p class="text-xs text-gray-500">Spouse</p>
-</div>
-<div class="flex items-start">
-<div class="w-5 h-5 flex items-center justify-center text-gray-400 mt-0.5 mr-2">
-<i class="ri-smartphone-line"></i>
-</div>
-<p class="text-sm text-gray-900">(555) 987-6543</p>
-</div>
-</div>
-</div>
-<div class="mb-6">
-<div class="flex items-center mb-2">
-<h4 class="text-sm font-medium text-gray-900">Notes</h4>
-<button class="ml-2 p-1 text-gray-400 hover:text-gray-600">
-<div class="w-4 h-4 flex items-center justify-center">
-<i class="ri-add-line"></i>
-</div>
-</button>
-</div>
-<div class="border border-gray-200 rounded-lg p-3">
-<div class="flex justify-between items-start mb-2">
-<p class="text-xs text-gray-500">Added by Dr. Martinez • June 5, 2025</p>
-<button class="p-1 text-gray-400 hover:text-gray-600">
-<div class="w-4 h-4 flex items-center justify-center">
-<i class="ri-more-2-fill"></i>
-</div>
-</button>
-</div>
-<p class="text-sm text-gray-900">Patient is following the recommended diet plan. Showing good progress with lifestyle changes.</p>
-</div>
-</div>
-<div>
-<div class="flex items-center mb-2">
-<h4 class="text-sm font-medium text-gray-900">Communication Preferences</h4>
-<button class="ml-2 p-1 text-gray-400 hover:text-gray-600">
-<div class="w-4 h-4 flex items-center justify-center">
-<i class="ri-pencil-line"></i>
-</div>
-</button>
-</div>
-<div class="space-y-2">
-<div class="flex items-center justify-between">
 <div class="flex items-center">
-<div class="w-5 h-5 flex items-center justify-center text-gray-400 mr-2">
-<i class="ri-message-2-line"></i>
+<div class="w-5 h-5 flex items-center justify-center text-red-500 mr-2">
+<i class="ri-alert-line"></i>
 </div>
-<span class="text-sm text-gray-900">SMS Notifications</span>
+<p class="text-sm text-gray-900">Penicillin</p>
 </div>
-<label class="custom-switch">
-<input type="checkbox" checked>
-<span class="switch-slider"></span>
-</label>
-</div>
-<div class="flex items-center justify-between">
 <div class="flex items-center">
-<div class="w-5 h-5 flex items-center justify-center text-gray-400 mr-2">
-<i class="ri-mail-line"></i>
+<div class="w-5 h-5 flex items-center justify-center text-yellow-500 mr-2">
+<i class="ri-alert-line"></i>
 </div>
-<span class="text-sm text-gray-900">Email Updates</span>
-</div>
-<label class="custom-switch">
-<input type="checkbox" checked>
-<span class="switch-slider"></span>
-</label>
-</div>
-<div class="flex items-center justify-between">
-<div class="flex items-center">
-<div class="w-5 h-5 flex items-center justify-center text-gray-400 mr-2">
-<i class="ri-notification-line"></i>
-</div>
-<span class="text-sm text-gray-900">App Notifications</span>
-</div>
-<label class="custom-switch">
-<input type="checkbox">
-<span class="switch-slider"></span>
-</label>
+<p class="text-sm text-gray-900">Seasonal Pollen</p>
 </div>
 </div>
 </div>
@@ -1301,23 +1248,13 @@ Email
 </div>
 </div>
 </div>
-<div class="mb-6">
-<h4 class="text-sm font-medium text-gray-900 mb-2">Medications</h4>
-<div class="space-y-3">
-<div class="p-3 border border-gray-200 rounded-lg">
-<h5 class="text-sm font-medium text-gray-900">Lisinopril</h5>
-<p class="text-xs text-gray-500">10mg, once daily</p>
-<p class="text-xs text-gray-500 mt-1">For hypertension</p>
+<div class="relative p-4 bg-white rounded-lg shadow-md transform rotate-[-0.5deg] hover:rotate-0 transition-transform duration-200 mt-6" style="box-shadow: 2px 2px 5px rgba(0,0,0,0.2);">
+<div class="flex items-center mb-3">
+<div class="w-6 h-6 flex items-center justify-center bg-yellow-500 rounded-full -translate-y-8 -translate-x-6">
+<div class="w-2 h-2 bg-yellow-700 rounded-full"></div>
 </div>
-<div class="p-3 border border-gray-200 rounded-lg">
-<h5 class="text-sm font-medium text-gray-900">Vitamin D3</h5>
-<p class="text-xs text-gray-500">2000 IU, once daily</p>
-<p class="text-xs text-gray-500 mt-1">Supplement</p>
+<h4 class="text-base font-medium text-gray-900">Allergies</h4>
 </div>
-</div>
-</div>
-<div>
-<h4 class="text-sm font-medium text-gray-900 mb-2">Allergies</h4>
 <div class="space-y-2">
 <div class="flex items-center">
 <div class="w-5 h-5 flex items-center justify-center text-red-500 mr-2">
@@ -1571,6 +1508,418 @@ Email
 </div>
 <script id="pageTabsScript">
 document.addEventListener('DOMContentLoaded', function() {
+const headerTabs = document.querySelectorAll('.header-tab');
+headerTabs.forEach(tab => {
+tab.addEventListener('click', function() {
+const tabType = this.getAttribute('data-tab');
+const modal = document.createElement('div');
+modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+let modalContent = '';
+switch(tabType) {
+case 'info':
+modalContent = `
+<div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center">
+<h3 class="text-lg font-medium text-gray-900">Patient Information</h3>
+<span class="ml-3 px-2 py-1 bg-gray-100 rounded text-xs font-medium text-gray-600">ID: P-20250715-001</span>
+</div>
+<button class="close-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="grid grid-cols-3 gap-8">
+<div class="col-span-2">
+<div class="flex items-center justify-between mb-4">
+<h4 class="text-sm font-medium text-gray-900">Personal Details</h4>
+<button class="text-xs text-primary font-medium hover:text-primary/80">Edit Details</button>
+</div>
+<div class="grid grid-cols-2 gap-x-8 gap-y-4">
+<div>
+<label class="block text-xs text-gray-500">Full Name</label>
+<p class="text-sm text-gray-900 mt-1">Sarah Johnson</p>
+</div>
+<div>
+<label class="block text-xs text-gray-500">Patient ID</label>
+<p class="text-sm text-gray-900 mt-1">P-20250715-001</p>
+</div>
+<div>
+<label class="block text-xs text-gray-500">Date of Birth</label>
+<p class="text-sm text-gray-900 mt-1">May 12, 1978 (47 years)</p>
+</div>
+<div>
+<label class="block text-xs text-gray-500">Gender</label>
+<p class="text-sm text-gray-900 mt-1">Female</p>
+</div>
+<div>
+<label class="block text-xs text-gray-500">Email</label>
+<p class="text-sm text-gray-900 mt-1">sarah.johnson@example.com</p>
+</div>
+<div>
+<label class="block text-xs text-gray-500">Phone</label>
+<p class="text-sm text-gray-900 mt-1">(555) 123-4567</p>
+</div>
+</div>
+</div>
+<div>
+<div class="flex items-center justify-between mb-4">
+<h4 class="text-sm font-medium text-gray-900">Address</h4>
+<button class="text-xs text-primary font-medium hover:text-primary/80">Edit Address</button>
+</div>
+<div class="p-4 bg-gray-50 rounded-lg">
+<div>
+<label class="block text-xs text-gray-500">Shipping Address</label>
+<p class="text-sm text-gray-900 mt-1">123 Main Street, Apt 4B</p>
+<p class="text-sm text-gray-900">San Francisco, CA 94107</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+`;
+break;
+case 'medical':
+modalContent = `
+<div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-medium text-gray-900">Medical History</h3>
+<button class="close-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="space-y-6">
+<div>
+<h4 class="text-sm font-medium text-gray-900 mb-3">Current Medications</h4>
+<div class="grid grid-cols-2 gap-4">
+<div class="p-3 border border-gray-200 rounded-lg">
+<h5 class="text-sm font-medium text-gray-900">Lisinopril</h5>
+<p class="text-xs text-gray-500">10mg, once daily</p>
+<p class="text-xs text-gray-500 mt-1">For hypertension</p>
+<div class="mt-2 flex items-center">
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Active</span>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg">
+<h5 class="text-sm font-medium text-gray-900">Vitamin D3</h5>
+<p class="text-xs text-gray-500">2000 IU, once daily</p>
+<p class="text-xs text-gray-500 mt-1">Supplement</p>
+<div class="mt-2 flex items-center">
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Active</span>
+</div>
+</div>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900 mb-3">Recent Test Results</h4>
+<div class="space-y-3">
+<div class="p-3 border border-gray-200 rounded-lg">
+<div class="flex justify-between items-start">
+<div>
+<h5 class="text-sm font-medium text-gray-900">Comprehensive Metabolic Panel</h5>
+<p class="text-xs text-gray-500">June 1, 2025</p>
+</div>
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Normal</span>
+</div>
+<div class="mt-2">
+<div class="flex justify-between text-xs">
+<span class="text-gray-500">Cholesterol (Total)</span>
+<span class="font-medium text-gray-900">210 mg/dL</span>
+</div>
+<div class="flex justify-between text-xs mt-1">
+<span class="text-gray-500">HDL</span>
+<span class="font-medium text-gray-900">55 mg/dL</span>
+</div>
+<div class="flex justify-between text-xs mt-1">
+<span class="text-gray-500">LDL</span>
+<span class="font-medium text-gray-900">130 mg/dL</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900 mb-3">Allergies & Conditions</h4>
+<div class="space-y-2">
+<div class="flex items-center">
+<div class="w-5 h-5 flex items-center justify-center text-red-500 mr-2">
+<i class="ri-alert-line"></i>
+</div>
+<p class="text-sm text-gray-900">Penicillin</p>
+</div>
+<div class="flex items-center">
+<div class="w-5 h-5 flex items-center justify-center text-yellow-500 mr-2">
+<i class="ri-alert-line"></i>
+</div>
+<p class="text-sm text-gray-900">Seasonal Pollen</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+`;
+break;
+case 'calendar':
+modalContent = `
+<div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-medium text-gray-900">Appointment Calendar</h3>
+<button class="close-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="mb-6 border border-gray-200 rounded-lg p-4">
+<div class="flex items-center justify-between mb-4">
+<button class="p-1 text-gray-500 hover:bg-gray-100 rounded">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-arrow-left-s-line"></i>
+</div>
+</button>
+<h5 class="text-sm font-medium text-gray-900">June 2025</h5>
+<button class="p-1 text-gray-500 hover:bg-gray-100 rounded">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-arrow-right-s-line"></i>
+</div>
+</button>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center mb-2">
+<div class="text-xs text-gray-500">Sun</div>
+<div class="text-xs text-gray-500">Mon</div>
+<div class="text-xs text-gray-500">Tue</div>
+<div class="text-xs text-gray-500">Wed</div>
+<div class="text-xs text-gray-500">Thu</div>
+<div class="text-xs text-gray-500">Fri</div>
+<div class="text-xs text-gray-500">Sat</div>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center">
+${Array(35).fill().map((_, i) => `
+<div class="aspect-square p-1 border border-gray-100 hover:bg-gray-50 cursor-pointer rounded">
+<div class="text-sm ${i < 3 || i > 30 ? 'text-gray-400' : ''}">${((i + 29) % 31) + 1}</div>
+</div>
+`).join('')}
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900 mb-3">Upcoming Appointments</h4>
+<div class="space-y-3">
+<div class="p-3 border border-gray-200 rounded-lg">
+<div class="flex justify-between">
+<h5 class="text-sm font-medium text-gray-900">Follow-up Consultation</h5>
+<div class="flex items-center">
+<button class="p-1 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-pencil-line"></i>
+</div>
+</button>
+<button class="p-1 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+</div>
+<div class="mt-2 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-calendar-line"></i>
+</div>
+<p class="text-sm text-gray-900">June 12, 2025 • 2:00 PM</p>
+</div>
+<div class="mt-1 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-time-line"></i>
+</div>
+<p class="text-sm text-gray-900">30 minutes</p>
+</div>
+<div class="mt-1 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-user-line"></i>
+</div>
+<p class="text-sm text-gray-900">Dr. Martinez</p>
+</div>
+</div>
+</div>
+</div>
+`;
+break;
+case 'billing':
+modalContent = `
+<div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-medium text-gray-900">Billing Information</h3>
+<button class="close-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="space-y-6">
+<div>
+<h4 class="text-sm font-medium text-gray-900 mb-3">Order History</h4>
+<div class="space-y-3">
+<div class="p-3 border border-gray-200 rounded-lg">
+<div class="flex justify-between">
+<h5 class="text-sm font-medium text-gray-900">Lab Tests</h5>
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Paid</span>
+</div>
+<div class="mt-2 flex justify-between">
+<p class="text-sm text-gray-500">Invoice #INV-2025-0428</p>
+<p class="text-sm font-medium text-gray-900">$175.00</p>
+</div>
+<div class="mt-1 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-calendar-line"></i>
+</div>
+<p class="text-sm text-gray-900">May 2, 2025</p>
+</div>
+</div>
+<div class="p-3 border border-gray-200 rounded-lg">
+<div class="flex justify-between">
+<h5 class="text-sm font-medium text-gray-900">Initial Consultation</h5>
+<span class="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded-full">Paid</span>
+</div>
+<div class="mt-2 flex justify-between">
+<p class="text-sm text-gray-500">Invoice #INV-2025-0415</p>
+<p class="text-sm font-medium text-gray-900">$150.00</p>
+</div>
+<div class="mt-1 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-calendar-line"></i>
+</div>
+<p class="text-sm text-gray-900">April 15, 2025</p>
+</div>
+</div>
+</div>
+</div>
+<div>
+<div class="mb-6">
+<h4 class="text-sm font-medium text-gray-900 mb-3">Payment Preference</h4>
+<div class="space-y-3">
+<button class="w-full p-3 border border-primary bg-primary/5 rounded-lg flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-green-600">
+<i class="ri-bank-card-line"></i>
+</div>
+</div>
+<div class="text-left">
+<p class="text-sm font-medium text-gray-900">Patient Pay Now</p>
+<p class="text-xs text-gray-500">Immediate payment required</p>
+</div>
+</div>
+<span class="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">Selected</span>
+</button>
+<button class="w-full p-3 border border-gray-200 hover:border-primary/50 rounded-lg flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-blue-600">
+<i class="ri-time-line"></i>
+</div>
+</div>
+<div class="text-left">
+<p class="text-sm font-medium text-gray-900">Patient Pay Later</p>
+<p class="text-xs text-gray-500">Invoice will be sent</p>
+</div>
+</div>
+</button>
+<button class="w-full p-3 border border-gray-200 hover:border-primary/50 rounded-lg flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-purple-600">
+<i class="ri-hospital-line"></i>
+</div>
+</div>
+<div class="text-left">
+<p class="text-sm font-medium text-gray-900">Provider Pay</p>
+<p class="text-xs text-gray-500">Billed to practice</p>
+</div>
+</div>
+</button>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900 mb-3">Patient Card on File</h4>
+<div class="space-y-3">
+<div class="p-3 border border-gray-200 rounded-lg flex items-center">
+<div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+<div class="w-4 h-4 flex items-center justify-center text-blue-600">
+<i class="ri-visa-fill"></i>
+</div>
+</div>
+<div class="flex-1">
+<p class="text-sm font-medium text-gray-900">Visa ending in 4567</p>
+<p class="text-xs text-gray-500">Expires 09/27</p>
+</div>
+<span class="text-xs bg-gray-100 text-gray-800 px-2 py-0.5 rounded-full">Default</span>
+</div>
+</div>
+</div>
+</div>
+<div>
+<h4 class="text-sm font-medium text-gray-900 mb-3">Shipping Preferences</h4>
+<div class="p-3 border border-gray-200 rounded-lg">
+<div class="space-y-4">
+<div>
+<label class="block text-xs text-gray-500 mb-1">Delivery Method</label>
+<div class="flex space-x-3">
+<button class="flex-1 p-2 border border-primary bg-primary/5 rounded-lg text-sm text-gray-900 font-medium">
+<div class="flex items-center justify-center">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-truck-line"></i>
+</div>
+Drop Ship
+</div>
+</button>
+<button class="flex-1 p-2 border border-gray-200 hover:border-primary/50 rounded-lg text-sm text-gray-900">
+<div class="flex items-center justify-center">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-store-2-line"></i>
+</div>
+Office Pickup
+</div>
+</button>
+</div>
+</div>
+<div>
+<label class="block text-xs text-gray-500 mb-1">Shipping Address</label>
+<div class="p-2 bg-gray-50 rounded-lg">
+<p class="text-sm text-gray-900">123 Main Street, Apt 4B</p>
+<p class="text-sm text-gray-900">San Francisco, CA 94107</p>
+</div>
+<button class="mt-2 text-xs text-primary font-medium hover:text-primary/80 flex items-center">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-pencil-line"></i>
+</div>
+Edit Address
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+`;
+break;
+}
+modal.innerHTML = modalContent;
+document.body.appendChild(modal);
+// Handle modal close
+const closeButton = modal.querySelector('.close-modal');
+closeButton.addEventListener('click', () => {
+modal.remove();
+});
+// Close modal when clicking outside
+modal.addEventListener('click', (e) => {
+if (e.target === modal) {
+modal.remove();
+}
+});
+});
+});
 // AI Chat Toggle Functionality
 const aiChatToggle = document.querySelector('.ai-chat-toggle');
 const aiChatWindow = document.querySelector('.ai-chat-window');
@@ -2558,9 +2907,13 @@ e.stopPropagation();
 const orderModal = document.createElement('div');
 orderModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
 orderModal.innerHTML = `
-<div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+<div class="bg-white rounded-lg p-0 w-[1000px] max-h-[80vh] flex">
+<div class="flex-1 p-6 overflow-y-auto border-r border-gray-200">
 <div class="flex justify-between items-center mb-4">
+<div class="flex items-center space-x-4">
 <h3 class="text-lg font-medium text-gray-900">Create Order</h3>
+<span class="text-sm bg-primary/10 text-primary px-2 py-0.5 rounded-full">2 items</span>
+</div>
 <button class="close-order-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
 <div class="w-5 h-5 flex items-center justify-center">
 <i class="ri-close-line"></i>
@@ -2619,20 +2972,9 @@ orderModal.innerHTML = `
 <i class="ri-file-list-3-line"></i>
 </div>
 </div>
-<span class="text-sm font-medium text-gray-900">Use Order Template</span>
+<span class="text-sm font-medium text-gray-900">Product Bundle</span>
 </div>
 <p class="text-xs text-gray-500">Pre-configured treatment plans</p>
-</button>
-<button class="order-type-btn p-3 border border-gray-200 hover:border-primary/50 rounded-lg text-left cursor-pointer">
-<div class="flex items-center mb-2">
-<div class="w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center mr-2">
-<div class="w-4 h-4 flex items-center justify-center text-pink-600">
-<i class="ri-health-book-line"></i>
-</div>
-</div>
-<span class="text-sm font-medium text-gray-900">Program Enrollment</span>
-</div>
-<p class="text-xs text-gray-500">Join wellness programs</p>
 </button>
 </div>
 <!-- Content sections -->
@@ -2795,9 +3137,138 @@ Order Page
 </div>
 </div>
 </div>
-<div class="mt-6 flex justify-end space-x-2">
+<div class="w-[320px] bg-gray-50 flex flex-col">
+<div class="p-4 border-b border-gray-200 bg-white">
+<div class="flex items-center justify-between">
+<h4 class="text-sm font-medium text-gray-900">Shopping Bag</h4>
+<button class="text-xs text-primary font-medium hover:text-primary/80">Clear All</button>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto p-4">
+<div class="space-y-3 max-h-[200px] overflow-y-auto mb-4">
+<div class="p-3 bg-gray-50 rounded-lg">
+<div class="flex justify-between items-start">
+<div class="flex-1">
+<h5 class="text-sm font-medium text-gray-900">Comprehensive Blood Panel</h5>
+<p class="text-xs text-gray-500 mt-1">Complete blood count, metabolic panel, lipids</p>
+</div>
+<div class="flex items-center space-x-4">
+<span class="text-sm font-medium text-gray-900">$199.00</span>
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-delete-bin-line"></i>
+</div>
+</button>
+</div>
+</div>
+</div>
+<div class="p-3 bg-gray-50 rounded-lg">
+<div class="flex justify-between items-start">
+<div class="flex-1">
+<h5 class="text-sm font-medium text-gray-900">Thyroid Function Test</h5>
+<p class="text-xs text-gray-500 mt-1">TSH, T3, T4, antibodies</p>
+</div>
+<div class="flex items-center space-x-4">
+<span class="text-sm font-medium text-gray-900">$89.00</span>
+<button class="text-gray-400 hover:text-gray-600">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-delete-bin-line"></i>
+</div>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="space-y-3">
+<div class="grid grid-cols-2 gap-3">
+<div class="relative">
+<input type="text" value="Additional Service" class="w-full pl-3 pr-8 py-1.5 text-sm border border-gray-200 rounded-button" placeholder="Fee Name">
+<button class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-pencil-line"></i>
+</div>
+</button>
+</div>
+<div class="relative">
+<input type="number" value="0.00" class="w-full pl-7 pr-8 py-1.5 text-sm border border-gray-200 rounded-button" placeholder="0.00">
+<div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</div>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-pencil-line"></i>
+</div>
+</button>
+</div>
+</div>
+<div class="flex justify-end">
+<a href="#" class="text-sm text-primary hover:text-primary/80 flex items-center py-1.5">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-file-edit-line"></i>
+</div>
+Edit More Invoice Details
+</a>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex items-center space-x-2">
+<div class="relative flex-1">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-coupon-line"></i>
+</div>
+</div>
+<input type="text" placeholder="Enter promo code" class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-button">
+</div>
+<button class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-button hover:bg-primary/90 whitespace-nowrap">Apply</button>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-truck-line"></i>
+</div>
+</div>
+<select class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-button appearance-none bg-white">
+<option value="" disabled selected>Select Shipping</option>
+<option value="standard">Standard Shipping</option>
+<option value="express">Express Shipping</option>
+<option value="pickup">Local Pickup</option>
+</select>
+</div>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-bank-card-line"></i>
+</div>
+</div>
+<select class="w-full pl-9 pr-3 py-2 text-sm border border-gray-200 rounded-button appearance-none bg-white">
+<option value="" disabled selected>Payment Method</option>
+<option value="card">Credit Card</option>
+<option value="bank">Bank Transfer</option>
+<option value="paypal">PayPal</option>
+</select>
+</div>
+</div>
+</div>
+<div class="flex justify-end">
+<a href="#" class="text-sm text-primary hover:text-primary/80 flex items-center py-1.5">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-test-tube-line"></i>
+</div>
+View Required Tubes
+</a>
+</div>
+<div class="flex items-center justify-between py-3 border-t border-gray-200">
+<div>
+<p class="text-sm font-medium text-gray-900">Total</p>
+<p class="text-xs text-gray-500">2 items</p>
+</div>
+<span class="text-lg font-medium text-gray-900">$288.00</span>
+</div>
+</div>
+<div class="flex justify-end space-x-2 mt-4">
 <button class="close-order-modal px-4 py-2 border border-gray-300 text-gray-700 rounded-button text-sm font-medium hover:bg-gray-50">Cancel</button>
 <button class="px-4 py-2 bg-primary text-white rounded-button text-sm font-medium hover:bg-primary/90">Create Order</button>
+</div>
 </div>
 </div>
 `;

@@ -102,7 +102,8 @@ border-bottom: 2px solid #4f46e5;
 <!-- Page Switch Tabs -->
 <div class="w-full bg-white border-b border-gray-200">
 <div class="max-w-screen-2xl mx-auto px-4">
-<div class="grid grid-cols-4 gap-4">
+<div class="flex items-center justify-between">
+<div class="grid grid-cols-4 gap-4 flex-1">
 <a href="index.html" class="page-tab py-4 text-sm font-medium text-gray-500 hover:text-gray-700 flex items-center justify-center whitespace-nowrap" data-page="patients">
 <div class="w-4 h-4 flex items-center justify-center mr-2">
 <i class="ri-user-heart-line"></i>
@@ -128,6 +129,445 @@ My Workbench
 My Practice
 </a>
 </div>
+<div class="relative">
+<button id="profileDropdownBtn" class="flex items-center space-x-3 py-2 px-3 hover:bg-gray-50 rounded-lg">
+<div class="flex items-center">
+<div class="w-8 h-8 rounded-full overflow-hidden cursor-pointer">
+<img id="profileImage" src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520female%2520doctor%2520with%2520a%2520warm%2520smile%252C%2520wearing%2520a%2520white%2520coat%252C%2520natural%2520lighting%252C%2520high%2520quality%2520studio%2520portrait&width=100&height=100&seq=1&orientation=squarish" alt="Profile" class="w-full h-full object-cover object-top">
+</div>
+<div class="w-4 h-4 flex items-center justify-center ml-2 text-gray-500">
+<i class="ri-arrow-down-s-line"></i>
+</div>
+</div>
+</button>
+<div id="profileDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+<div class="px-4 py-3 border-b border-gray-100">
+<div class="flex items-center">
+<div class="w-12 h-12 rounded-full overflow-hidden mr-3">
+<img src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520female%2520doctor%2520with%2520a%2520warm%2520smile%252C%2520wearing%2520a%2520white%2520coat%252C%2520natural%2520lighting%252C%2520high%2520quality%2520studio%2520portrait&width=100&height=100&seq=1&orientation=squarish" alt="Profile" class="w-full h-full object-cover object-top">
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Dr. Sarah Mitchell</p>
+<p class="text-xs text-gray-500">s.mitchell@eastsidefm.com</p>
+<p class="text-xs text-gray-500 mt-1"></p>
+</div>
+</div>
+</div>
+<div class="px-4 py-2">
+<div class="space-y-1">
+<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-user-line"></i>
+</div>
+Login Name
+<span class="text-xs text-gray-400 ml-auto">Edit</span>
+</a>
+<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-mail-line"></i>
+</div>
+Login Email
+<span class="text-xs text-gray-400 ml-auto">Edit</span>
+</a>
+<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-lock-password-line"></i>
+</div>
+Password
+<span class="text-xs text-gray-400 ml-auto">Edit</span>
+</a>
+<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-shield-keyhole-line"></i>
+</div>
+Two-factor Authentication
+<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 ml-auto">Enabled</span>
+</a>
+<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-profile-line"></i>
+</div>
+Provider ID
+<span class="text-xs text-gray-400 ml-auto">View</span>
+</a>
+<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-user-star-line"></i>
+</div>
+Sales Manager
+<span class="text-xs text-gray-400 ml-auto">View</span>
+</a>
+<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-file-user-line"></i>
+</div>
+Personal Info
+<span class="text-xs text-gray-400 ml-auto">Edit</span>
+</a>
+</div>
+</div>
+<div class="border-t border-gray-100 mt-2">
+<div class="px-4 py-2">
+<div class="space-y-1">
+<a href="#" id="personalWalletBtn" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-wallet-3-line"></i>
+</div>
+Personal Wallet
+</a>
+<a href="#" id="associatedPracticesBtn" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-hospital-line"></i>
+</div>
+Associated Practice(s)
+</a>
+<!-- Associated Practices Modal -->
+<div id="associatedPracticesModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg w-[480px] max-h-[90vh] overflow-y-auto">
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-lg font-semibold text-gray-900">Associated Practices</h2>
+<button id="closeAssociatedPracticesModal" class="text-gray-400 hover:text-gray-600">
+<i class="ri-close-line text-xl"></i>
+</button>
+</div>
+<div class="space-y-4">
+<!-- Current Practice -->
+<div class="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-hospital-fill text-primary"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Eastside Family Medicine</p>
+<p class="text-xs text-gray-500">Primary Care Practice</p>
+</div>
+</div>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+Current
+</span>
+</div>
+<div class="mt-3 flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-user-star-line"></i>
+</div>
+Role: Practice Owner
+</div>
+</div>
+<!-- Other Practices -->
+<div class="p-4 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-hospital-line text-gray-600"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Westside Medical Center</p>
+<p class="text-xs text-gray-500">Multi-specialty Clinic</p>
+</div>
+</div>
+<button class="px-3 py-1.5 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button whitespace-nowrap hover:bg-primary/10">Switch</button>
+</div>
+<div class="mt-3 flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-user-star-line"></i>
+</div>
+Role: Consulting Physician
+</div>
+</div>
+<div class="p-4 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-hospital-line text-gray-600"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Downtown Health Partners</p>
+<p class="text-xs text-gray-500">Family Practice</p>
+</div>
+</div>
+<button class="px-3 py-1.5 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button whitespace-nowrap hover:bg-primary/10">Switch</button>
+</div>
+<div class="mt-3 flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-user-star-line"></i>
+</div>
+Role: Associate Physician
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Personal Wallet Modal -->
+<div id="personalWalletModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg w-[480px] max-h-[90vh] overflow-y-auto">
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-lg font-semibold text-gray-900">Personal Wallet Settings</h2>
+<button id="closeWalletModal" class="text-gray-400 hover:text-gray-600">
+<i class="ri-close-line text-xl"></i>
+</button>
+</div>
+<!-- Practice Mode Info -->
+<div class="mb-6 p-4 bg-blue-50 rounded-lg">
+<div class="flex items-start">
+<div class="w-5 h-5 flex-shrink-0 text-blue-500 mt-0.5">
+<i class="ri-information-line"></i>
+</div>
+<div class="ml-3">
+<h3 class="text-sm font-medium text-blue-900">Current Practice Mode: Personal</h3>
+<p class="mt-1 text-sm text-blue-700">This practice operates in personal mode, where each provider manages their own wallet for transactions. All earnings and expenses will be processed through your personal wallet.</p>
+</div>
+</div>
+</div>
+<!-- Wallet Balance -->
+<div class="bg-gray-50 rounded-lg p-6 mb-6">
+<h3 class="text-sm font-medium text-gray-700 mb-2">Dr. Sarah Mitchell's Personal Wallet</h3>
+<div class="flex items-center justify-between">
+<div>
+<p class="text-2xl font-semibold text-gray-900">$200.00</p>
+<p class="text-sm text-gray-500 mt-1">Available Balance</p>
+</div>
+<div class="flex space-x-3">
+<button class="px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap hover:bg-primary/10">
+<i class="ri-add-line mr-2"></i>
+Top Up
+</button>
+<button class="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-button flex items-center whitespace-nowrap hover:bg-gray-50">
+<i class="ri-bank-card-line mr-2"></i>
+Withdraw
+</button>
+</div>
+</div>
+</div>
+<!-- Payment Methods -->
+<div class="mb-6">
+<h3 class="text-sm font-medium text-gray-900 mb-4">Payment Methods</h3>
+<p class="text-xs text-gray-500 mb-4">Drag and drop to set payment priority</p>
+<div id="payment-methods-list" class="space-y-3">
+<div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true" data-payment-id="visa">
+<div class="flex items-center">
+<div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+<i class="ri-drag-move-line"></i>
+</div>
+<div class="w-8 h-8 flex items-center justify-center text-[#1A1F71]">
+<i class="ri-visa-fill text-xl"></i>
+</div>
+<div class="ml-3">
+<p class="text-sm font-medium text-gray-900">Visa ending in 4242</p>
+<p class="text-xs text-gray-500">Expires 12/25</p>
+</div>
+</div>
+<button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+</div>
+<div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true" data-payment-id="bank">
+<div class="flex items-center">
+<div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+<i class="ri-drag-move-line"></i>
+</div>
+<div class="w-8 h-8 flex items-center justify-center text-[#1A1F71]">
+<i class="ri-bank-fill text-xl"></i>
+</div>
+<div class="ml-3">
+<p class="text-sm font-medium text-gray-900">Chase Bank Account</p>
+<p class="text-xs text-gray-500">****8965</p>
+</div>
+</div>
+<button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+</div>
+<div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true" data-payment-id="wallet">
+<div class="flex items-center">
+<div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+<i class="ri-drag-move-line"></i>
+</div>
+<div class="w-8 h-8 flex items-center justify-center text-primary">
+<i class="ri-wallet-3-fill text-xl"></i>
+</div>
+<div class="ml-3">
+<p class="text-sm font-medium text-gray-900">Wallet Credit</p>
+<p class="text-xs text-gray-500">Balance: $200.00</p>
+</div>
+</div>
+<button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+</div>
+</div>
+<button class="w-full mt-3 px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+<i class="ri-add-line mr-2"></i>
+Add Payment Method
+</button>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Handle practice mode radio buttons
+const personalModeRadio = document.getElementById('personal-mode');
+const sharedModeRadio = document.getElementById('shared-mode');
+const personalModeIndicator = personalModeRadio?.nextElementSibling.querySelector('.w-2.h-2');
+const sharedModeIndicator = sharedModeRadio?.nextElementSibling.querySelector('.w-2.h-2');
+const sharedModeExplanation = document.getElementById('shared-mode-explanation');
+if (personalModeRadio && sharedModeRadio) {
+personalModeRadio.addEventListener('change', function() {
+if (this.checked) {
+personalModeIndicator.classList.remove('bg-transparent');
+personalModeIndicator.classList.add('bg-primary');
+sharedModeIndicator.classList.remove('bg-primary');
+sharedModeIndicator.classList.add('bg-transparent');
+sharedModeExplanation.classList.add('hidden');
+}
+});
+sharedModeRadio.addEventListener('change', function() {
+if (this.checked) {
+sharedModeIndicator.classList.remove('bg-transparent');
+sharedModeIndicator.classList.add('bg-primary');
+personalModeIndicator.classList.remove('bg-primary');
+personalModeIndicator.classList.add('bg-transparent');
+sharedModeExplanation.classList.remove('hidden');
+}
+});
+}
+const list = document.getElementById('payment-methods-list');
+let draggingElement = null;
+// Add drag start event
+list.addEventListener('dragstart', (e) => {
+draggingElement = e.target;
+e.target.classList.add('opacity-50');
+// Add visual feedback
+e.target.style.backgroundColor = '#f3f4f6';
+});
+// Add drag end event
+list.addEventListener('dragend', (e) => {
+draggingElement = null;
+e.target.classList.remove('opacity-50');
+// Remove visual feedback
+e.target.style.backgroundColor = '';
+});
+// Add drag over event
+list.addEventListener('dragover', (e) => {
+e.preventDefault();
+const afterElement = getDragAfterElement(list, e.clientY);
+const currentElement = draggingElement;
+if (afterElement == null) {
+list.appendChild(currentElement);
+} else {
+list.insertBefore(currentElement, afterElement);
+}
+});
+function getDragAfterElement(container, y) {
+const draggableElements = [...container.querySelectorAll('[draggable="true"]:not(.opacity-50)')];
+return draggableElements.reduce((closest, child) => {
+const box = child.getBoundingClientRect();
+const offset = y - box.top - box.height / 2;
+if (offset < 0 && offset > closest.offset) {
+return { offset: offset, element: child };
+} else {
+return closest;
+}
+}, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+});
+</script>
+<!-- Refund Method Settings -->
+<div class="mb-6">
+<h3 class="text-sm font-medium text-gray-900 mb-4">Refund Method Settings</h3>
+<div class="space-y-4">
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-refund-2-line"></i>
+</div>
+<p class="text-sm font-medium text-gray-900">Refund Method for Provider-paid Bills</p>
+</div>
+</div>
+<div class="space-y-3">
+<label class="flex items-center p-3 border border-gray-200 rounded-lg">
+<input type="radio" name="refund-method" value="original" class="sr-only" checked>
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+</div>
+<span class="text-sm text-gray-700">Original Payment Method</span>
+</label>
+<label class="flex items-center p-3 border border-gray-200 rounded-lg">
+<input type="radio" name="refund-method" value="wallet" class="sr-only">
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+<div class="w-2 h-2 bg-transparent rounded-full"></div>
+</div>
+<span class="text-sm text-gray-700">Wallet Credit</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Auto-withdraw Settings -->
+<div class="mb-6">
+<h3 class="text-sm font-medium text-gray-900 mb-4">Withdraw Settings</h3>
+<div class="space-y-4">
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-bank-line"></i>
+</div>
+<p class="text-sm font-medium text-gray-900">Withdraw Account</p>
+</div>
+<button class="text-sm text-primary hover:text-primary/80">Change</button>
+</div>
+<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-bank-line text-primary"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Chase Bank Account</p>
+<p class="text-xs text-gray-500">****8965</p>
+</div>
+</div>
+<div class="w-4 h-4 flex items-center justify-center text-green-500">
+<i class="ri-checkbox-circle-fill"></i>
+</div>
+</div>
+</div>
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-money-dollar-circle-line"></i>
+</div>
+<p class="text-sm font-medium text-gray-900">Auto-withdraw Threshold</p>
+</div>
+<label class="custom-switch">
+<input type="checkbox" checked>
+<span class="switch-slider"></span>
+</label>
+</div>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="text-gray-500 text-sm">$</span>
+</div>
+<input type="number" value="1000" class="pl-7 pr-4 py-2 w-full text-sm border border-gray-200 rounded-lg" placeholder="Enter amount">
+</div>
+<p class="text-xs text-gray-500 mt-2">Funds will be automatically withdrawn when your balance exceeds this amount</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="border-t border-gray-100 mt-2">
+<a href="#" class="flex items-center px-7 py-2 text-sm text-red-600 hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-logout-box-line"></i>
+</div>
+Sign Out
+</a>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 <!-- Main Content Container -->
@@ -144,6 +584,63 @@ My Practice
 Active
 </span>
 <span class="text-sm text-gray-500">Last updated: June 8, 2025</span>
+</div>
+</div>
+<div class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50" id="accountMenu">
+<div class="px-4 py-2 border-b border-gray-100">
+<p class="text-sm font-medium text-gray-900">My Account Settings</p>
+</div>
+<div class="px-4 py-3 border-b border-gray-100">
+<div class="flex items-center">
+<div class="w-12 h-12 rounded-full overflow-hidden mr-3">
+<img src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520female%2520doctor%2520with%2520a%2520warm%2520smile%252C%2520wearing%2520a%2520white%2520coat%252C%2520natural%2520lighting%252C%2520high%2520quality%2520studio%2520portrait&width=100&height=100&seq=1&orientation=squarish" alt="Profile" class="w-full h-full object-cover object-top">
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Dr. Sarah Mitchell</p>
+<p class="text-xs text-gray-500">s.mitchell@eastsidefm.com</p>
+</div>
+</div>
+</div>
+<div class="py-2">
+<a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-user-line"></i>
+</div>
+Personal Info
+</a>
+<a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-shield-keyhole-line"></i>
+</div>
+Login Credentials
+</a>
+<a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-lock-password-line"></i>
+</div>
+Two-factor Authentication
+</a>
+<a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-profile-line"></i>
+</div>
+Provider ID & Role
+</a>
+<a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-medal-line"></i>
+</div>
+Credentials
+</a>
+<div class="border-t border-gray-100 mt-2 pt-2">
+<a href="#" class="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-logout-box-line"></i>
+</div>
+Sign Out
+</a>
+</div>
+</div>
 </div>
 </div>
 <div class="flex items-center space-x-3">
@@ -984,48 +1481,521 @@ Check Status
 <div class="tab-content active" id="settings-tab">
 <div class="grid grid-cols-3 gap-6">
 <!-- Practice Profile -->
-<div class="col-span-2 bg-white rounded-lg border border-gray-200 overflow-hidden">
-<div class="p-6">
-<div class="flex items-center justify-between mb-6">
-<h2 class="text-lg font-semibold text-gray-900">Practice Profile</h2>
-<button class="text-primary text-sm font-medium flex items-center">
-<div class="w-4 h-4 flex items-center justify-center mr-1">
-<i class="ri-edit-line"></i>
+<div class="col-span-3 bg-white rounded-lg border border-gray-200 overflow-hidden mb-6">
+<div class="px-6 py-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center space-x-6">
+<div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+<i class="ri-hospital-fill text-primary text-xl"></i>
 </div>
-Edit Profile
+<div>
+<h2 class="text-lg font-semibold text-gray-900">Eastside Family Medicine</h2>
+<div class="flex items-center mt-1 space-x-4">
+<div class="flex items-center space-x-1.5 text-sm text-gray-500">
+<i class="ri-map-pin-line"></i>
+<span>Bellevue, WA</span>
+</div>
+<div class="flex items-center space-x-1.5 text-sm text-gray-500">
+<i class="ri-phone-line"></i>
+<span>(425) 555-1234</span>
+</div>
+<span class="text-sm text-gray-500">Family Medicine Clinic</span>
+</div>
+</div>
+</div>
+<button id="practiceSettingsBtn" class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap hover:bg-primary/10">
+<i class="ri-settings-4-line mr-2"></i>
+Practice Settings
+</button>
+<!-- Practice Settings Modal -->
+<div id="practiceSettingsModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg w-[960px] max-h-[90vh] flex flex-col">
+<div class="p-6 border-b border-gray-200">
+<div class="flex items-center justify-between">
+<h2 class="text-lg font-semibold text-gray-900">Practice Settings</h2>
+<button id="closePracticeSettingsModal" class="text-gray-400 hover:text-gray-600">
+<i class="ri-close-line text-xl"></i>
+</button>
+</div>
+</div>
+<div class="flex flex-1 overflow-hidden">
+<!-- Sidebar -->
+<div class="w-64 border-r border-gray-200 bg-gray-50 p-4">
+<nav class="space-y-1">
+<button class="practice-settings-tab w-full px-4 py-2 text-sm font-medium text-primary bg-white rounded-lg border border-primary/20" data-tab="practice-details">Practice Details</button>
+<button class="practice-settings-tab w-full px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white rounded-lg" data-tab="general-preference">General Preference</button>
+<button class="practice-settings-tab w-full px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white rounded-lg" data-tab="notification">Notification</button>
+<button class="practice-settings-tab w-full px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white rounded-lg" data-tab="practice-branding">Practice Branding</button>
+<button class="practice-settings-tab w-full px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white rounded-lg" data-tab="practice-financials">Practice Financials</button>
+<button class="practice-settings-tab w-full px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white rounded-lg" data-tab="team-permissions">Team & Permissions</button>
+<button class="practice-settings-tab w-full px-4 py-2 text-sm font-medium text-gray-700 hover:bg-white rounded-lg" data-tab="third-party">Third-Party Integration</button>
+</nav>
+</div>
+<!-- Content Area -->
+<div class="flex-1 overflow-y-auto p-6">
+<!-- Practice Details Tab Content -->
+<div class="practice-settings-content active" id="practice-details-content">
+<h3 class="text-lg font-medium text-gray-900 mb-4">Practice Details</h3>
+<div class="space-y-6">
+<!-- Basic Info -->
+<div class="grid grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Practice Name</label>
+<input type="text" value="Eastside Family Medicine" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">NPI</label>
+<input type="text" value="1234567890" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Practice ID</label>
+<input type="text" value="EFM-2025" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
+<input type="tel" value="(425) 555-1234" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+<input type="email" value="info@eastsidefm.com" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Currency</label>
+<input type="text" value="USD" disabled class="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-500">
+</div>
+<div class="col-span-2">
+<label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+<textarea class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" rows="2">12345 NE 85th Street, Suite 100&#13;Bellevue, WA 98004</textarea>
+</div>
+</div>
+<!-- Additional Info -->
+<div class="border-t border-gray-200 pt-6">
+<button id="showAdditionalInfo" class="text-primary text-sm font-medium flex items-center">
+<i class="ri-add-line mr-2"></i>
+Add more information
+</button>
+<div id="additionalInfoContent" class="hidden mt-6 space-y-6">
+<div class="grid grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Shipping Address</label>
+<textarea class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" rows="2"></textarea>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Billing Address</label>
+<textarea class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" rows="2"></textarea>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Additional Phone</label>
+<div class="flex space-x-3">
+<input type="text" placeholder="Name" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm">
+<input type="tel" placeholder="Number" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm">
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Additional Email</label>
+<div class="flex space-x-3">
+<input type="text" placeholder="Name" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm">
+<input type="email" placeholder="Email" class="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm">
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Fax</label>
+<input type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Manager Name</label>
+<input type="text" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Billing Email</label>
+<input type="email" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-2">Website URL</label>
+<input type="url" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- General Preference Tab Content -->
+<div class="practice-settings-content hidden" id="general-preference-content">
+<h3 class="text-lg font-medium text-gray-900 mb-4">General Preference</h3>
+<div class="space-y-8">
+<!-- Auto-Redraw Setting -->
+<div class="p-6 bg-gray-50 rounded-lg">
+<div class="flex items-center justify-between mb-2">
+<div>
+<h4 class="text-sm font-medium text-gray-900">Opt-in Auto-Redraw</h4>
+</div>
+<label class="custom-switch">
+<input type="checkbox">
+<span class="switch-slider"></span>
+</label>
+</div>
+<p class="text-sm text-gray-600">When enabled, redraw process will be automatically triggered if a testing issue is found by the lab.</p>
+</div>
+<!-- Default Shipping and Billing -->
+<div class="p-6 bg-gray-50 rounded-lg">
+<div class="mb-4">
+<h4 class="text-sm font-medium text-gray-900 mb-2">Default Shipping and Billing Preference</h4>
+<p class="text-sm text-gray-600">These are practice-level default settings. They will only take effect if patient-level preferences are not set.</p>
+</div>
+<div class="space-y-6">
+<!-- Blood Kit Settings -->
+<div class="border-b border-gray-200 pb-6">
+<div class="flex items-start mb-4">
+<div class="w-8 h-8 flex items-center justify-center text-red-500 mr-3">
+<i class="ri-test-tube-fill text-xl"></i>
+</div>
+<h5 class="text-sm font-medium text-gray-900">Blood Kit</h5>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-3">Default Kits Shipping to</label>
+<div class="space-y-3">
+<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
+<input type="radio" name="non-blood-shipping" value="patient" class="sr-only" onchange="handleNonBloodShippingChange(this)">
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-transparent"></div>
+</div>
+<div class="flex items-center">
+<div class="w-6 h-6 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-home-line"></i>
+</div>
+<span class="text-sm text-gray-700">Ship to Patient</span>
+</div>
+</label>
+<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
+<input type="radio" name="non-blood-shipping" value="office" class="sr-only" checked onchange="handleNonBloodShippingChange(this)">
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+</div>
+<div class="flex items-center">
+<div class="w-6 h-6 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-hospital-line"></i>
+</div>
+<span class="text-sm text-gray-700">Supply by Office</span>
+</div>
+</label>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-3">Default Billing Method</label>
+<div class="space-y-3">
+<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
+<input type="radio" name="non-blood-billing" value="provider" class="sr-only" checked>
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+</div>
+<span class="text-sm text-gray-700">Provider Pay</span>
+</label>
+<label id="patient-pay-later-label" class="flex items-center p-3 border border-gray-200 rounded-lg cursor-not-allowed bg-white relative">
+<input type="radio" name="non-blood-billing" value="patient" class="sr-only" disabled>
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center opacity-50">
+<div class="w-2 h-2 bg-transparent rounded-full"></div>
+</div>
+<span class="text-sm text-gray-400 line-through">Patient Pay Later</span>
+<div class="absolute right-3 top-3">
+<div class="group relative">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-information-line"></i>
+</div>
+<div class="hidden group-hover:block absolute right-0 bottom-6 w-48 p-2 bg-gray-900 text-white text-xs rounded">
+Not supported when non-blood kit is supplied by provider office
+</div>
+</div>
+</div>
+</label>
+</div>
+</div>
+</div>
+<script>
+function handleNonBloodShippingChange(radio) {
+const patientPayLaterLabel = document.getElementById('patient-pay-later-label');
+const patientPayLaterInput = patientPayLaterLabel.querySelector('input');
+const patientPayLaterSpan = patientPayLaterLabel.querySelector('span');
+const patientPayLaterRadio = patientPayLaterLabel.querySelector('.w-4.h-4');
+const infoIcon = patientPayLaterLabel.querySelector('.group');
+if (radio.value === 'patient') {
+patientPayLaterInput.disabled = false;
+patientPayLaterLabel.classList.remove('cursor-not-allowed');
+patientPayLaterLabel.classList.add('cursor-pointer', 'hover:border-primary/20');
+patientPayLaterSpan.classList.remove('text-gray-400', 'line-through');
+patientPayLaterSpan.classList.add('text-gray-700');
+patientPayLaterRadio.classList.remove('opacity-50');
+infoIcon.style.display = 'none';
+} else {
+patientPayLaterInput.disabled = true;
+patientPayLaterInput.checked = false;
+patientPayLaterLabel.classList.add('cursor-not-allowed');
+patientPayLaterLabel.classList.remove('cursor-pointer', 'hover:border-primary/20');
+patientPayLaterSpan.classList.add('text-gray-400', 'line-through');
+patientPayLaterSpan.classList.remove('text-gray-700');
+patientPayLaterRadio.classList.add('opacity-50');
+infoIcon.style.display = 'block';
+// Ensure Provider Pay is selected when Patient Pay Later is disabled
+const providerPayInput = document.querySelector('input[name="non-blood-billing"][value="provider"]');
+providerPayInput.checked = true;
+providerPayInput.nextElementSibling.querySelector('div').classList.add('bg-primary');
+}
+}
+</script>
+</div>
+<!-- Non-Blood Kit Settings -->
+<div>
+<div class="flex items-start mb-4">
+<div class="w-8 h-8 flex items-center justify-center text-blue-500 mr-3">
+<i class="ri-medicine-bottle-fill text-xl"></i>
+</div>
+<h5 class="text-sm font-medium text-gray-900">Non-Blood Kit</h5>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-3">Default Kits Shipping to</label>
+<div class="space-y-3">
+<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
+<input type="radio" name="non-blood-shipping" value="patient" class="sr-only">
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+<div class="w-2 h-2 bg-transparent rounded-full"></div>
+</div>
+<div class="flex items-center">
+<div class="w-6 h-6 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-home-line"></i>
+</div>
+<span class="text-sm text-gray-700">Ship to Patient</span>
+</div>
+</label>
+<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
+<input type="radio" name="non-blood-shipping" value="office" class="sr-only" checked>
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+</div>
+<div class="flex items-center">
+<div class="w-6 h-6 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-hospital-line"></i>
+</div>
+<span class="text-sm text-gray-700">Supply by Office</span>
+</div>
+</label>
+</div>
+</div>
+<div>
+<label class="block text-sm font-medium text-gray-700 mb-3">Default Billing Method</label>
+<div class="space-y-3">
+<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
+<input type="radio" name="non-blood-billing" value="provider" class="sr-only" checked>
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+</div>
+<span class="text-sm text-gray-700">Provider Pay</span>
+</label>
+<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20 relative">
+<input type="radio" name="non-blood-billing" value="patient" class="sr-only" disabled>
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center opacity-50">
+<div class="w-2 h-2 bg-transparent rounded-full"></div>
+</div>
+<span class="text-sm text-gray-400 line-through">Patient Pay Later</span>
+<div class="absolute right-3 top-3">
+<div class="group relative">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-information-line"></i>
+</div>
+<div class="hidden group-hover:block absolute right-0 bottom-6 w-48 p-2 bg-gray-900 text-white text-xs rounded">
+Not supported when non-blood kit is supplied by provider office
+</div>
+</div>
+</div>
+</label>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Notification Tab Content -->
+<div class="practice-settings-content hidden" id="notification-content">
+<h3 class="text-lg font-medium text-gray-900 mb-4">Notification</h3>
+<p class="text-sm text-gray-500">Content for Notification will be added later</p>
+</div>
+<!-- Practice Branding Tab Content -->
+<div class="practice-settings-content hidden" id="practice-branding-content">
+<h3 class="text-lg font-medium text-gray-900 mb-4">Practice Branding</h3>
+<p class="text-sm text-gray-500">Content for Practice Branding will be added later</p>
+</div>
+<!-- Practice Financials Tab Content -->
+<div class="practice-settings-content hidden" id="practice-financials-content">
+<h3 class="text-lg font-medium text-gray-900 mb-4">Practice Financials</h3>
+<!-- Mode Toggle Section -->
+<div class="p-6 bg-gray-50 rounded-lg mb-6">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center space-x-8">
+<div class="flex items-center space-x-2">
+<input type="radio" id="personal-mode" name="practice-mode" class="sr-only" checked>
+<label for="personal-mode" class="flex items-center cursor-pointer">
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-2 flex items-center justify-center">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+</div>
+<span class="text-sm font-medium text-gray-900">Personal Mode</span>
+</label>
+</div>
+<div class="flex items-center space-x-2">
+<input type="radio" id="shared-mode" name="practice-mode" class="sr-only">
+<label for="shared-mode" class="flex items-center cursor-pointer">
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-2 flex items-center justify-center">
+<div class="w-2 h-2 bg-transparent rounded-full"></div>
+</div>
+<span class="text-sm font-medium text-gray-900">Shared Mode</span>
+</label>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6" id="mode-settings">
+<div class="p-4 bg-white rounded-lg border border-gray-200" id="personal-mode-explanation">
+<p class="text-sm text-gray-600">Use Provider-level financial settings. Ideal for practices where providers operate independently.</p>
+</div>
+<div class="p-4 bg-white rounded-lg border border-gray-200" id="shared-mode-explanation">
+<div class="flex items-center mb-2">
+<div class="w-4 h-4 flex items-center justify-center text-primary mr-2">
+<i class="ri-team-line"></i>
+</div>
+<h4 class="text-sm font-medium text-gray-900">Shared Mode</h4>
+</div>
+<p class="text-sm text-gray-600">All providers use unified set of financial settings. Best for centralized operations.</p>
+</div>
+<div class="col-span-2 hidden" id="shared-mode-settings">
+<div class="p-6 bg-white rounded-lg border border-gray-200">
+<div>
+<p class="text-sm text-gray-600 mb-4">All providers use unified set of financial settings. Best for centralized operations.</p>
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-primary mr-2">
+<i class="ri-wallet-3-line"></i>
+</div>
+<h4 class="text-sm font-medium text-gray-900">Wallet Credit</h4>
+</div>
+<p class="text-lg font-semibold text-gray-900">$200</p>
+</div>
+</div>
+<div class="flex items-center space-x-3 mb-6">
+<button class="flex-1 px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+<i class="ri-add-line mr-2"></i>
+Top Up
+</button>
+<button class="flex-1 px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+<i class="ri-bank-card-line mr-2"></i>
+Withdraw
 </button>
 </div>
 <div class="grid grid-cols-2 gap-6">
 <div>
-<div class="mb-6">
-<h3 class="text-sm font-medium text-gray-500 mb-2">Practice Name</h3>
-<p class="text-base text-gray-900">Eastside Family Medicine</p>
+<h5 class="text-sm font-medium text-gray-900 mb-3">Payment Method</h5>
+<div class="space-y-2">
+<div class="flex items-center p-3 border border-gray-200 rounded-lg">
+<i class="ri-wallet-3-line text-primary mr-3"></i>
+<span class="text-sm text-gray-700">Wallet Credit</span>
 </div>
-<div class="mb-6">
-<h3 class="text-sm font-medium text-gray-500 mb-2">Practice Type</h3>
-<p class="text-base text-gray-900">Family Medicine Clinic</p>
+<div class="flex items-center p-3 border border-gray-200 rounded-lg">
+<i class="ri-bank-card-line text-gray-600 mr-3"></i>
+<span class="text-sm text-gray-700">Amex ***234</span>
 </div>
-<div class="mb-6">
-<h3 class="text-sm font-medium text-gray-500 mb-2">Tax ID / EIN</h3>
-<p class="text-base text-gray-900">XX-XXXXXXX</p>
+<div class="flex items-center p-3 border border-gray-200 rounded-lg">
+<i class="ri-bank-card-line text-gray-600 mr-3"></i>
+<span class="text-sm text-gray-700">Visa ***678</span>
 </div>
-<div>
-<h3 class="text-sm font-medium text-gray-500 mb-2">NPI Number</h3>
-<p class="text-base text-gray-900">1234567890</p>
+<div class="flex items-center p-3 border border-gray-200 rounded-lg">
+<i class="ri-bank-line text-gray-600 mr-3"></i>
+<span class="text-sm text-gray-700">Chase Bank ***1478</span>
 </div>
 </div>
-<div>
-<div class="mb-6">
-<h3 class="text-sm font-medium text-gray-500 mb-2">Address</h3>
-<p class="text-base text-gray-900">123 Medical Center Drive<br>Suite 200<br>Bellevue, WA 98004</p>
-</div>
-<div class="mb-6">
-<h3 class="text-sm font-medium text-gray-500 mb-2">Contact Information</h3>
-<p class="text-base text-gray-900">Phone: (425) 555-1234<br>Fax: (425) 555-5678<br>Email: info@eastsidefm.com</p>
 </div>
 <div>
-<h3 class="text-sm font-medium text-gray-500 mb-2">Website</h3>
-<p class="text-base text-primary">www.eastsidefamilymedicine.com</p>
+<h5 class="text-sm font-medium text-gray-900 mb-3">Withdraw Account</h5>
+<div class="p-4 bg-gray-50 rounded-lg mb-3">
+<div class="flex items-center justify-between mb-3">
+<span class="text-sm text-gray-700">Auto-withdraw</span>
+<label class="custom-switch">
+<input type="checkbox" checked>
+<span class="switch-slider"></span>
+</label>
+</div>
+<div class="flex items-center p-3 bg-white border border-gray-200 rounded-lg">
+<i class="ri-bank-line text-gray-600 mr-3"></i>
+<span class="text-sm text-gray-700">Chase Bank ***8965</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-6">
+<h5 class="text-sm font-medium text-gray-900 mb-3">Refund method for provider-paid bills:</h5>
+<div class="space-y-2">
+<div class="flex items-center p-3 border border-gray-200 rounded-lg">
+<input type="radio" name="refund-method" class="sr-only" checked>
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+</div>
+<span class="text-sm text-gray-700">Original payment method</span>
+</div>
+<div class="flex items-center p-3 border border-gray-200 rounded-lg">
+<input type="radio" name="refund-method" class="sr-only">
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+<div class="w-2 h-2 bg-transparent rounded-full"></div>
+</div>
+<span class="text-sm text-gray-700">Wallet Credit</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+const personalMode = document.getElementById('personal-mode');
+const sharedMode = document.getElementById('shared-mode');
+const modeSettings = document.getElementById('mode-settings');
+const personalModeExplanation = document.getElementById('personal-mode-explanation');
+const sharedModeExplanation = document.getElementById('shared-mode-explanation');
+const sharedModeSettings = document.getElementById('shared-mode-settings');
+function toggleMode() {
+if (sharedMode.checked) {
+personalModeExplanation.classList.add('hidden');
+sharedModeExplanation.classList.add('hidden');
+sharedModeSettings.classList.remove('hidden');
+} else {
+personalModeExplanation.classList.remove('hidden');
+sharedModeExplanation.classList.remove('hidden');
+sharedModeSettings.classList.add('hidden');
+}
+}
+if (personalMode && sharedMode) {
+personalMode.addEventListener('change', toggleMode);
+sharedMode.addEventListener('change', toggleMode);
+}
+});
+</script>
+</div>
+</div>
+<!-- Team & Permissions Tab Content -->
+<div class="practice-settings-content hidden" id="team-permissions-content">
+<h3 class="text-lg font-medium text-gray-900 mb-4">Team & Permissions</h3>
+<p class="text-sm text-gray-500">Content for Team & Permissions will be added later</p>
+</div>
+<!-- Third-Party Integration Tab Content -->
+<div class="practice-settings-content hidden" id="third-party-content">
+<h3 class="text-lg font-medium text-gray-900 mb-4">Third-Party Integration</h3>
+<p class="text-sm text-gray-500">Content for Third-Party Integration will be added later</p>
+</div>
+</div>
+</div>
+<div class="p-6 border-t border-gray-200">
+<div class="flex items-center justify-end space-x-3">
+<button class="px-4 py-2 text-gray-700 border border-gray-200 rounded-button hover:bg-gray-50">Cancel</button>
+<button class="px-4 py-2 bg-primary text-white rounded-button hover:bg-primary/90">Save Changes</button>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1035,103 +2005,186 @@ Edit Profile
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
 <div class="p-6">
 <div class="flex items-center justify-between mb-6">
-<h2 class="text-lg font-semibold text-gray-900">Financial Settings</h2>
+<h2 class="text-lg font-semibold text-gray-900">Updates</h2>
+<div class="flex items-center space-x-2">
 <button class="text-primary text-sm font-medium flex items-center">
 <div class="w-4 h-4 flex items-center justify-center mr-1">
-<i class="ri-settings-4-line"></i>
+<i class="ri-check-double-line"></i>
 </div>
-Manage
-</button>
-</div>
-<div class="space-y-6">
-<div>
-<h3 class="text-sm font-medium text-gray-700 mb-4">Payment Methods</h3>
-<div class="space-y-3">
-<div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
-<div class="flex items-center">
-<div class="w-8 h-8 flex items-center justify-center text-blue-600">
-<i class="ri-visa-fill text-xl"></i>
-</div>
-<div class="ml-3">
-<p class="text-sm font-medium text-gray-900">Visa ending in 4242</p>
-<p class="text-xs text-gray-500">Expires 12/25</p>
-</div>
-</div>
-<button class="text-sm text-gray-500 hover:text-primary">Remove</button>
-</div>
-<div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
-<div class="flex items-center">
-<div class="w-8 h-8 flex items-center justify-center text-blue-600">
-<i class="ri-mastercard-fill text-xl"></i>
-</div>
-<div class="ml-3">
-<p class="text-sm font-medium text-gray-900">Mastercard ending in 8888</p>
-<p class="text-xs text-gray-500">Expires 09/24</p>
-</div>
-</div>
-<button class="text-sm text-gray-500 hover:text-primary">Remove</button>
-</div>
-<button class="w-full px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
-<div class="w-4 h-4 flex items-center justify-center mr-2">
-<i class="ri-add-line"></i>
-</div>
-Add Payment Method
+Mark All as Read
 </button>
 </div>
 </div>
-<div>
-<h3 class="text-sm font-medium text-gray-700 mb-4">Bank Accounts</h3>
-<div class="space-y-3">
-<div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
-<div class="flex items-center">
-<div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-<i class="ri-bank-line text-primary"></i>
-</div>
-<div class="ml-3">
-<p class="text-sm font-medium text-gray-900">Chase Business Checking</p>
-<p class="text-xs text-gray-500">****6789</p>
-</div>
-</div>
-<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-Primary
-</span>
-</div>
-<button class="w-full px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
-<div class="w-4 h-4 flex items-center justify-center mr-2">
-<i class="ri-bank-line"></i>
-</div>
-Link Bank Account
+<div class="flex items-center space-x-1 mb-6 border-b border-gray-200">
+<button class="update-tab px-4 py-2 text-sm font-medium text-primary border-b-2 border-primary" data-tab="actionable">
+Actionable
+<span class="ml-2 px-1.5 py-0.5 text-xs bg-red-100 text-red-600 rounded">3</span>
+</button>
+<button class="update-tab px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="lab-reports">
+Lab Reports
+<span class="ml-2 px-1.5 py-0.5 text-xs bg-yellow-100 text-yellow-600 rounded">2</span>
+</button>
+<button class="update-tab px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="notifications">
+Notifications
+<span class="ml-2 px-1.5 py-0.5 text-xs bg-blue-100 text-blue-600 rounded">5</span>
+</button>
+<button class="update-tab px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="archived">
+Archived
 </button>
 </div>
+<div class="update-content active" id="actionable-content">
+<div class="space-y-4">
+<div class="p-4 bg-red-50 border border-red-100 rounded-lg">
+<div class="flex items-start">
+<div class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<i class="ri-error-warning-line text-red-600"></i>
 </div>
-<div>
-<h3 class="text-sm font-medium text-gray-700 mb-4">Payment Processing</h3>
-<div class="space-y-3">
-<label class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-<div class="flex items-center">
-<div class="w-8 h-8 flex items-center justify-center text-[#1A1F71]">
-<i class="ri-secure-payment-fill text-xl"></i>
+<div class="ml-3 flex-1">
+<div class="flex items-center justify-between">
+<h3 class="text-sm font-medium text-red-900">Urgent: Insurance Verification Required</h3>
+<span class="text-xs text-red-500">10 min ago</span>
 </div>
-<span class="ml-3 text-sm text-gray-700">Enable Instant Payments</span>
+<p class="mt-1 text-sm text-red-700">Patient Emily Parker's insurance verification is pending for tomorrow's appointment.</p>
+<div class="mt-3 flex items-center space-x-3">
+<button class="px-3 py-1.5 text-xs text-red-700 bg-red-100 rounded-button hover:bg-red-200">Verify Now</button>
+<button class="text-xs text-red-600 hover:text-red-800">Dismiss</button>
 </div>
-<label class="custom-switch">
-<input type="checkbox" checked>
-<span class="switch-slider"></span>
-</label>
-</label>
-<label class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-<div class="flex items-center">
-<div class="w-8 h-8 flex items-center justify-center text-[#1A1F71]">
-<i class="ri-wallet-3-fill text-xl"></i>
 </div>
-<span class="ml-3 text-sm text-gray-700">Auto Deposit to Bank</span>
 </div>
-<label class="custom-switch">
-<input type="checkbox" checked>
-<span class="switch-slider"></span>
-</label>
-</label>
 </div>
+<div class="p-4 bg-yellow-50 border border-yellow-100 rounded-lg">
+<div class="flex items-start">
+<div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<i class="ri-file-warning-line text-yellow-600"></i>
+</div>
+<div class="ml-3 flex-1">
+<div class="flex items-center justify-between">
+<h3 class="text-sm font-medium text-yellow-900">Lab Results Review Required</h3>
+<span class="text-xs text-yellow-500">1 hour ago</span>
+</div>
+<p class="mt-1 text-sm text-yellow-700">2 new lab results are pending review for patient Marcus Thompson.</p>
+<div class="mt-3 flex items-center space-x-3">
+<button class="px-3 py-1.5 text-xs text-yellow-700 bg-yellow-100 rounded-button hover:bg-yellow-200">Review Results</button>
+<button class="text-xs text-yellow-600 hover:text-yellow-800">Dismiss</button>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 bg-blue-50 border border-blue-100 rounded-lg">
+<div class="flex items-start">
+<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<i class="ri-calendar-check-line text-blue-600"></i>
+</div>
+<div class="ml-3 flex-1">
+<div class="flex items-center justify-between">
+<h3 class="text-sm font-medium text-blue-900">Schedule Confirmation Needed</h3>
+<span class="text-xs text-blue-500">2 hours ago</span>
+</div>
+<p class="mt-1 text-sm text-blue-700">Dr. Wilson's availability update needs confirmation for next week.</p>
+<div class="mt-3 flex items-center space-x-3">
+<button class="px-3 py-1.5 text-xs text-blue-700 bg-blue-100 rounded-button hover:bg-blue-200">Review Schedule</button>
+<button class="text-xs text-blue-600 hover:text-blue-800">Dismiss</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="update-content hidden" id="lab-reports-content">
+<div class="space-y-4">
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-start">
+<div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<i class="ri-test-tube-line text-purple-600"></i>
+</div>
+<div class="ml-3 flex-1">
+<div class="flex items-center justify-between">
+<h3 class="text-sm font-medium text-gray-900">Complete Blood Count Results</h3>
+<span class="text-xs text-gray-500">Today, 2:30 PM</span>
+</div>
+<p class="mt-1 text-sm text-gray-600">Patient: Katherine Richardson</p>
+<div class="mt-3 flex items-center space-x-3">
+<button class="px-3 py-1.5 text-xs text-primary bg-primary/5 rounded-button hover:bg-primary/10">View Report</button>
+<button class="text-xs text-gray-500 hover:text-gray-700">Archive</button>
+</div>
+</div>
+</div>
+</div>
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-start">
+<div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<i class="ri-test-tube-line text-purple-600"></i>
+</div>
+<div class="ml-3 flex-1">
+<div class="flex items-center justify-between">
+<h3 class="text-sm font-medium text-gray-900">Thyroid Function Test Results</h3>
+<span class="text-xs text-gray-500">Today, 11:45 AM</span>
+</div>
+<p class="mt-1 text-sm text-gray-600">Patient: Robert Anderson</p>
+<div class="mt-3 flex items-center space-x-3">
+<button class="px-3 py-1.5 text-xs text-primary bg-primary/5 rounded-button hover:bg-primary/10">View Report</button>
+<button class="text-xs text-gray-500 hover:text-gray-700">Archive</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="update-content hidden" id="notifications-content">
+<div class="space-y-4">
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-start">
+<div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<i class="ri-calendar-check-line text-green-600"></i>
+</div>
+<div class="ml-3 flex-1">
+<div class="flex items-center justify-between">
+<h3 class="text-sm font-medium text-gray-900">New Appointment Scheduled</h3>
+<span class="text-xs text-gray-500">Just now</span>
+</div>
+<p class="mt-1 text-sm text-gray-600">Emily Parker scheduled for July 16, 2025 at 10:00 AM</p>
+<button class="mt-3 text-xs text-gray-500 hover:text-gray-700">Dismiss</button>
+</div>
+</div>
+</div>
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-start">
+<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<i class="ri-user-add-line text-blue-600"></i>
+</div>
+<div class="ml-3 flex-1">
+<div class="flex items-center justify-between">
+<h3 class="text-sm font-medium text-gray-900">New Patient Registration</h3>
+<span class="text-xs text-gray-500">30 min ago</span>
+</div>
+<p class="mt-1 text-sm text-gray-600">Daniel Martinez completed registration forms</p>
+<button class="mt-3 text-xs text-gray-500 hover:text-gray-700">Dismiss</button>
+</div>
+</div>
+</div>
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-start">
+<div class="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center flex-shrink-0">
+<i class="ri-medicine-bottle-line text-yellow-600"></i>
+</div>
+<div class="ml-3 flex-1">
+<div class="flex items-center justify-between">
+<h3 class="text-sm font-medium text-gray-900">Prescription Renewal Request</h3>
+<span class="text-xs text-gray-500">2 hours ago</span>
+</div>
+<p class="mt-1 text-sm text-gray-600">Marcus Thompson requested medication renewal</p>
+<button class="mt-3 text-xs text-gray-500 hover:text-gray-700">Dismiss</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="update-content hidden" id="archived-content">
+<div class="text-center py-8">
+<div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+<i class="ri-archive-line text-gray-400 text-2xl"></i>
+</div>
+<p class="text-sm text-gray-500">No archived items to display</p>
 </div>
 </div>
 </div>
@@ -1140,107 +2193,106 @@ Link Bank Account
 <div class="col-span-2 bg-white rounded-lg border border-gray-200 overflow-hidden">
 <div class="p-6">
 <div class="flex items-center justify-between mb-6">
-<h2 class="text-lg font-semibold text-gray-900">White Brand Settings</h2>
-<button class="px-4 py-2 bg-primary text-white rounded-button flex items-center whitespace-nowrap hover:bg-primary/90">
-Save Changes
-</button>
-</div>
-<div class="space-y-6">
 <div>
-<label class="block text-sm font-medium text-gray-700 mb-2">Brand Name</label>
-<input type="text" value="Eastside Family Medicine" class="w-full px-4 py-2 border border-gray-200 rounded-lg text-sm">
+<h2 class="text-lg font-semibold text-gray-900">Practice Summary</h2>
+<p class="text-sm text-gray-500 mt-1">Overview of practice performance and metrics</p>
 </div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">Brand Colors</label>
-<div class="grid grid-cols-2 gap-4">
-<div>
-<label class="block text-xs text-gray-500 mb-1.5">Primary Color</label>
-<div class="flex items-center space-x-2">
-<input type="color" value="#4f46e5" class="w-10 h-10 p-1 rounded border border-gray-200">
-<input type="text" value="#4f46e5" class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm">
-</div>
-</div>
-<div>
-<label class="block text-xs text-gray-500 mb-1.5">Secondary Color</label>
-<div class="flex items-center space-x-2">
-<input type="color" value="#8b5cf6" class="w-10 h-10 p-1 rounded border border-gray-200">
-<input type="text" value="#8b5cf6" class="flex-1 px-4 py-2 border border-gray-200 rounded-lg text-sm">
-</div>
-</div>
-</div>
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">Logo</label>
-<div class="border-2 border-dashed border-gray-200 rounded-lg p-4">
-<div class="flex items-center justify-center">
-<div class="text-center">
-<div class="w-32 h-32 bg-gray-50 rounded-lg flex items-center justify-center mx-auto mb-4">
-<div class="w-8 h-8 flex items-center justify-center text-gray-400">
-<i class="ri-image-line text-2xl"></i>
-</div>
-</div>
-<button class="px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center mx-auto whitespace-nowrap hover:bg-primary/10">
-<div class="w-4 h-4 flex items-center justify-center mr-2">
-<i class="ri-upload-2-line"></i>
-</div>
-Upload Logo
-</button>
-<p class="text-xs text-gray-500 mt-2">Recommended size: 200x200px</p>
-</div>
-</div>
-</div>
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">Favicon</label>
-<div class="border-2 border-dashed border-gray-200 rounded-lg p-4">
-<div class="flex items-center justify-center">
-<div class="text-center">
-<div class="w-16 h-16 bg-gray-50 rounded-lg flex items-center justify-center mx-auto mb-4">
-<div class="w-6 h-6 flex items-center justify-center text-gray-400">
-<i class="ri-image-line text-xl"></i>
-</div>
-</div>
-<button class="px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center mx-auto whitespace-nowrap hover:bg-primary/10">
-<div class="w-4 h-4 flex items-center justify-center mr-2">
-<i class="ri-upload-2-line"></i>
-</div>
-Upload Favicon
-</button>
-<p class="text-xs text-gray-500 mt-2">Recommended size: 32x32px</p>
-</div>
-</div>
-</div>
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">Custom Font</label>
-<select class="w-full px-4 py-2 pr-8 border border-gray-200 rounded-lg text-sm">
-<option>Inter (Default)</option>
-<option>Roboto</option>
-<option>Open Sans</option>
-<option>Lato</option>
-<option>Poppins</option>
+<div class="flex items-center space-x-3">
+<select class="px-3 py-2 text-sm border border-gray-200 rounded-lg pr-8">
+<option>Last 7 Days</option>
+<option>Last 30 Days</option>
+<option>Last Quarter</option>
+<option>Last Year</option>
+<option>Custom Range</option>
 </select>
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">Email Template Header</label>
-<div class="border-2 border-dashed border-gray-200 rounded-lg p-4">
-<div class="flex items-center justify-center">
-<div class="text-center">
-<div class="w-full h-24 bg-gray-50 rounded-lg flex items-center justify-center mx-auto mb-4">
-<div class="w-8 h-8 flex items-center justify-center text-gray-400">
-<i class="ri-mail-line text-2xl"></i>
-</div>
-</div>
-<button class="px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center mx-auto whitespace-nowrap hover:bg-primary/10">
+<button class="px-4 py-2 text-gray-700 border border-gray-200 rounded-button flex items-center whitespace-nowrap hover:bg-gray-50">
 <div class="w-4 h-4 flex items-center justify-center mr-2">
-<i class="ri-upload-2-line"></i>
+<i class="ri-download-line"></i>
 </div>
-Upload Header Image
+Export Data
 </button>
-<p class="text-xs text-gray-500 mt-2">Recommended size: 600x200px</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-6">
+<!-- Total Revenue Chart -->
+<div class="bg-white rounded-lg border border-gray-200 p-6">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-sm font-medium text-gray-900">Total Revenue</h3>
+<div class="text-2xl font-semibold text-gray-900">$89,420</div>
+</div>
+<div id="revenueChart" class="h-48"></div>
+</div>
+<!-- Patient Engagement Chart -->
+<div class="bg-white rounded-lg border border-gray-200 p-6">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-sm font-medium text-gray-900">Patient Engagement</h3>
+<div class="text-2xl font-semibold text-gray-900">85%</div>
+</div>
+<div id="engagementChart" class="h-48"></div>
+</div>
+<!-- Patient Growth Chart -->
+<div class="bg-white rounded-lg border border-gray-200 p-6">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-sm font-medium text-gray-900">Patient Growth</h3>
+<div class="text-2xl font-semibold text-gray-900">248</div>
+</div>
+<div id="growthChart" class="h-48"></div>
+</div>
+<!-- Credit Wallet Balance -->
+<div class="bg-white rounded-lg border border-gray-200 p-6">
+<div class="flex items-center justify-between mb-4">
+<div>
+<h3 class="text-sm font-medium text-gray-900">Wallet Balance</h3>
+<div class="flex items-center mt-1">
+<div class="w-4 h-4 flex items-center justify-center text-primary">
+<i class="ri-wallet-3-line"></i>
+</div>
+<span class="text-xs text-gray-500 ml-1">Personal Mode</span>
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 ml-2 cursor-help" title="In personal mode, each provider manages their own wallet">
+<i class="ri-information-line"></i>
 </div>
 </div>
 </div>
+<div class="flex items-center space-x-2">
+<button class="px-3 py-1.5 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap hover:bg-primary/10">
+<div class="w-4 h-4 flex items-center justify-center mr-1.5">
+<i class="ri-bank-card-line"></i>
+</div>
+Cash Out
+</button>
+<button class="px-3 py-1.5 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap hover:bg-primary/10">
+<div class="w-4 h-4 flex items-center justify-center mr-1.5">
+<i class="ri-add-line"></i>
+</div>
+Top Up
+</button>
+</div>
+</div>
+<div class="p-4 bg-gray-50 rounded-lg mb-4">
+<div class="flex items-center justify-between">
+<div>
+<div class="text-2xl font-semibold text-gray-900">$2,580.00</div>
+<p class="text-sm text-gray-500 mt-1">Available Balance</p>
+</div>
+<div class="text-right">
+<p class="text-sm font-medium text-gray-900">Dr. Sarah Mitchell</p>
+<p class="text-xs text-gray-500 mt-1">Personal Wallet</p>
+</div>
+</div>
+<div class="flex items-center mt-4 pt-4 border-t border-gray-200">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-time-line"></i>
+</div>
+<span class="text-xs text-gray-500 ml-1">Last transaction: July 15, 2025</span>
+<button class="text-xs text-primary font-medium ml-auto flex items-center">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-bank-line"></i>
+</div>
+Set Up Auto-withdraw
+</button>
+</div>
+</div>
+<div id="walletChart" class="h-48"></div>
 </div>
 </div>
 </div>
@@ -1249,101 +2301,277 @@ Upload Header Image
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
 <div class="p-6">
 <div class="flex items-center justify-between mb-6">
-<h2 class="text-lg font-semibold text-gray-900">Test Ordering Settings</h2>
-</div>
-<div class="space-y-6">
 <div>
-<label class="block text-sm font-medium text-gray-700 mb-2">Default Shipping Method</label>
-<div class="space-y-3">
-<label class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
-<input type="radio" name="shipping" value="patient" class="sr-only" checked>
-<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
-<div class="w-2 h-2 bg-primary rounded-full"></div>
+<h2 class="text-lg font-semibold text-gray-900">Transaction History</h2>
+<p class="text-sm text-gray-500 mt-1">View and manage all financial transactions</p>
 </div>
-<div>
-<p class="text-sm font-medium text-gray-900">Ship to Patient</p>
-<p class="text-xs text-gray-500">Test kit will be shipped directly to patient's address</p>
+<div class="flex items-center space-x-3">
+<button class="px-4 py-2 text-gray-700 border border-gray-200 rounded-button flex items-center whitespace-nowrap hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-download-line"></i>
 </div>
-</label>
-<label class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
-<input type="radio" name="shipping" value="office" class="sr-only">
-<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
-<div class="w-2 h-2 bg-transparent rounded-full"></div>
-</div>
-<div>
-<p class="text-sm font-medium text-gray-900">Supply by Office</p>
-<p class="text-xs text-gray-500">Test kit will be provided at the office</p>
-</div>
-</label>
-</div>
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">Default Payment Option</label>
-<div class="space-y-3">
-<label class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
-<input type="radio" name="payment" value="now" class="sr-only" checked>
-<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
-<div class="w-2 h-2 bg-primary rounded-full"></div>
-</div>
-<div>
-<p class="text-sm font-medium text-gray-900">Patient Pay Now</p>
-<p class="text-xs text-gray-500">Patient pays at time of order</p>
-</div>
-</label>
-<label class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
-<input type="radio" name="payment" value="later" class="sr-only">
-<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
-<div class="w-2 h-2 bg-transparent rounded-full"></div>
-</div>
-<div>
-<p class="text-sm font-medium text-gray-900">Patient Pay Later</p>
-<p class="text-xs text-gray-500">Patient will be billed after test completion</p>
-</div>
-</label>
-<label class="flex items-center p-3 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
-<input type="radio" name="payment" value="provider" class="sr-only">
-<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
-<div class="w-2 h-2 bg-transparent rounded-full"></div>
-</div>
-<div>
-<p class="text-sm font-medium text-gray-900">Provider Pay</p>
-<p class="text-xs text-gray-500">Practice will cover the test cost</p>
-</div>
-</label>
-</div>
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-2">Additional Settings</label>
-<div class="space-y-3">
-<label class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-<div class="flex items-center">
-<div class="w-8 h-8 flex items-center justify-center text-gray-400">
-<i class="ri-notification-line"></i>
-</div>
-<span class="ml-3 text-sm text-gray-700">Send Order Notifications</span>
-</div>
-<label class="custom-switch">
-<input type="checkbox" checked>
-<span class="switch-slider"></span>
-</label>
-</label>
-<label class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-<div class="flex items-center">
-<div class="w-8 h-8 flex items-center justify-center text-gray-400">
-<i class="ri-mail-line"></i>
-</div>
-<span class="ml-3 text-sm text-gray-700">Email Order Confirmations</span>
-</div>
-<label class="custom-switch">
-<input type="checkbox" checked>
-<span class="switch-slider"></span>
-</label>
-</label>
-</div>
-</div>
-<button class="w-full px-4 py-2 bg-primary text-white rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/90">
-Save Test Order Settings
+Export CSV
 </button>
+</div>
+</div>
+<div class="mb-6 grid grid-cols-4 gap-4">
+<div class="relative">
+<input type="text" placeholder="Search by ID or patient name..." class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg">
+<div class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-search-line"></i>
+</div>
+</div>
+<div class="relative">
+<select class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg appearance-none">
+<option value="">All Transaction Types</option>
+<option value="lab">Lab Tests</option>
+<option value="practice">Practice Products</option>
+<option value="cashout">Cash Out</option>
+<option value="topup">Top Up</option>
+<option value="other">Other</option>
+</select>
+<div class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-filter-3-line"></i>
+</div>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-arrow-down-s-line"></i>
+</div>
+</div>
+<div class="relative">
+<select class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg appearance-none">
+<option value="">All Payment Methods</option>
+<option value="credit">Credit Card</option>
+<option value="debit">Debit Card</option>
+<option value="bank">Bank Transfer</option>
+<option value="wallet">Wallet Credit</option>
+</select>
+<div class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-bank-card-line"></i>
+</div>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-arrow-down-s-line"></i>
+</div>
+</div>
+<div class="relative">
+<input type="date" class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg">
+<div class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-calendar-line"></i>
+</div>
+</div>
+</div>
+<div class="border border-gray-200 rounded-lg overflow-hidden">
+<table class="w-full">
+<thead class="bg-gray-50">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:text-primary">
+<div class="flex items-center">
+Date/Time
+<i class="ri-arrow-down-s-line ml-1"></i>
+</div>
+</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:text-primary">
+<div class="flex items-center">
+Transaction ID
+<i class="ri-arrow-down-s-line ml-1"></i>
+</div>
+</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:text-primary">
+<div class="flex items-center">
+Patient
+<i class="ri-arrow-down-s-line ml-1"></i>
+</div>
+</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:text-primary">
+<div class="flex items-center">
+Type
+<i class="ri-arrow-down-s-line ml-1"></i>
+</div>
+</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:text-primary">
+<div class="flex items-center">
+Amount
+<i class="ri-arrow-down-s-line ml-1"></i>
+</div>
+</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase cursor-pointer hover:text-primary">
+<div class="flex items-center">
+Profit
+<i class="ri-arrow-down-s-line ml-1"></i>
+</div>
+</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200">
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-600">Jul 15, 2025 14:30</td>
+<td class="px-6 py-4">
+<a href="#" class="text-sm text-primary hover:text-primary/80">#TRX-2506</a>
+</td>
+<td class="px-6 py-4">
+<a href="#" class="flex items-center group">
+<div class="w-8 h-8 rounded-full overflow-hidden mr-3">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20woman%20with%20brown%20hair%2C%20natural%20lighting%2C%20high%20quality%20studio%20portrait&width=100&height=100&seq=15&orientation=squarish" class="w-full h-full object-cover object-top">
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900 group-hover:text-primary">Katherine Richardson</p>
+<p class="text-xs text-gray-500">ID: PT-89045</p>
+</div>
+</a>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+Lab Test
+</span>
+</td>
+<td class="px-6 py-4 text-sm font-medium text-gray-900">+$245.00</td>
+<td class="px-6 py-4 text-sm font-medium text-green-600">+$49.00</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+Completed
+</span>
+</td>
+<td class="px-6 py-4">
+<button class="text-gray-400 hover:text-gray-600">
+<i class="ri-more-2-fill"></i>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-600">Jul 15, 2025 12:15</td>
+<td class="px-6 py-4">
+<a href="#" class="text-sm text-primary hover:text-primary/80">#TRX-2505</a>
+</td>
+<td class="px-6 py-4">
+<a href="#" class="flex items-center group">
+<div class="w-8 h-8 rounded-full overflow-hidden mr-3">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20man%20with%20black%20hair%2C%20natural%20lighting%2C%20high%20quality%20studio%20portrait&width=100&height=100&seq=16&orientation=squarish" class="w-full h-full object-cover object-top">
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900 group-hover:text-primary">Marcus Thompson</p>
+<p class="text-xs text-gray-500">ID: PT-89046</p>
+</div>
+</a>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+Practice Product
+</span>
+</td>
+<td class="px-6 py-4 text-sm font-medium text-gray-900">+$180.00</td>
+<td class="px-6 py-4 text-sm font-medium text-green-600">+$36.00</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+Completed
+</span>
+</td>
+<td class="px-6 py-4">
+<button class="text-gray-400 hover:text-gray-600">
+<i class="ri-more-2-fill"></i>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-600">Jul 15, 2025 10:45</td>
+<td class="px-6 py-4">
+<a href="#" class="text-sm text-primary hover:text-primary/80">#TRX-2504</a>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm text-gray-500">System</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+Cash Out
+</span>
+</td>
+<td class="px-6 py-4 text-sm font-medium text-red-600">-$1,000.00</td>
+<td class="px-6 py-4 text-sm text-gray-500">—</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+Completed
+</span>
+</td>
+<td class="px-6 py-4">
+<button class="text-gray-400 hover:text-gray-600">
+<i class="ri-more-2-fill"></i>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-600">Jul 15, 2025 09:20</td>
+<td class="px-6 py-4">
+<a href="#" class="text-sm text-primary hover:text-primary/80">#TRX-2503</a>
+</td>
+<td class="px-6 py-4">
+<a href="#" class="flex items-center group">
+<div class="w-8 h-8 rounded-full overflow-hidden mr-3">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20young%20woman%20with%20blonde%20hair%2C%20natural%20lighting%2C%20high%20quality%20studio%20portrait&width=100&height=100&seq=17&orientation=squarish" class="w-full h-full object-cover object-top">
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900 group-hover:text-primary">Emily Parker</p>
+<p class="text-xs text-gray-500">ID: PT-89048</p>
+</div>
+</a>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+Lab Test
+</span>
+</td>
+<td class="px-6 py-4 text-sm font-medium text-gray-900">+$85.00</td>
+<td class="px-6 py-4 text-sm font-medium text-green-600">+$17.00</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+Pending
+</span>
+</td>
+<td class="px-6 py-4">
+<button class="text-gray-400 hover:text-gray-600">
+<i class="ri-more-2-fill"></i>
+</button>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4 text-sm text-gray-600">Jul 15, 2025 08:00</td>
+<td class="px-6 py-4">
+<a href="#" class="text-sm text-primary hover:text-primary/80">#TRX-2502</a>
+</td>
+<td class="px-6 py-4">
+<span class="text-sm text-gray-500">System</span>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+Top Up
+</span>
+</td>
+<td class="px-6 py-4 text-sm font-medium text-green-600">+$2,000.00</td>
+<td class="px-6 py-4 text-sm text-gray-500">—</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+Completed
+</span>
+</td>
+<td class="px-6 py-4">
+<button class="text-gray-400 hover:text-gray-600">
+<i class="ri-more-2-fill"></i>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex items-center justify-between mt-6">
+<div class="text-sm text-gray-500">
+Showing 5 of 24 transactions
+</div>
+<div class="flex items-center space-x-2">
+<button class="px-3 py-1 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50">Previous</button>
+<button class="px-3 py-1 text-sm text-white bg-primary rounded-lg hover:bg-primary/90">1</button>
+<button class="px-3 py-1 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50">2</button>
+<button class="px-3 py-1 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50">3</button>
+<button class="px-3 py-1 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50">Next</button>
+</div>
 </div>
 </div>
 </div>
@@ -1352,62 +2580,161 @@ Save Test Order Settings
 <div class="p-6">
 <div class="flex items-center justify-between mb-6">
 <div>
-<h2 class="text-lg font-semibold text-gray-900">Report Settings</h2>
-<p class="text-sm text-gray-500 mt-1">Configure default report format and visibility options</p>
+<h2 class="text-lg font-semibold text-gray-900">Resources & Tools</h2>
+<p class="text-sm text-gray-500 mt-1">Access practice management tools and resources</p>
 </div>
-<button class="px-4 py-2 bg-primary text-white rounded-button flex items-center whitespace-nowrap hover:bg-primary/90">
-Save Changes
+</div>
+<div class="grid grid-cols-2 gap-4">
+<!-- FedEx Pickup Scheduler -->
+<div class="p-4 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
+<div class="flex items-center mb-4">
+<div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-truck-line text-blue-600 text-xl"></i>
+</div>
+<div>
+<h3 class="text-sm font-medium text-gray-900">FedEx Pickup Scheduler</h3>
+<p class="text-xs text-gray-500">Schedule specimen pickups</p>
+</div>
+</div>
+<button class="w-full px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+<i class="ri-calendar-line mr-2"></i>
+Schedule Pickup
 </button>
 </div>
-<div class="space-y-6">
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-4">Default Report Format</label>
-<div class="space-y-3">
-<label class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
-<input type="radio" name="report-format" value="classic" class="sr-only" checked>
-<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
-<div class="w-2 h-2 bg-primary rounded-full"></div>
+<!-- Test Price Calculator -->
+<div class="p-4 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
+<div class="flex items-center mb-4">
+<div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-calculator-line text-green-600 text-xl"></i>
 </div>
 <div>
-<p class="text-sm font-medium text-gray-900">Classic Report</p>
-<p class="text-xs text-gray-500">Standard format with essential test results and basic interpretations</p>
-</div>
-</label>
-<label class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
-<input type="radio" name="report-format" value="advanced" class="sr-only">
-<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
-<div class="w-2 h-2 bg-transparent rounded-full"></div>
-</div>
-<div>
-<p class="text-sm font-medium text-gray-900">Advanced Report</p>
-<p class="text-xs text-gray-500">Detailed format with comprehensive analysis and reference ranges</p>
-</div>
-</label>
+<h3 class="text-sm font-medium text-gray-900">Test Price Calculator</h3>
+<p class="text-xs text-gray-500">Calculate test costs and fees</p>
 </div>
 </div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-4">Report Visibility</label>
-<div class="space-y-3">
-<label class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
-<input type="radio" name="report-visibility" value="immediate" class="sr-only" checked>
-<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
-<div class="w-2 h-2 bg-primary rounded-full"></div>
+<button class="w-full px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+<i class="ri-money-dollar-circle-line mr-2"></i>
+Calculate Price
+</button>
+</div>
+<!-- Provider Education Center -->
+<div class="p-4 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
+<div class="flex items-center mb-4">
+<div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-book-open-line text-purple-600 text-xl"></i>
 </div>
 <div>
-<p class="text-sm font-medium text-gray-900">Instant Access</p>
-<p class="text-xs text-gray-500">Reports are automatically available to patients once completed</p>
+<h3 class="text-sm font-medium text-gray-900">Provider Education Center</h3>
+<p class="text-xs text-gray-500">Access training and resources</p>
 </div>
-</label>
-<label class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
-<input type="radio" name="report-visibility" value="manual" class="sr-only">
-<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
-<div class="w-2 h-2 bg-transparent rounded-full"></div>
+</div>
+<button class="w-full px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+<i class="ri-graduation-cap-line mr-2"></i>
+View Resources
+</button>
+</div>
+<!-- Order Kits -->
+<div class="p-4 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
+<div class="flex items-center mb-4">
+<div class="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-medicine-bottle-line text-orange-600 text-xl"></i>
 </div>
 <div>
-<p class="text-sm font-medium text-gray-900">Manual Release</p>
-<p class="text-xs text-gray-500">Reports require provider review before being shared with patients</p>
+<h3 class="text-sm font-medium text-gray-900">Order Kits</h3>
+<p class="text-xs text-gray-500">Request collection supplies</p>
 </div>
-</label>
+</div>
+<button class="w-full px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+<i class="ri-shopping-cart-line mr-2"></i>
+Order Supplies
+</button>
+</div>
+<!-- Unassigned Orders -->
+<div class="col-span-2 p-4 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-file-list-3-line text-red-600 text-xl"></i>
+</div>
+<div>
+<h3 class="text-sm font-medium text-gray-900">Unassigned Orders</h3>
+<p class="text-xs text-gray-500">Manage pending test orders</p>
+</div>
+</div>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">3 Pending</span>
+</div>
+<div class="flex items-center space-x-3">
+<button id="viewUnassignedBtn" class="flex-1 px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+<i class="ri-file-list-3-line mr-2"></i>
+View/Use Orders
+</button>
+<button id="newUnassignedBtn" class="flex-1 px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+<i class="ri-add-line mr-2"></i>
+New Order
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Unassigned Orders Modal -->
+<div id="unassignedOrdersModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg w-[800px] max-h-[90vh] overflow-y-auto">
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-lg font-semibold text-gray-900">Unassigned Orders</h2>
+<button id="closeUnassignedModal" class="text-gray-400 hover:text-gray-600">
+<i class="ri-close-line text-xl"></i>
+</button>
+</div>
+<div class="space-y-4">
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mr-3">
+<i class="ri-file-list-3-line text-primary"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Blood Test Order #BT-2506</p>
+<p class="text-xs text-gray-500">Created on July 15, 2025</p>
+</div>
+</div>
+<button class="px-3 py-1.5 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button whitespace-nowrap hover:bg-primary/10">
+Assign Patient
+</button>
+</div>
+</div>
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mr-3">
+<i class="ri-file-list-3-line text-primary"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">X-Ray Order #XR-2505</p>
+<p class="text-xs text-gray-500">Created on July 14, 2025</p>
+</div>
+</div>
+<button class="px-3 py-1.5 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button whitespace-nowrap hover:bg-primary/10">
+Assign Patient
+</button>
+</div>
+</div>
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-center justify-between mb-2">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mr-3">
+<i class="ri-file-list-3-line text-primary"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">MRI Order #MR-2504</p>
+<p class="text-xs text-gray-500">Created on July 13, 2025</p>
+</div>
+</div>
+<button class="px-3 py-1.5 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button whitespace-nowrap hover:bg-primary/10">
+Assign Patient
+</button>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1417,75 +2744,197 @@ Save Changes
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
 <div class="p-6">
 <div class="flex items-center justify-between mb-6">
-<h2 class="text-lg font-semibold text-gray-900">Notification Settings</h2>
-</div>
-<div class="space-y-6">
 <div>
-<label class="flex items-center justify-between">
-<span class="text-sm text-gray-700">New Appointment Notifications</span>
-<label class="custom-switch">
-<input type="checkbox" checked>
-<span class="switch-slider"></span>
-</label>
-</label>
+<h2 class="text-lg font-semibold text-gray-900">Practice Documents</h2>
+<p class="text-sm text-gray-500 mt-1">View and manage practice documents and submissions</p>
 </div>
-<div>
-<label class="flex items-center justify-between">
-<span class="text-sm text-gray-700">Appointment Reminders</span>
-<label class="custom-switch">
-<input type="checkbox" checked>
-<span class="switch-slider"></span>
-</label>
-</label>
+<div class="flex items-center space-x-3">
+<button class="px-4 py-2 text-gray-700 border border-gray-200 rounded-button flex items-center whitespace-nowrap hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-upload-2-line"></i>
 </div>
-<div>
-<label class="flex items-center justify-between">
-<span class="text-sm text-gray-700">Appointment Cancellations</span>
-<label class="custom-switch">
-<input type="checkbox" checked>
-<span class="switch-slider"></span>
-</label>
-</label>
-</div>
-<div>
-<label class="flex items-center justify-between">
-<span class="text-sm text-gray-700">Payment Notifications</span>
-<label class="custom-switch">
-<input type="checkbox" checked>
-<span class="switch-slider"></span>
-</label>
-</label>
-</div>
-<div>
-<label class="flex items-center justify-between">
-<span class="text-sm text-gray-700">Staff Schedule Changes</span>
-<label class="custom-switch">
-<input type="checkbox" checked>
-<span class="switch-slider"></span>
-</label>
-</label>
-</div>
-<div>
-<label class="flex items-center justify-between">
-<span class="text-sm text-gray-700">System Updates</span>
-<label class="custom-switch">
-<input type="checkbox">
-<span class="switch-slider"></span>
-</label>
-</label>
-</div>
-<div>
-<label class="flex items-center justify-between">
-<span class="text-sm text-gray-700">Marketing Communications</span>
-<label class="custom-switch">
-<input type="checkbox">
-<span class="switch-slider"></span>
-</label>
-</label>
-</div>
-<button class="w-full px-4 py-2 bg-primary text-white rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/90">
-Save Notification Settings
+Upload Document
 </button>
+</div>
+</div>
+<div class="mb-6 grid grid-cols-3 gap-4">
+<div class="relative">
+<input type="text" placeholder="Search documents by title..." class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg">
+<div class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-search-line"></i>
+</div>
+</div>
+<div class="relative">
+<select class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg appearance-none">
+<option value="">All Document Types</option>
+<option value="manual">Manually Uploaded</option>
+<option value="template">Template Submissions</option>
+</select>
+<div class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-filter-3-line"></i>
+</div>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-arrow-down-s-line"></i>
+</div>
+</div>
+<div class="relative">
+<input type="date" class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg">
+<div class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-calendar-line"></i>
+</div>
+</div>
+</div>
+<div class="border border-gray-200 rounded-lg overflow-hidden">
+<table class="w-full">
+<thead class="bg-gray-50">
+<tr>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Document Title</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Uploaded By</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Size</th>
+<th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200">
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-file-text-line text-blue-600"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Patient Consent Form Template</p>
+<p class="text-xs text-gray-500">Template ID: TPL-001</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+Template
+</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center">
+<div class="w-6 h-6 rounded-full overflow-hidden mr-2">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20female%20doctor%20with%20a%20warm%20smile%2C%20wearing%20a%20white%20coat%2C%20natural%20lighting%2C%20high%20quality%20studio%20portrait&width=100&height=100&seq=1&orientation=squarish" class="w-full h-full object-cover object-top">
+</div>
+<span class="text-sm text-gray-600">Dr. Sarah Mitchell</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-gray-600">Jul 15, 2025</td>
+<td class="px-6 py-4 text-sm text-gray-600">245 KB</td>
+<td class="px-6 py-4">
+<div class="flex items-center space-x-3">
+<button class="text-gray-400 hover:text-primary">
+<i class="ri-eye-line"></i>
+</button>
+<button class="text-gray-400 hover:text-primary">
+<i class="ri-download-line"></i>
+</button>
+<button class="text-gray-400 hover:text-gray-600">
+<i class="ri-more-2-fill"></i>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-file-text-line text-green-600"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Lab Test Authorization Form</p>
+<p class="text-xs text-gray-500">Document ID: DOC-235</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+Uploaded
+</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center">
+<div class="w-6 h-6 rounded-full overflow-hidden mr-2">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20male%20doctor%20with%20glasses%2C%20wearing%20a%20white%20coat%2C%20natural%20lighting%2C%20high%20quality%20studio%20portrait&width=100&height=100&seq=2&orientation=squarish" class="w-full h-full object-cover object-top">
+</div>
+<span class="text-sm text-gray-600">Dr. James Wilson</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-gray-600">Jul 14, 2025</td>
+<td class="px-6 py-4 text-sm text-gray-600">180 KB</td>
+<td class="px-6 py-4">
+<div class="flex items-center space-x-3">
+<button class="text-gray-400 hover:text-primary">
+<i class="ri-eye-line"></i>
+</button>
+<button class="text-gray-400 hover:text-primary">
+<i class="ri-download-line"></i>
+</button>
+<button class="text-gray-400 hover:text-gray-600">
+<i class="ri-more-2-fill"></i>
+</button>
+</div>
+</td>
+</tr>
+<tr class="hover:bg-gray-50">
+<td class="px-6 py-4">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-file-text-line text-orange-600"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Medical Records Release Form</p>
+<p class="text-xs text-gray-500">Template ID: TPL-002</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-4">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+Template
+</span>
+</td>
+<td class="px-6 py-4">
+<div class="flex items-center">
+<div class="w-6 h-6 rounded-full overflow-hidden mr-2">
+<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20female%20nurse%20with%20dark%20hair%2C%20wearing%20scrubs%2C%20natural%20lighting%2C%20high%20quality%20studio%20portrait&width=100&height=100&seq=3&orientation=squarish" class="w-full h-full object-cover object-top">
+</div>
+<span class="text-sm text-gray-600">Jennifer Lopez</span>
+</div>
+</td>
+<td class="px-6 py-4 text-sm text-gray-600">Jul 13, 2025</td>
+<td class="px-6 py-4 text-sm text-gray-600">156 KB</td>
+<td class="px-6 py-4">
+<div class="flex items-center space-x-3">
+<button class="text-gray-400 hover:text-primary">
+<i class="ri-eye-line"></i>
+</button>
+<button class="text-gray-400 hover:text-primary">
+<i class="ri-download-line"></i>
+</button>
+<button class="text-gray-400 hover:text-gray-600">
+<i class="ri-more-2-fill"></i>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="flex items-center justify-between mt-6">
+<div class="text-sm text-gray-500">
+Showing 3 of 12 documents
+</div>
+<div class="flex items-center space-x-2">
+<button class="px-3 py-1 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50">Previous</button>
+<button class="px-3 py-1 text-sm text-white bg-primary rounded-lg hover:bg-primary/90">1</button>
+<button class="px-3 py-1 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50">2</button>
+<button class="px-3 py-1 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50">3</button>
+<button class="px-3 py-1 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50">Next</button>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1514,7 +2963,6 @@ Export History
 </button>
 </div>
 </div>
-
 <div class="border border-gray-200 rounded-lg overflow-hidden">
 <table class="w-full">
 <thead class="bg-gray-50">
@@ -1554,7 +3002,6 @@ Completed
 <button class="text-primary text-sm font-medium">View Details</button>
 </td>
 </tr>
-
 <tr class="hover:bg-gray-50">
 <td class="px-6 py-4 text-sm text-gray-900">#ORD-2505</td>
 <td class="px-6 py-4">
@@ -1580,7 +3027,6 @@ Processing
 <button class="text-primary text-sm font-medium">View Details</button>
 </td>
 </tr>
-
 <tr class="hover:bg-gray-50">
 <td class="px-6 py-4 text-sm text-gray-900">#ORD-2504</td>
 <td class="px-6 py-4">
@@ -1606,7 +3052,6 @@ Scheduled
 <button class="text-primary text-sm font-medium">View Details</button>
 </td>
 </tr>
-
 <tr class="hover:bg-gray-50">
 <td class="px-6 py-4 text-sm text-gray-900">#ORD-2503</td>
 <td class="px-6 py-4">
@@ -1632,7 +3077,6 @@ Completed
 <button class="text-primary text-sm font-medium">View Details</button>
 </td>
 </tr>
-
 <tr class="hover:bg-gray-50">
 <td class="px-6 py-4 text-sm text-gray-900">#ORD-2502</td>
 <td class="px-6 py-4">
@@ -1661,7 +3105,6 @@ Cancelled
 </tbody>
 </table>
 </div>
-
 <div class="flex items-center justify-between mt-6">
 <div class="text-sm text-gray-500">
 Showing 5 of 24 orders
@@ -1674,11 +3117,9 @@ Showing 5 of 24 orders
 <button class="px-3 py-1 text-sm text-gray-500 border border-gray-200 rounded-lg hover:bg-gray-50">Next</button>
 </div>
 </div>
-
 </div>
 </div>
 </div>
-
 <!-- Analytics Tab -->
 <div class="tab-content" id="analytics-tab">
 <div class="grid grid-cols-3 gap-6">
@@ -1890,8 +3331,150 @@ Export
 </div>
 </div>
 </div>
+</div>
 <script id="practiceTabsScript">
 document.addEventListener('DOMContentLoaded', function() {
+// Toggle additional info section
+const showAdditionalInfoBtn = document.getElementById('showAdditionalInfo');
+const additionalInfoContent = document.getElementById('additionalInfoContent');
+if (showAdditionalInfoBtn && additionalInfoContent) {
+showAdditionalInfoBtn.addEventListener('click', function() {
+additionalInfoContent.classList.toggle('hidden');
+const icon = this.querySelector('i');
+if (additionalInfoContent.classList.contains('hidden')) {
+icon.classList.remove('ri-subtract-line');
+icon.classList.add('ri-add-line');
+this.innerHTML = '<i class="ri-add-line mr-2"></i>Add more information';
+} else {
+icon.classList.remove('ri-add-line');
+icon.classList.add('ri-subtract-line');
+this.innerHTML = '<i class="ri-subtract-line mr-2"></i>Hide additional information';
+}
+});
+}
+// Practice Settings Modal
+const practiceSettingsBtn = document.getElementById('practiceSettingsBtn');
+const practiceSettingsModal = document.getElementById('practiceSettingsModal');
+const closePracticeSettingsModal = document.getElementById('closePracticeSettingsModal');
+if (practiceSettingsBtn && practiceSettingsModal && closePracticeSettingsModal) {
+function togglePracticeSettingsModal() {
+practiceSettingsModal.classList.toggle('hidden');
+}
+practiceSettingsBtn.addEventListener('click', togglePracticeSettingsModal);
+closePracticeSettingsModal.addEventListener('click', togglePracticeSettingsModal);
+practiceSettingsModal.addEventListener('click', function(e) {
+if (e.target === practiceSettingsModal) {
+togglePracticeSettingsModal();
+}
+});
+// Handle tab switching in practice settings
+const settingsTabs = document.querySelectorAll('.practice-settings-tab');
+const settingsContents = document.querySelectorAll('.practice-settings-content');
+settingsTabs.forEach(tab => {
+tab.addEventListener('click', () => {
+// Remove active classes
+settingsTabs.forEach(t => {
+t.classList.remove('text-primary', 'bg-white', 'border', 'border-primary/20');
+t.classList.add('text-gray-700');
+});
+settingsContents.forEach(content => content.classList.add('hidden'));
+// Add active classes
+tab.classList.add('text-primary', 'bg-white', 'border', 'border-primary/20');
+tab.classList.remove('text-gray-700');
+// Show content
+const contentId = `${tab.getAttribute('data-tab')}-content`;
+document.getElementById(contentId).classList.remove('hidden');
+});
+});
+}
+// Update Tabs
+const updateTabs = document.querySelectorAll('.update-tab');
+const updateContents = document.querySelectorAll('.update-content');
+updateTabs.forEach(tab => {
+tab.addEventListener('click', () => {
+// Remove active classes
+updateTabs.forEach(t => {
+t.classList.remove('text-primary', 'border-b-2', 'border-primary');
+t.classList.add('text-gray-500');
+});
+updateContents.forEach(content => content.classList.add('hidden'));
+// Add active classes
+tab.classList.add('text-primary', 'border-b-2', 'border-primary');
+tab.classList.remove('text-gray-500');
+// Show content
+const contentId = `${tab.getAttribute('data-tab')}-content`;
+document.getElementById(contentId).classList.remove('hidden');
+});
+});
+// Associated Practices Modal
+const associatedPracticesBtn = document.getElementById('associatedPracticesBtn');
+const associatedPracticesModal = document.getElementById('associatedPracticesModal');
+const closeAssociatedPracticesModal = document.getElementById('closeAssociatedPracticesModal');
+if (associatedPracticesBtn && associatedPracticesModal && closeAssociatedPracticesModal) {
+function toggleAssociatedPracticesModal() {
+associatedPracticesModal.classList.toggle('hidden');
+}
+associatedPracticesBtn.addEventListener('click', function(e) {
+e.preventDefault();
+toggleAssociatedPracticesModal();
+});
+closeAssociatedPracticesModal.addEventListener('click', toggleAssociatedPracticesModal);
+associatedPracticesModal.addEventListener('click', function(e) {
+if (e.target === associatedPracticesModal) {
+toggleAssociatedPracticesModal();
+}
+});
+}
+// Personal Wallet Modal
+const personalWalletBtn = document.getElementById('personalWalletBtn');
+const personalWalletModal = document.getElementById('personalWalletModal');
+const closeWalletModal = document.getElementById('closeWalletModal');
+if (personalWalletBtn && personalWalletModal && closeWalletModal) {
+function toggleWalletModal() {
+personalWalletModal.classList.toggle('hidden');
+}
+personalWalletBtn.addEventListener('click', function(e) {
+e.preventDefault();
+toggleWalletModal();
+});
+closeWalletModal.addEventListener('click', toggleWalletModal);
+personalWalletModal.addEventListener('click', function(e) {
+if (e.target === personalWalletModal) {
+toggleWalletModal();
+}
+});
+}
+// Profile Dropdown
+const profileBtn = document.getElementById('profileDropdownBtn');
+const profileDropdown = document.getElementById('profileDropdown');
+const profileImage = document.getElementById('profileImage');
+if (profileBtn && profileDropdown && profileImage) {
+function toggleProfileDropdown(e) {
+e.stopPropagation();
+profileDropdown.classList.toggle('hidden');
+}
+profileBtn.addEventListener('click', toggleProfileDropdown);
+profileImage.addEventListener('click', toggleProfileDropdown);
+document.addEventListener('click', function(e) {
+if (profileDropdown && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+profileDropdown.classList.add('hidden');
+}
+});
+}
+// Account Settings Dropdown
+const accountBtn = document.querySelector('#accountSettingsDropdown button');
+const accountMenu = document.getElementById('accountMenu');
+if (accountBtn && accountMenu) {
+accountBtn.addEventListener('click', function(e) {
+e.stopPropagation();
+accountMenu.classList.toggle('hidden');
+});
+document.addEventListener('click', function(e) {
+if (accountMenu && !accountMenu.contains(e.target) && !accountBtn.contains(e.target)) {
+accountMenu.classList.add('hidden');
+}
+});
+}
 const tabButtons = document.querySelectorAll('.practice-tab');
 const tabContents = document.querySelectorAll('.tab-content');
 tabButtons.forEach(button => {
@@ -1929,6 +3512,7 @@ this.classList.add('checked');
 this.classList.remove('checked');
 }
 });
+});
 // Handle radio button interactions
 const radioGroups = document.querySelectorAll('input[type="radio"]');
 radioGroups.forEach(radio => {
@@ -1949,8 +3533,167 @@ indicator.classList.add('bg-transparent');
 });
 });
 </script>
-<script id="chartsScript">
+<script id="operationalChartsScript">
 document.addEventListener('DOMContentLoaded', function() {
+// Revenue Chart
+const revenueChart = echarts.init(document.getElementById('revenueChart'));
+const revenueOption = {
+animation: false,
+tooltip: {
+trigger: 'axis',
+backgroundColor: 'rgba(255, 255, 255, 0.9)',
+borderColor: '#e5e7eb',
+textStyle: { color: '#1f2937' }
+},
+grid: { top: 0, right: 0, bottom: 0, left: 0 },
+xAxis: {
+type: 'category',
+boundaryGap: false,
+show: false,
+data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+},
+yAxis: { show: false, type: 'value' },
+series: [{
+data: [15000, 18000, 16000, 19000, 17000, 20000, 19000],
+type: 'line',
+smooth: true,
+symbol: 'none',
+lineStyle: { width: 3, color: 'rgba(87, 181, 231, 1)' },
+areaStyle: {
+color: {
+type: 'linear',
+x: 0, y: 0, x2: 0, y2: 1,
+colorStops: [{
+offset: 0, color: 'rgba(87, 181, 231, 0.2)'
+}, {
+offset: 1, color: 'rgba(87, 181, 231, 0.01)'
+}]
+}
+}
+}]
+};
+revenueChart.setOption(revenueOption);
+// Engagement Chart
+const engagementChart = echarts.init(document.getElementById('engagementChart'));
+const engagementOption = {
+animation: false,
+tooltip: {
+trigger: 'axis',
+backgroundColor: 'rgba(255, 255, 255, 0.9)',
+borderColor: '#e5e7eb',
+textStyle: { color: '#1f2937' }
+},
+grid: { top: 0, right: 0, bottom: 0, left: 0 },
+xAxis: {
+type: 'category',
+boundaryGap: false,
+show: false,
+data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+},
+yAxis: { show: false, type: 'value' },
+series: [{
+data: [75, 82, 80, 85, 88, 85, 85],
+type: 'line',
+smooth: true,
+symbol: 'none',
+lineStyle: { width: 3, color: 'rgba(141, 211, 199, 1)' },
+areaStyle: {
+color: {
+type: 'linear',
+x: 0, y: 0, x2: 0, y2: 1,
+colorStops: [{
+offset: 0, color: 'rgba(141, 211, 199, 0.2)'
+}, {
+offset: 1, color: 'rgba(141, 211, 199, 0.01)'
+}]
+}
+}
+}]
+};
+engagementChart.setOption(engagementOption);
+// Growth Chart
+const growthChart = echarts.init(document.getElementById('growthChart'));
+const growthOption = {
+animation: false,
+tooltip: {
+trigger: 'axis',
+backgroundColor: 'rgba(255, 255, 255, 0.9)',
+borderColor: '#e5e7eb',
+textStyle: { color: '#1f2937' }
+},
+grid: { top: 0, right: 0, bottom: 0, left: 0 },
+xAxis: {
+type: 'category',
+boundaryGap: false,
+show: false,
+data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+},
+yAxis: { show: false, type: 'value' },
+series: [{
+data: [1150, 1180, 1200, 1220, 1235, 1242, 1248],
+type: 'line',
+smooth: true,
+symbol: 'none',
+lineStyle: { width: 3, color: 'rgba(251, 191, 114, 1)' },
+areaStyle: {
+color: {
+type: 'linear',
+x: 0, y: 0, x2: 0, y2: 1,
+colorStops: [{
+offset: 0, color: 'rgba(251, 191, 114, 0.2)'
+}, {
+offset: 1, color: 'rgba(251, 191, 114, 0.01)'
+}]
+}
+}
+}]
+};
+growthChart.setOption(growthOption);
+// Wallet Balance Chart
+const walletChart = echarts.init(document.getElementById('walletChart'));
+const walletOption = {
+animation: false,
+tooltip: {
+trigger: 'axis',
+backgroundColor: 'rgba(255, 255, 255, 0.9)',
+borderColor: '#e5e7eb',
+textStyle: { color: '#1f2937' }
+},
+grid: { top: 0, right: 0, bottom: 0, left: 0 },
+xAxis: {
+type: 'category',
+boundaryGap: false,
+show: false,
+data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+},
+yAxis: { show: false, type: 'value' },
+series: [{
+data: [2200, 2350, 2450, 2580, 2580, 2580, 2580],
+type: 'line',
+smooth: true,
+symbol: 'none',
+lineStyle: { width: 3, color: 'rgba(252, 141, 98, 1)' },
+areaStyle: {
+color: {
+type: 'linear',
+x: 0, y: 0, x2: 0, y2: 1,
+colorStops: [{
+offset: 0, color: 'rgba(252, 141, 98, 0.2)'
+}, {
+offset: 1, color: 'rgba(252, 141, 98, 0.01)'
+}]
+}
+}
+}]
+};
+walletChart.setOption(walletOption);
+// Handle window resize
+window.addEventListener('resize', function() {
+revenueChart.resize();
+engagementChart.resize();
+growthChart.resize();
+walletChart.resize();
+});
 // Patient Demographics Chart
 if (document.getElementById('patientDemographicsChart')) {
 const patientDemographicsChart = echarts.init(document.getElementById('patientDemographicsChart'));
