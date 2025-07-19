@@ -155,54 +155,14 @@ My Practice
 </div>
 <div class="px-4 py-2">
 <div class="space-y-1">
-<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
+<a href="#" id="accountInfoBtn" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
 <div class="w-4 h-4 flex items-center justify-center mr-3">
-<i class="ri-user-line"></i>
+<i class="ri-user-settings-line"></i>
 </div>
-Login Name
-<span class="text-xs text-gray-400 ml-auto">Edit</span>
-</a>
-<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
-<div class="w-4 h-4 flex items-center justify-center mr-3">
-<i class="ri-mail-line"></i>
+Account Info
+<div class="w-4 h-4 flex items-center justify-center ml-auto text-gray-400">
+<i class="ri-arrow-right-s-line"></i>
 </div>
-Login Email
-<span class="text-xs text-gray-400 ml-auto">Edit</span>
-</a>
-<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
-<div class="w-4 h-4 flex items-center justify-center mr-3">
-<i class="ri-lock-password-line"></i>
-</div>
-Password
-<span class="text-xs text-gray-400 ml-auto">Edit</span>
-</a>
-<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
-<div class="w-4 h-4 flex items-center justify-center mr-3">
-<i class="ri-shield-keyhole-line"></i>
-</div>
-Two-factor Authentication
-<span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800 ml-auto">Enabled</span>
-</a>
-<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
-<div class="w-4 h-4 flex items-center justify-center mr-3">
-<i class="ri-profile-line"></i>
-</div>
-Provider ID
-<span class="text-xs text-gray-400 ml-auto">View</span>
-</a>
-<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
-<div class="w-4 h-4 flex items-center justify-center mr-3">
-<i class="ri-user-star-line"></i>
-</div>
-Sales Manager
-<span class="text-xs text-gray-400 ml-auto">View</span>
-</a>
-<a href="#" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
-<div class="w-4 h-4 flex items-center justify-center mr-3">
-<i class="ri-file-user-line"></i>
-</div>
-Personal Info
-<span class="text-xs text-gray-400 ml-auto">Edit</span>
 </a>
 </div>
 </div>
@@ -1644,14 +1604,16 @@ Add more information
 </div>
 <div class="space-y-6">
 <!-- Blood Kit Settings -->
-<div class="border-b border-gray-200 pb-6">
+<div>
 <div class="flex items-start mb-4">
 <div class="w-8 h-8 flex items-center justify-center text-red-500 mr-3">
 <i class="ri-test-tube-fill text-xl"></i>
 </div>
 <h5 class="text-sm font-medium text-gray-900">Blood Kit</h5>
 </div>
-<div class="grid grid-cols-2 gap-6">
+<div class="grid grid-cols-2 gap-6 relative">
+<!-- Vertical separator line -->
+<div class="absolute left-1/2 top-0 bottom-0 w-px bg-gray-300 transform -translate-x-1/2"></div>
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-3">Default Kits Shipping to</label>
 <div class="space-y-3">
@@ -1685,18 +1647,35 @@ Add more information
 <label class="block text-sm font-medium text-gray-700 mb-3">Default Billing Method</label>
 <div class="space-y-3">
 <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
-<input type="radio" name="blood-billing" value="provider" class="sr-only" checked>
+<input type="radio" name="non-blood-billing" value="provider" class="sr-only" checked>
 <div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
 <div class="w-2 h-2 bg-primary rounded-full"></div>
 </div>
 <span class="text-sm text-gray-700">Provider Pay</span>
 </label>
 <label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
-<input type="radio" name="blood-billing" value="patient" class="sr-only">
+<input type="radio" name="non-blood-billing" value="patient-now" class="sr-only">
 <div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
 <div class="w-2 h-2 bg-transparent rounded-full"></div>
 </div>
-<span class="text-sm text-gray-700">Patient Pay Later</span>
+<span class="text-sm text-gray-700">Patient Pay Now</span>
+</label>
+<label id="non-blood-patient-pay-later-label" class="flex items-center p-3 border border-gray-200 rounded-lg cursor-not-allowed bg-white relative">
+<input type="radio" name="non-blood-billing" value="patient" class="sr-only" disabled>
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center opacity-50">
+<div class="w-2 h-2 bg-transparent rounded-full"></div>
+</div>
+<span class="text-sm text-gray-400 line-through">Patient Pay Later</span>
+<div class="absolute right-3 top-3">
+<div class="group relative">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400">
+<i class="ri-information-line"></i>
+</div>
+<div class="hidden group-hover:block absolute right-0 bottom-6 w-48 p-2 bg-gray-900 text-white text-xs rounded">
+Not supported when non-blood kit is supplied by provider office
+</div>
+</div>
+</div>
 </label>
 </div>
 </div>
@@ -1743,7 +1722,9 @@ providerPayInput.nextElementSibling.querySelector('div').classList.add('bg-prima
 </div>
 <h5 class="text-sm font-medium text-gray-900">Non-Blood Kit</h5>
 </div>
-<div class="grid grid-cols-2 gap-6">
+<div class="grid grid-cols-2 gap-6 relative">
+<!-- Vertical separator line -->
+<div class="absolute left-1/2 top-0 bottom-0 w-px bg-gray-300 transform -translate-x-1/2"></div>
 <div>
 <label class="block text-sm font-medium text-gray-700 mb-3">Default Kits Shipping to</label>
 <div class="space-y-3">
@@ -1769,35 +1750,6 @@ providerPayInput.nextElementSibling.querySelector('div').classList.add('bg-prima
 <i class="ri-hospital-line"></i>
 </div>
 <span class="text-sm text-gray-700">Supply by Office</span>
-</div>
-</label>
-</div>
-</div>
-<div>
-<label class="block text-sm font-medium text-gray-700 mb-3">Default Billing Method</label>
-<div class="space-y-3">
-<label class="flex items-center p-3 border border-gray-200 rounded-lg cursor-pointer bg-white hover:border-primary/20">
-<input type="radio" name="non-blood-billing" value="provider" class="sr-only" checked>
-<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
-<div class="w-2 h-2 bg-primary rounded-full"></div>
-</div>
-<span class="text-sm text-gray-700">Provider Pay</span>
-</label>
-<label id="non-blood-patient-pay-later-label" class="flex items-center p-3 border border-gray-200 rounded-lg cursor-not-allowed bg-white relative">
-<input type="radio" name="non-blood-billing" value="patient" class="sr-only" disabled>
-<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center opacity-50">
-<div class="w-2 h-2 bg-transparent rounded-full"></div>
-</div>
-<span class="text-sm text-gray-400 line-through">Patient Pay Later</span>
-<div class="absolute right-3 top-3">
-<div class="group relative">
-<div class="w-4 h-4 flex items-center justify-center text-gray-400">
-<i class="ri-information-line"></i>
-</div>
-<div class="hidden group-hover:block absolute right-0 bottom-6 w-48 p-2 bg-gray-900 text-white text-xs rounded">
-Not supported when non-blood kit is supplied by provider office
-</div>
-</div>
 </div>
 </label>
 </div>
@@ -3453,6 +3405,39 @@ profileDropdown.classList.add('hidden');
 }
 });
 }
+
+// Account Info Modal
+const accountInfoBtn = document.getElementById('accountInfoBtn');
+const accountInfoModal = document.getElementById('accountInfoModal');
+const closeAccountInfoModal = document.getElementById('closeAccountInfoModal');
+
+if (accountInfoBtn && accountInfoModal) {
+    accountInfoBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        accountInfoModal.classList.remove('hidden');
+        // Close the profile dropdown
+        const profileDropdown = document.getElementById('profileDropdown');
+        if (profileDropdown) {
+            profileDropdown.classList.add('hidden');
+        }
+    });
+}
+
+if (closeAccountInfoModal && accountInfoModal) {
+    closeAccountInfoModal.addEventListener('click', function() {
+        accountInfoModal.classList.add('hidden');
+    });
+}
+
+// Close modal when clicking outside
+if (accountInfoModal) {
+    accountInfoModal.addEventListener('click', function(e) {
+        if (e.target === accountInfoModal) {
+            accountInfoModal.classList.add('hidden');
+        }
+    });
+}
+
 // Account Settings Dropdown
 const accountBtn = document.querySelector('#accountSettingsDropdown button');
 const accountMenu = document.getElementById('accountMenu');
@@ -4115,5 +4100,101 @@ echarts.getInstanceByDom(document.getElementById('revenueChart')).resize();
 });
 });
 </script>
+
+<!-- Account Info Modal -->
+<div id="accountInfoModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-6 border-b border-gray-200">
+            <h3 class="text-lg font-medium text-gray-900">Account Info</h3>
+            <button id="closeAccountInfoModal" class="text-gray-400 hover:text-gray-600">
+                <i class="ri-close-line text-xl"></i>
+            </button>
+        </div>
+        
+        <!-- Modal Content -->
+        <div class="p-6">
+            <div class="space-y-4">
+                <!-- Login Name -->
+                <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-5 h-5 flex items-center justify-center mr-3">
+                            <i class="ri-user-line text-gray-400"></i>
+                        </div>
+                        <span class="text-sm text-gray-700">Login Name</span>
+                    </div>
+                    <button class="text-xs text-blue-600 hover:text-blue-800">Edit</button>
+                </div>
+                
+                <!-- Login Email -->
+                <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-5 h-5 flex items-center justify-center mr-3">
+                            <i class="ri-mail-line text-gray-400"></i>
+                        </div>
+                        <span class="text-sm text-gray-700">Login Email</span>
+                    </div>
+                    <button class="text-xs text-blue-600 hover:text-blue-800">Edit</button>
+                </div>
+                
+                <!-- Password -->
+                <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-5 h-5 flex items-center justify-center mr-3">
+                            <i class="ri-lock-password-line text-gray-400"></i>
+                        </div>
+                        <span class="text-sm text-gray-700">Password</span>
+                    </div>
+                    <button class="text-xs text-blue-600 hover:text-blue-800">Edit</button>
+                </div>
+                
+                <!-- Two-factor Authentication -->
+                <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-5 h-5 flex items-center justify-center mr-3">
+                            <i class="ri-shield-keyhole-line text-gray-400"></i>
+                        </div>
+                        <span class="text-sm text-gray-700">Two-factor Authentication</span>
+                    </div>
+                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">Enabled</span>
+                </div>
+                
+                <!-- Provider ID -->
+                <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-5 h-5 flex items-center justify-center mr-3">
+                            <i class="ri-profile-line text-gray-400"></i>
+                        </div>
+                        <span class="text-sm text-gray-700">Provider ID</span>
+                    </div>
+                    <button class="text-xs text-blue-600 hover:text-blue-800">View</button>
+                </div>
+                
+                <!-- Sales Manager -->
+                <div class="flex items-center justify-between py-3 border-b border-gray-100">
+                    <div class="flex items-center">
+                        <div class="w-5 h-5 flex items-center justify-center mr-3">
+                            <i class="ri-user-star-line text-gray-400"></i>
+                        </div>
+                        <span class="text-sm text-gray-700">Sales Manager</span>
+                    </div>
+                    <button class="text-xs text-blue-600 hover:text-blue-800">View</button>
+                </div>
+                
+                <!-- Personal Info -->
+                <div class="flex items-center justify-between py-3">
+                    <div class="flex items-center">
+                        <div class="w-5 h-5 flex items-center justify-center mr-3">
+                            <i class="ri-file-user-line text-gray-400"></i>
+                        </div>
+                        <span class="text-sm text-gray-700">Personal Info</span>
+                    </div>
+                    <button class="text-xs text-blue-600 hover:text-blue-800">Edit</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
