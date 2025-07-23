@@ -254,7 +254,7 @@ Get Support
 <h2 class="text-lg font-semibold text-gray-900">Active Workflows</h2>
 <p class="text-sm text-gray-600 mt-1">Currently running clinical workflows</p>
 </div>
-<button class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap">
+<button id="createActiveWorkflowBtn" class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap">
 <div class="w-4 h-4 flex items-center justify-center mr-2">
 <i class="ri-add-line"></i>
 </div>
@@ -2300,6 +2300,15 @@ step.querySelector('.w-6.h-6').textContent = index + 1;
 });
 }
 createWorkflowBtn.addEventListener('click', openWorkflowModal);
+
+// Add event listener for the correct Create Workflow button in Active Workflows section
+const createActiveWorkflowBtn = document.getElementById('createActiveWorkflowBtn');
+if (createActiveWorkflowBtn) {
+    createActiveWorkflowBtn.addEventListener('click', () => {
+        window.location.href = 'workflow-composer.html';
+    });
+}
+
 closeWorkflowModalBtn.addEventListener('click', handleWorkflowModalClose);
 cancelWorkflow.addEventListener('click', handleWorkflowModalClose);
 const stepTypeSelector = document.getElementById('stepTypeSelector');

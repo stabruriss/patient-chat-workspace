@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Composer - Healthcare Provider Workbench</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
+    <style>
+        .primary { color: #4F46E5; }
+        .bg-primary { background-color: #4F46E5; }
+        .border-primary { border-color: #4F46E5; }
+        .border-primary\/20 { border-color: rgba(79, 70, 229, 0.2); }
+        .bg-primary\/5 { background-color: rgba(79, 70, 229, 0.05); }
+        .text-primary { color: #4F46E5; }
+        .rounded-button { border-radius: 8px; }
+        .block-editor {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .workflow-block {
+            transition: all 0.15s ease;
+            border-left: 3px solid transparent;
+        }
+        .workflow-block:hover {
+            background-color: rgba(0, 0, 0, 0.02);
+            border-left-color: #e5e7eb;
+        }
+        .workflow-block.selected {
+            background-color: rgba(79, 70, 229, 0.05);
+            border-left-color: #4F46E5;
+        }
+        .block-handle {
+            opacity: 0;
+            transition: opacity 0.15s ease;
+        }
+        .workflow-block:hover .block-handle {
+            opacity: 1;
+        }
+        .slash-menu {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .condition-branch {
+            border-left: 2px solid #d1d5db;
+            margin-left: 1rem;
+        }
+        .condition-branch.true-branch {
+            border-left-color: #10b981;
+        }
+        .condition-branch.false-branch {
+            border-left-color: #ef4444;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-40">
+        <div class="px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <button id="backBtn" class="mr-4 p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
+                        <i class="ri-arrow-left-line text-xl"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-semibold text-gray-900">Workflow Composer</h1>
+                        <p class="text-sm text-gray-600">Design your clinical process workflow</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button id="aiGenerateBtn" class="px-4 py-2 text-purple-600 border border-purple-200 bg-purple-50 rounded-button hover:bg-purple-100">
+                        <i class="ri-magic-line mr-2"></i>
+                        AI Generate
+                    </button>
+                    <button id="saveBtn" class="px-4 py-2 bg-primary text-white rounded-button hover:bg-primary/90">
+                        <i class="ri-save-line mr-2"></i>
+                        Save Workflow
+                    </button>
+                    <button id="previewBtn" class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button hover:bg-primary/10">
+                        <i class="ri-eye-line mr-2"></i>
+                        Preview
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="flex h-screen">
+        <!-- Left Panel - Properties -->
+        <div class="w-80 bg-white border-r border-gray-200 flex flex-col">
+            <!-- Workflow Properties -->
+            <div class="p-6 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Workflow Settings</h3>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                        <input type="text" id="workflowName" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="My New Workflow">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <textarea id="workflowDescription" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" rows="3" placeholder="Workflow description..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Trigger Event</label>
+                        <select id="triggerEvent" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
+                            <option value="">Select trigger...</option>
+                            <option value="appointment_booked">Appointment Booked</option>
+                            <option value="form_submitted">Form Submitted</option>
+                            <option value="patient_message">Patient Message</option>
+                            <option value="test_result">Test Result Available</option>
+                            <option value="manual">Manual Start</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Insert -->
+            <div class="p-6 flex-1 overflow-y-auto">
+                <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Insert</h3>
+                <div class="text-xs text-gray-500 mb-3">Type '/' in editor or click below</div>
+                <div class="space-y-2">
+                    <div class="text-xs font-medium text-gray-700 mb-2">Actions</div>
+                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="send-message">
+                        <div class="flex items-center">
+                            <i class="ri-message-line text-blue-600 mr-2"></i>
+                            Send Message/SMS/Email
+                        </div>
+                    </button>
+                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="appointment">
+                        <div class="flex items-center">
+                            <i class="ri-calendar-line text-green-600 mr-2"></i>
+                            Make Appointment
+                        </div>
+                    </button>
+                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="task">
+                        <div class="flex items-center">
+                            <i class="ri-task-line text-purple-600 mr-2"></i>
+                            Assign Task
+                        </div>
+                    </button>
+                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="document">
+                        <div class="flex items-center">
+                            <i class="ri-folder-shared-line text-orange-600 mr-2"></i>
+                            Send Document
+                        </div>
+                    </button>
+                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="order">
+                        <div class="flex items-center">
+                            <i class="ri-shopping-cart-line text-teal-600 mr-2"></i>
+                            Place Order
+                        </div>
+                    </button>
+                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="note">
+                        <div class="flex items-center">
+                            <i class="ri-sticky-note-line text-yellow-600 mr-2"></i>
+                            Add Internal Note
+                        </div>
+                    </button>
+                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="nested-workflow">
+                        <div class="flex items-center">
+                            <i class="ri-workflow-line text-indigo-600 mr-2"></i>
+                            Nest Workflow
+                        </div>
+                    </button>
+                    
+                    <div class="text-xs font-medium text-gray-700 mb-2 mt-4">Logic</div>
+                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="wait">
+                        <div class="flex items-center">
+                            <i class="ri-timer-line text-gray-600 mr-2"></i>
+                            Wait
+                        </div>
+                    </button>
+                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="condition">
+                        <div class="flex items-center">
+                            <i class="ri-git-branch-line text-yellow-600 mr-2"></i>
+                            Condition
+                        </div>
+                    </button>
+                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="loop">
+                        <div class="flex items-center">
+                            <i class="ri-repeat-line text-blue-600 mr-2"></i>
+                            Loop
+                        </div>
+                    </button>
+                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="approval">
+                        <div class="flex items-center">
+                            <i class="ri-user-check-line text-red-600 mr-2"></i>
+                            Human Approval
+                        </div>
+                    </button>
+                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="ai-touch">
+                        <div class="flex items-center">
+                            <i class="ri-ai-generate text-purple-600 mr-2"></i>
+                            AI Touch
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Center Panel - Block Editor -->
+        <div class="flex-1 block-editor bg-white relative overflow-auto">
+            <div id="blockEditor" class="max-w-4xl mx-auto p-8">
+                <div id="workflowBlocks" class="space-y-3">
+                    <!-- Empty state -->
+                    <div id="emptyState" class="text-center py-16 text-gray-400">
+                        <i class="ri-file-text-line text-4xl mb-4"></i>
+                        <h3 class="text-lg font-medium mb-2">Start building your workflow</h3>
+                        <p>Type <span class="bg-gray-100 px-2 py-1 rounded font-mono text-sm">/</span> to add a block or click an action from the sidebar</p>
+                    </div>
+                </div>
+                
+                <!-- New Block Input -->
+                <div id="newBlockInput" class="mt-4 opacity-0 pointer-events-none transition-opacity duration-200">
+                    <div class="flex items-center py-3 px-4 border border-gray-200 rounded-lg bg-white">
+                        <i class="ri-add-line text-gray-400 mr-3"></i>
+                        <input type="text" placeholder="Type '/' to insert a block or just start typing..." 
+                               class="flex-1 bg-transparent border-none outline-none text-gray-700 placeholder-gray-400">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Slash Command Menu -->
+            <div id="slashMenu" class="slash-menu hidden absolute bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-64">
+                <div class="p-2 max-h-64 overflow-y-auto">
+                    <!-- Dynamic content will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel - Properties -->
+        <div class="w-80 bg-white border-l border-gray-200" id="propertiesPanel" style="display: none;">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-medium text-gray-900">Node Properties</h3>
+                    <button id="closePropertiesBtn" class="p-1 text-gray-400 hover:text-gray-600">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+                <div id="nodeProperties" class="space-y-4">
+                    <!-- Dynamic content based on selected node -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Placeholder Message Modal -->
+    <div id="placeholderModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 max-w-md mx-4">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="ri-tools-line text-2xl text-blue-600"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900 mb-2">Workflow Composer</h3>
+                <p class="text-gray-600 mb-6">This is a placeholder for the workflow composer. The full visual workflow builder will be implemented here.</p>
+                <p class="text-sm text-gray-500 mb-6">Features will include drag-and-drop node creation, visual connections, and advanced workflow logic.</p>
+                <button id="closePlaceholderBtn" class="px-6 py-2 bg-primary text-white rounded-button">
+                    Got it
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize workflow composer
+        let workflowBlocks = [];
+        let blockCounter = 0;
+        let selectedBlock = null;
+        let currentInput = null;
+        let slashMenuVisible = false;
+
+        // Block type configurations
+        const blockConfigs = {
+            'send-message': { 
+                title: 'Send Message/SMS/Email', 
+                icon: 'ri-message-line', 
+                color: 'blue',
+                description: 'Send communication to patient'
+            },
+            'appointment': { 
+                title: 'Make Appointment', 
+                icon: 'ri-calendar-line', 
+                color: 'green',
+                description: 'Schedule appointment with patient'
+            },
+            'task': { 
+                title: 'Assign Task', 
+                icon: 'ri-task-line', 
+                color: 'purple',
+                description: 'Assign task to team member'
+            },
+            'document': { 
+                title: 'Send Document', 
+                icon: 'ri-folder-shared-line', 
+                color: 'orange',
+                description: 'Share document with patient'
+            },
+            'order': { 
+                title: 'Place Order', 
+                icon: 'ri-shopping-cart-line', 
+                color: 'teal',
+                description: 'Place lab/medication order'
+            },
+            'note': { 
+                title: 'Add Internal Note', 
+                icon: 'ri-sticky-note-line', 
+                color: 'yellow',
+                description: 'Add note for staff'
+            },
+            'nested-workflow': { 
+                title: 'Nest Workflow', 
+                icon: 'ri-workflow-line', 
+                color: 'indigo',
+                description: 'Execute another workflow'
+            },
+            'wait': { 
+                title: 'Wait', 
+                icon: 'ri-timer-line', 
+                color: 'gray',
+                description: 'Wait for time or input'
+            },
+            'condition': { 
+                title: 'Condition', 
+                icon: 'ri-git-branch-line', 
+                color: 'yellow',
+                description: 'Conditional branching'
+            },
+            'loop': { 
+                title: 'Loop', 
+                icon: 'ri-repeat-line', 
+                color: 'blue',
+                description: 'Repeat actions'
+            },
+            'approval': { 
+                title: 'Human Approval', 
+                icon: 'ri-user-check-line', 
+                color: 'red',
+                description: 'Require human approval'
+            },
+            'ai-touch': {
+                title: 'AI Touch',
+                icon: 'ri-ai-generate',
+                color: 'purple',
+                description: 'AI analysis and smart execution'
+            }
+        };
+
+        // Slash menu items
+        const slashMenuItems = Object.entries(blockConfigs).map(([type, config]) => ({
+            type,
+            title: config.title,
+            icon: config.icon,
+            description: config.description
+        }));
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeEditor();
+            setupEventListeners();
+            
+            // Show empty state initially
+            showEmptyState();
+        });
+
+        function initializeEditor() {
+            const blockEditor = document.getElementById('blockEditor');
+            const newBlockInput = document.getElementById('newBlockInput');
+            
+            // Make the editor clickable to show input
+            blockEditor.addEventListener('click', (e) => {
+                if (e.target === blockEditor || e.target.closest('#emptyState')) {
+                    showNewBlockInput();
+                }
+            });
+        }
+
+        function setupEventListeners() {
+            // Back button
+            document.getElementById('backBtn').addEventListener('click', () => {
+                window.location.href = 'Healthcare-Provider-Workbench.html';
+            });
+
+            // AI Generate button
+            const aiGenerateBtn = document.getElementById('aiGenerateBtn');
+            aiGenerateBtn.addEventListener('click', () => {
+                showAIGenerateModal();
+            });
+
+            // Quick insert buttons
+            document.querySelectorAll('.block-insert').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const blockType = button.dataset.type;
+                    addBlock(blockType);
+                });
+            });
+
+            // Save and Preview
+            document.getElementById('saveBtn').addEventListener('click', saveWorkflow);
+            document.getElementById('previewBtn').addEventListener('click', previewWorkflow);
+        }
+
+        function showEmptyState() {
+            const emptyState = document.getElementById('emptyState');
+            const newBlockInput = document.getElementById('newBlockInput');
+            
+            emptyState.style.display = 'block';
+            newBlockInput.style.opacity = '0';
+            newBlockInput.style.pointerEvents = 'none';
+        }
+
+        function hideEmptyState() {
+            const emptyState = document.getElementById('emptyState');
+            emptyState.style.display = 'none';
+        }
+
+        function showNewBlockInput() {
+            const newBlockInput = document.getElementById('newBlockInput');
+            const input = newBlockInput.querySelector('input');
+            
+            newBlockInput.style.opacity = '1';
+            newBlockInput.style.pointerEvents = 'auto';
+            input.focus();
+            
+            // Setup input handlers
+            input.addEventListener('input', handleInputChange);
+            input.addEventListener('keydown', handleKeyDown);
+            input.addEventListener('blur', handleInputBlur);
+            
+            currentInput = input;
+        }
+
+        function handleInputChange(e) {
+            const value = e.target.value;
+            
+            if (value.startsWith('/')) {
+                showSlashMenu(value.slice(1));
+            } else {
+                hideSlashMenu();
+            }
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Escape') {
+                hideSlashMenu();
+                if (workflowBlocks.length === 0) {
+                    showEmptyState();
+                }
+            } else if (e.key === 'Enter' && !slashMenuVisible) {
+                // Create a text block if not using slash command
+                const value = e.target.value.trim();
+                if (value && !value.startsWith('/')) {
+                    addTextBlock(value);
+                }
+            }
+        }
+
+        function handleInputBlur(e) {
+            // Delay hiding to allow click on slash menu
+            setTimeout(() => {
+                hideSlashMenu();
+                if (workflowBlocks.length === 0) {
+                    showEmptyState();
+                }
+            }, 200);
+        }
+
+        function showSlashMenu(query = '') {
+            const slashMenu = document.getElementById('slashMenu');
+            const menuContent = slashMenu.querySelector('div');
+            
+            // Filter items based on query
+            const filteredItems = slashMenuItems.filter(item => 
+                item.title.toLowerCase().includes(query.toLowerCase()) ||
+                item.type.includes(query.toLowerCase())
+            );
+
+            menuContent.innerHTML = filteredItems.map(item => `
+                <div class="slash-menu-item p-2 hover:bg-gray-50 rounded cursor-pointer" data-type="${item.type}">
+                    <div class="flex items-center">
+                        <i class="${item.icon} text-gray-600 mr-3"></i>
+                        <div>
+                            <div class="text-sm font-medium text-gray-900">${item.title}</div>
+                            <div class="text-xs text-gray-500">${item.description}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Position menu near input
+            const inputRect = currentInput.getBoundingClientRect();
+            slashMenu.style.left = inputRect.left + 'px';
+            slashMenu.style.top = (inputRect.bottom + 5) + 'px';
+            slashMenu.classList.remove('hidden');
+            slashMenuVisible = true;
+
+            // Add click handlers
+            menuContent.querySelectorAll('.slash-menu-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    const blockType = item.dataset.type;
+                    addBlock(blockType);
+                    hideSlashMenu();
+                });
+            });
+        }
+
+        function hideSlashMenu() {
+            const slashMenu = document.getElementById('slashMenu');
+            slashMenu.classList.add('hidden');
+            slashMenuVisible = false;
+        }
+
+        function addBlock(type) {
+            blockCounter++;
+            const config = blockConfigs[type];
+            
+            const block = {
+                id: `block-${blockCounter}`,
+                type: type,
+                config: { ...config },
+                data: {}
+            };
+
+            workflowBlocks.push(block);
+            renderBlock(block);
+            hideEmptyState();
+            
+            // Clear input and reset
+            if (currentInput) {
+                currentInput.value = '';
+                currentInput.blur();
+            }
+
+            // Show configuration for the new block
+            setTimeout(() => {
+                showBlockConfiguration(block);
+            }, 100);
+        }
+
+        function addTextBlock(text) {
+            blockCounter++;
+            
+            const block = {
+                id: `block-${blockCounter}`,
+                type: 'text',
+                config: {
+                    title: 'Text Block',
+                    icon: 'ri-text',
+                    color: 'gray'
+                },
+                data: { content: text }
+            };
+
+            workflowBlocks.push(block);
+            renderBlock(block);
+            hideEmptyState();
+            
+            // Clear input
+            if (currentInput) {
+                currentInput.value = '';
+                currentInput.blur();
+            }
+        }
+
+        function renderBlock(block) {
+            const workflowBlocksContainer = document.getElementById('workflowBlocks');
+            
+            const blockElement = document.createElement('div');
+            blockElement.className = 'workflow-block p-4 rounded-lg border border-gray-200 cursor-pointer';
+            blockElement.dataset.blockId = block.id;
+            
+            const colorClass = getColorClasses(block.config.color);
+            
+            blockElement.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="block-handle mr-3 text-gray-400 hover:text-gray-600">
+                            <i class="ri-drag-move-line"></i>
+                        </div>
+                        <div class="w-8 h-8 ${colorClass.bg} ${colorClass.text} rounded-full flex items-center justify-center mr-3">
+                            <i class="${block.config.icon}"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-900">${block.config.title}</div>
+                            <div class="text-xs text-gray-500">${block.config.description}</div>
+                            ${renderBlockContent(block)}
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button class="configure-block p-1 text-gray-400 hover:text-gray-600">
+                            <i class="ri-settings-line"></i>
+                        </button>
+                        <button class="delete-block p-1 text-gray-400 hover:text-red-500">
+                            <i class="ri-delete-bin-line"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            // Add event listeners
+            blockElement.addEventListener('click', () => selectBlock(block));
+            blockElement.querySelector('.configure-block').addEventListener('click', (e) => {
+                e.stopPropagation();
+                showBlockConfiguration(block);
+            });
+            blockElement.querySelector('.delete-block').addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (confirm('Are you sure you want to delete this block?')) {
+                    deleteBlock(block.id);
+                }
+            });
+            
+            workflowBlocksContainer.appendChild(blockElement);
+        }
+
+        function renderBlockContent(block) {
+            if (block.type === 'text') {
+                return `<div class="text-sm text-gray-700 mt-1">${block.data.content}</div>`;
+            }
+            
+            if (block.type === 'condition' && block.data.configured) {
+                return `
+                    <div class="mt-3">
+                        <div class="text-xs text-gray-600 mb-2">When: ${block.data.condition || 'Not set'}</div>
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="condition-branch true-branch p-2 rounded bg-green-50">
+                                <div class="text-green-700 font-medium">✓ True Path</div>
+                                <div class="text-green-600">${block.data.trueBranch?.length || 0} steps</div>
+                            </div>
+                            <div class="condition-branch false-branch p-2 rounded bg-red-50">
+                                <div class="text-red-700 font-medium">✗ False Path</div>
+                                <div class="text-red-600">${block.data.falseBranch?.length || 0} steps</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            if (block.type === 'wait' && block.data.configured) {
+                const waitType = block.data.type === 'time' ? 'Time-based' : 'Input-based';
+                const waitValue = block.data.type === 'time' ? 
+                    `${block.data.duration} ${block.data.unit}` : 
+                    `Wait for ${block.data.inputCount} inputs`;
+                return `<div class="text-sm text-gray-600 mt-1">${waitType}: ${waitValue}</div>`;
+            }
+            
+            if (block.type === 'loop' && block.data.configured) {
+                return `<div class="text-sm text-gray-600 mt-1">Repeat ${block.data.count} times</div>`;
+            }
+            
+            if (block.type === 'ai-touch' && block.data.configured) {
+                const contextLabels = {
+                    'previous-1': '1 previous step',
+                    'previous-2': '2 previous steps', 
+                    'previous-3': '3 previous steps',
+                    'previous-all': 'All previous steps',
+                    'specific': 'Specific steps'
+                };
+                const contextSteps = contextLabels[block.data.contextSteps] || 'Previous step';
+                
+                const modeLabels = {
+                    'execute-next': '➡️ Execute next steps',
+                    'auto-generate': '⚡ Auto-generate steps',
+                    'hybrid': '🔄 Hybrid mode'
+                };
+                const executionMode = modeLabels[block.data.executionMode] || '➡️ Execute next steps';
+                
+                const approvalIcon = block.data.requireApproval ? '✋ ' : '';
+                
+                return `
+                    <div class="mt-3 space-y-2">
+                        <div class="text-xs text-purple-600 bg-purple-50 p-2 rounded">
+                            <strong>🤖 AI Prompt:</strong> ${block.data.prompt ? (block.data.prompt.length > 60 ? block.data.prompt.substring(0, 60) + '...' : block.data.prompt) : 'Not set'}
+                        </div>
+                        <div class="text-xs text-gray-600 space-y-1">
+                            <div>📥 Context: ${contextSteps}</div>
+                            <div>${approvalIcon}${executionMode}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Show configuration status
+            const hasConfig = Object.keys(block.data).length > 0;
+            if (!hasConfig) {
+                return `<div class="text-xs text-orange-500 mt-1">⚠️ Needs configuration</div>`;
+            }
+            
+            return `<div class="text-xs text-green-600 mt-1">✓ Configured</div>`;
+        }
+
+        function getColorClasses(color) {
+            const colorMap = {
+                blue: { bg: 'bg-blue-100', text: 'text-blue-600' },
+                green: { bg: 'bg-green-100', text: 'text-green-600' },
+                purple: { bg: 'bg-purple-100', text: 'text-purple-600' },
+                orange: { bg: 'bg-orange-100', text: 'text-orange-600' },
+                teal: { bg: 'bg-teal-100', text: 'text-teal-600' },
+                yellow: { bg: 'bg-yellow-100', text: 'text-yellow-600' },
+                indigo: { bg: 'bg-indigo-100', text: 'text-indigo-600' },
+                gray: { bg: 'bg-gray-100', text: 'text-gray-600' },
+                red: { bg: 'bg-red-100', text: 'text-red-600' }
+            };
+            return colorMap[color] || colorMap.gray;
+        }
+
+        function selectBlock(block) {
+            // Remove previous selection
+            document.querySelectorAll('.workflow-block').forEach(el => {
+                el.classList.remove('selected');
+            });
+            
+            // Add selection to current block
+            const blockElement = document.querySelector(`[data-block-id="${block.id}"]`);
+            blockElement.classList.add('selected');
+            selectedBlock = block;
+        }
+
+        function deleteBlock(blockId) {
+            workflowBlocks = workflowBlocks.filter(block => block.id !== blockId);
+            const blockElement = document.querySelector(`[data-block-id="${blockId}"]`);
+            blockElement.remove();
+            
+            if (workflowBlocks.length === 0) {
+                showEmptyState();
+            }
+        }
+
+        function showBlockConfiguration(block) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+            
+            let modalContent = '';
+            
+            switch (block.type) {
+                case 'send-message':
+                    modalContent = createMessageConfigModal(block);
+                    break;
+                case 'appointment':
+                    modalContent = createAppointmentConfigModal(block);
+                    break;
+                case 'task':
+                    modalContent = createTaskConfigModal(block);
+                    break;
+                case 'wait':
+                    modalContent = createWaitConfigModal(block);
+                    break;
+                case 'condition':
+                    modalContent = createConditionConfigModal(block);
+                    break;
+                case 'loop':
+                    modalContent = createLoopConfigModal(block);
+                    break;
+                case 'approval':
+                    modalContent = createApprovalConfigModal(block);
+                    break;
+                case 'ai-touch':
+                    modalContent = createAITouchConfigModal(block);
+                    break;
+                default:
+                    modalContent = createGenericConfigModal(block);
+            }
+            
+            modal.innerHTML = modalContent;
+            document.body.appendChild(modal);
+            
+            // Setup modal event listeners
+            setupModalEventListeners(modal, block);
+        }
+        
+        function createMessageConfigModal(block) {
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Message</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Message Type</label>
+                            <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="type">
+                                <option value="">Select type...</option>
+                                <option value="sms">SMS</option>
+                                <option value="email">Email</option>
+                                <option value="in-app">In-App Message</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Subject (Email only)</label>
+                            <input type="text" class="config-input w-full p-2 border border-gray-300 rounded-lg" 
+                                   data-field="subject" placeholder="Email subject...">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Message Content</label>
+                            <textarea class="config-input w-full p-2 border border-gray-300 rounded-lg" rows="4" 
+                                      data-field="content" placeholder="Message content..."></textarea>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button class="save-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            Save Configuration
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createWaitConfigModal(block) {
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-lg mx-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Wait</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Wait Type</label>
+                            <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="type">
+                                <option value="time">Fixed Time Period</option>
+                                <option value="input">Wait for Input</option>
+                            </select>
+                        </div>
+                        <div id="timeConfig" class="space-y-3">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                                <input type="number" class="config-input w-full p-2 border border-gray-300 rounded-lg" 
+                                       data-field="duration" min="1" placeholder="1">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Unit</label>
+                                <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="unit">
+                                    <option value="minutes">Minutes</option>
+                                    <option value="hours">Hours</option>
+                                    <option value="days">Days</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div id="inputConfig" class="hidden">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Number of Inputs Required</label>
+                                <input type="number" class="config-input w-full p-2 border border-gray-300 rounded-lg" 
+                                       data-field="inputCount" min="1" placeholder="1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button class="save-btn px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                            Save Configuration
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createConditionConfigModal(block) {
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Condition</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Condition</label>
+                            <textarea class="config-input w-full p-2 border border-gray-300 rounded-lg" rows="3" 
+                                      data-field="condition" placeholder="Describe the condition to check...\nExample: Patient age > 65"></textarea>
+                        </div>
+                        <div class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+                            <strong>Note:</strong> This creates two separate paths in your workflow. Steps following this condition will be organized into True and False branches.
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button class="save-btn px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
+                            Save Configuration
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createLoopConfigModal(block) {
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-lg mx-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Loop</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Repeat Count</label>
+                            <input type="number" class="config-input w-full p-2 border border-gray-300 rounded-lg" 
+                                   data-field="count" min="1" placeholder="3">
+                        </div>
+                        <div class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+                            <strong>Note:</strong> Actions following this loop will be repeated the specified number of times.
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button class="save-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            Save Configuration
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createGenericConfigModal(block) {
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-lg mx-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure ${block.config.title}</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                            <textarea class="config-input w-full p-2 border border-gray-300 rounded-lg" rows="3" 
+                                      data-field="description" placeholder="Describe what this block should do..."></textarea>
+                        </div>
+                        <div class="text-sm text-yellow-600 bg-yellow-50 p-3 rounded-lg">
+                            <strong>Note:</strong> This block type will need additional configuration during workflow execution.
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button class="save-btn px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                            Save Configuration
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createAppointmentConfigModal(block) {
+            return createGenericConfigModal(block);
+        }
+        
+        function createTaskConfigModal(block) {
+            return createGenericConfigModal(block);
+        }
+        
+        function createApprovalConfigModal(block) {
+            return createGenericConfigModal(block);
+        }
+        
+        function createAITouchConfigModal(block) {
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure AI Touch</h3>
+                    <div class="space-y-4">
+                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
+                            <div class="flex items-start">
+                                <i class="ri-ai-generate text-purple-600 mr-2 mt-1"></i>
+                                <div class="text-sm text-purple-800">
+                                    <strong>AI Touch</strong> analyzes previous workflow steps and intelligently executes or generates next steps based on your instructions.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">AI Analysis Prompt</label>
+                            <textarea class="config-input w-full p-3 border border-gray-300 rounded-lg text-sm" rows="4" 
+                                      data-field="prompt" placeholder="Describe what AI should analyze and do...&#10;&#10;Examples:&#10;• 'If patient didn't respond to appointment reminder, send SMS and reschedule'&#10;• 'Analyze patient questionnaire results and recommend next steps'&#10;• 'Check if lab results are abnormal and create appropriate follow-up tasks'"></textarea>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Context from Previous Steps</label>
+                            <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="contextSteps">
+                                <option value="previous-1">Previous 1 step</option>
+                                <option value="previous-2">Previous 2 steps</option>
+                                <option value="previous-3">Previous 3 steps</option>
+                                <option value="previous-all">All previous steps</option>
+                                <option value="specific">Specific steps (advanced)</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Execution Mode</label>
+                            <div class="space-y-3">
+                                <label class="flex items-start">
+                                    <input type="radio" name="executionMode" value="execute-next" class="config-input mt-1 mr-3" data-field="executionMode" checked>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">Execute Next Steps</div>
+                                        <div class="text-xs text-gray-500">AI will execute pre-configured next steps based on analysis</div>
+                                    </div>
+                                </label>
+                                <label class="flex items-start">
+                                    <input type="radio" name="executionMode" value="auto-generate" class="config-input mt-1 mr-3" data-field="executionMode">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">Auto-Generate Steps</div>
+                                        <div class="text-xs text-gray-500">AI will automatically create and execute new workflow steps</div>
+                                    </div>
+                                </label>
+                                <label class="flex items-start">
+                                    <input type="radio" name="executionMode" value="hybrid" class="config-input mt-1 mr-3" data-field="executionMode">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">Hybrid Mode</div>
+                                        <div class="text-xs text-gray-500">Execute configured steps + auto-generate additional ones if needed</div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" class="config-input mr-2" data-field="requireApproval">
+                                <span class="text-sm text-gray-700">Require human approval before AI execution</span>
+                            </label>
+                        </div>
+                        
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <div class="text-sm text-blue-800">
+                                <strong>💡 Tip:</strong> AI Touch works best when placed after data collection steps (forms, questionnaires, test results) or communication attempts where intelligent analysis and response are needed.
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button class="save-btn px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                            Save AI Touch
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function setupModalEventListeners(modal, block) {
+            // Wait type toggle for wait blocks
+            const waitTypeSelect = modal.querySelector('select[data-field="type"]');
+            if (waitTypeSelect && block.type === 'wait') {
+                waitTypeSelect.addEventListener('change', (e) => {
+                    const timeConfig = modal.querySelector('#timeConfig');
+                    const inputConfig = modal.querySelector('#inputConfig');
+                    
+                    if (e.target.value === 'input') {
+                        timeConfig.classList.add('hidden');
+                        inputConfig.classList.remove('hidden');
+                    } else {
+                        timeConfig.classList.remove('hidden');
+                        inputConfig.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Cancel button
+            modal.querySelector('.cancel-btn').addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            // Save button
+            modal.querySelector('.save-btn').addEventListener('click', () => {
+                saveBlockConfiguration(modal, block);
+                modal.remove();
+            });
+        }
+        
+        function saveBlockConfiguration(modal, block) {
+            const inputs = modal.querySelectorAll('.config-input');
+            const data = {};
+            
+            inputs.forEach(input => {
+                const field = input.dataset.field;
+                
+                if (input.type === 'radio') {
+                    if (input.checked) {
+                        data[field] = input.value;
+                    }
+                } else if (input.type === 'checkbox') {
+                    data[field] = input.checked;
+                } else {
+                    const value = input.value.trim();
+                    if (value) {
+                        data[field] = value;
+                    }
+                }
+            });
+            
+            // Mark as configured
+            data.configured = true;
+            
+            // Special handling for condition blocks
+            if (block.type === 'condition') {
+                data.trueBranch = [];
+                data.falseBranch = [];
+            }
+            
+            // Update block data
+            block.data = { ...block.data, ...data };
+            
+            // Re-render the block to show updated configuration
+            const blockElement = document.querySelector(`[data-block-id="${block.id}"]`);
+            if (blockElement) {
+                const contentDiv = blockElement.querySelector('.flex-1');
+                const newContent = `
+                    <div class="text-sm font-medium text-gray-900">${block.config.title}</div>
+                    <div class="text-xs text-gray-500">${block.config.description}</div>
+                    ${renderBlockContent(block)}
+                `;
+                contentDiv.innerHTML = newContent;
+            }
+            
+            showNotification('Block configuration saved!', 'success');
+        }
+
+        function showAIGenerateModal() {
+            const hasExistingWorkflow = workflowBlocks.length > 0;
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-lg mx-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">AI Workflow ${hasExistingWorkflow ? 'Assistant' : 'Generator'}</h3>
+                    <div class="text-sm text-gray-600 mb-4">
+                        ${hasExistingWorkflow ? 
+                            'Describe how you want to modify your current workflow or ask questions about it.' : 
+                            'Describe the workflow you want to create and AI will generate the blocks for you.'
+                        }
+                    </div>
+                    <textarea id="aiPrompt" class="w-full p-3 border border-gray-300 rounded-lg text-sm" rows="4" 
+                              placeholder="${hasExistingWorkflow ? 
+                                'Example: "Add a follow-up SMS if patient doesn\'t respond within 2 hours"' : 
+                                'Example: "Send appointment reminder 24 hours before, if no response wait 2 hours then send SMS"'
+                              }"></textarea>
+                    <div class="mt-4 flex justify-end space-x-3">
+                        <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50" onclick="this.closest('.fixed').remove()">
+                            Cancel
+                        </button>
+                        <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700" onclick="handleAIGenerate(this)">
+                            ${hasExistingWorkflow ? 'Modify Workflow' : 'Generate Workflow'}
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            
+            // Focus the textarea
+            setTimeout(() => {
+                modal.querySelector('#aiPrompt').focus();
+            }, 100);
+        }
+        
+        function handleAIGenerate(button) {
+            const modal = button.closest('.fixed');
+            const prompt = modal.querySelector('#aiPrompt').value.trim();
+            
+            if (!prompt) {
+                alert('Please enter a description for your workflow.');
+                return;
+            }
+            
+            // Show loading state
+            button.disabled = true;
+            button.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i>Generating...';
+            
+            // Simulate AI generation (replace with actual API call)
+            setTimeout(() => {
+                showNotification('AI workflow generation coming soon!', 'info');
+                modal.remove();
+            }, 2000);
+        }
+
+        function saveWorkflow() {
+            const workflowData = {
+                name: document.getElementById('workflowName').value || 'Untitled Workflow',
+                description: document.getElementById('workflowDescription').value || '',
+                trigger: document.getElementById('triggerEvent').value || '',
+                blocks: workflowBlocks
+            };
+            
+            // For now, just show success message
+            showNotification('Workflow saved successfully!', 'success');
+            console.log('Saved workflow:', workflowData);
+        }
+
+        function previewWorkflow() {
+            showNotification('Preview feature coming soon!', 'info');
+        }
+
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            const colorClass = type === 'success' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600';
+            const icon = type === 'success' ? 'ri-check-line' : 'ri-information-line';
+            
+            notification.className = `fixed top-4 right-4 ${colorClass} px-4 py-3 rounded-lg shadow-lg z-50`;
+            notification.innerHTML = `<i class="${icon} mr-2"></i>${message}`;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
