@@ -49,6 +49,92 @@
         .condition-branch.false-branch {
             border-left-color: #ef4444;
         }
+        
+        /* Chat styling */
+        #chatMessages {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e0 transparent;
+        }
+        
+        #chatMessages::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        #chatMessages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        #chatMessages::-webkit-scrollbar-thumb {
+            background-color: #cbd5e0;
+            border-radius: 2px;
+        }
+        
+        #chatInput {
+            resize: none;
+            min-height: 44px;
+            max-height: 120px;
+        }
+        
+        .chat-message {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+        
+        /* Block Library styling */
+        #blockCategories {
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e0 transparent;
+        }
+        
+        #blockCategories::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        #blockCategories::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        #blockCategories::-webkit-scrollbar-thumb {
+            background-color: #cbd5e0;
+            border-radius: 2px;
+        }
+        
+        .block-library-item:active {
+            transform: translateY(1px);
+        }
+        
+        .block-library-item {
+            min-height: 60px;
+            height: fit-content;
+        }
+        
+        /* Container block styling */
+        .workflow-container {
+            position: relative;
+        }
+        
+        .drop-zone {
+            transition: all 0.2s ease;
+        }
+        
+        .drop-zone:hover {
+            border-color: #6366f1;
+            background-color: rgba(99, 102, 241, 0.05);
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #6366f1;
+            background-color: rgba(99, 102, 241, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .condition-container, .loop-container {
+            transition: all 0.15s ease;
+        }
+        
+        .condition-container:hover, .loop-container:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -60,16 +146,12 @@
                     <button id="backBtn" class="mr-4 p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
                         <i class="ri-arrow-left-line text-xl"></i>
                     </button>
-                    <div>
-                        <h1 class="text-xl font-semibold text-gray-900">Workflow Composer</h1>
-                        <p class="text-sm text-gray-600">Design your clinical process workflow</p>
+                    <div class="flex flex-col">
+                        <input id="workflowName" type="text" placeholder="My New Workflow" class="text-xl font-semibold text-gray-900 bg-transparent border-none outline-none focus:bg-white focus:px-2 focus:py-1 focus:rounded focus:border focus:border-gray-200" style="min-width: 200px;">
+                        <input id="workflowDescription" type="text" placeholder="Workflow description..." class="text-sm text-gray-600 bg-transparent border-none outline-none focus:bg-white focus:px-2 focus:py-1 focus:rounded focus:border focus:border-gray-200 mt-1" style="min-width: 300px;">
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <button id="aiGenerateBtn" class="px-4 py-2 text-purple-600 border border-purple-200 bg-purple-50 rounded-button hover:bg-purple-100">
-                        <i class="ri-magic-line mr-2"></i>
-                        AI Generate
-                    </button>
                     <button id="saveBtn" class="px-4 py-2 bg-primary text-white rounded-button hover:bg-primary/90">
                         <i class="ri-save-line mr-2"></i>
                         Save Workflow
@@ -84,161 +166,78 @@
     </header>
 
     <!-- Main Content -->
-    <div class="flex h-screen">
-        <!-- Left Panel - Properties -->
-        <div class="w-80 bg-white border-r border-gray-200 flex flex-col">
-            <!-- Workflow Properties -->
-            <div class="p-6 border-b border-gray-200">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Workflow Settings</h3>
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                        <input type="text" id="workflowName" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="My New Workflow">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                        <textarea id="workflowDescription" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm" rows="3" placeholder="Workflow description..."></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Trigger Event</label>
-                        <select id="triggerEvent" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm">
-                            <option value="">Select trigger...</option>
-                            <option value="appointment_booked">Appointment Booked</option>
-                            <option value="form_submitted">Form Submitted</option>
-                            <option value="patient_message">Patient Message</option>
-                            <option value="test_result">Test Result Available</option>
-                            <option value="manual">Manual Start</option>
-                        </select>
-                    </div>
-                </div>
+    <div class="h-screen bg-gray-50 flex">
+        <!-- Left Panel - Block Library -->
+        <div class="w-80 bg-white border-r border-gray-200 flex flex-col" id="blockLibraryPanel">
+            <!-- Library Header -->
+            <div class="p-4 border-b border-gray-200">
+                <h3 class="text-lg font-medium text-gray-900">Block Library</h3>
+                <p class="text-sm text-gray-500 mt-1">Click to add blocks to your workflow</p>
             </div>
-
-            <!-- Quick Insert -->
-            <div class="p-6 flex-1 overflow-y-auto">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">Quick Insert</h3>
-                <div class="text-xs text-gray-500 mb-3">Type '/' in editor or click below</div>
-                <div class="space-y-2">
-                    <div class="text-xs font-medium text-gray-700 mb-2">Actions</div>
-                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="send-message">
-                        <div class="flex items-center">
-                            <i class="ri-message-line text-blue-600 mr-2"></i>
-                            Send Message/SMS/Email
-                        </div>
-                    </button>
-                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="appointment">
-                        <div class="flex items-center">
-                            <i class="ri-calendar-line text-green-600 mr-2"></i>
-                            Make Appointment
-                        </div>
-                    </button>
-                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="task">
-                        <div class="flex items-center">
-                            <i class="ri-task-line text-purple-600 mr-2"></i>
-                            Assign Task
-                        </div>
-                    </button>
-                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="document">
-                        <div class="flex items-center">
-                            <i class="ri-folder-shared-line text-orange-600 mr-2"></i>
-                            Send Document
-                        </div>
-                    </button>
-                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="order">
-                        <div class="flex items-center">
-                            <i class="ri-shopping-cart-line text-teal-600 mr-2"></i>
-                            Place Order
-                        </div>
-                    </button>
-                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="note">
-                        <div class="flex items-center">
-                            <i class="ri-sticky-note-line text-yellow-600 mr-2"></i>
-                            Add Internal Note
-                        </div>
-                    </button>
-                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="nested-workflow">
-                        <div class="flex items-center">
-                            <i class="ri-workflow-line text-indigo-600 mr-2"></i>
-                            Nest Workflow
-                        </div>
-                    </button>
-                    
-                    <div class="text-xs font-medium text-gray-700 mb-2 mt-4">Logic</div>
-                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="wait">
-                        <div class="flex items-center">
-                            <i class="ri-timer-line text-gray-600 mr-2"></i>
-                            Wait
-                        </div>
-                    </button>
-                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="condition">
-                        <div class="flex items-center">
-                            <i class="ri-git-branch-line text-yellow-600 mr-2"></i>
-                            Condition
-                        </div>
-                    </button>
-                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="loop">
-                        <div class="flex items-center">
-                            <i class="ri-repeat-line text-blue-600 mr-2"></i>
-                            Loop
-                        </div>
-                    </button>
-                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="approval">
-                        <div class="flex items-center">
-                            <i class="ri-user-check-line text-red-600 mr-2"></i>
-                            Human Approval
-                        </div>
-                    </button>
-                    <button class="block-insert w-full text-left p-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50" data-type="ai-touch">
-                        <div class="flex items-center">
-                            <i class="ri-ai-generate text-purple-600 mr-2"></i>
-                            AI Touch
-                        </div>
-                    </button>
-                </div>
+            
+            <!-- Block Categories -->
+            <div class="flex-1 overflow-y-auto p-4" id="blockCategories">
+                <!-- Categories will be populated by JavaScript -->
             </div>
         </div>
-
-        <!-- Center Panel - Block Editor -->
-        <div class="flex-1 block-editor bg-white relative overflow-auto">
+        
+        <!-- Block Editor -->
+        <div class="block-editor bg-white flex-1 overflow-auto">
             <div id="blockEditor" class="max-w-4xl mx-auto p-8">
                 <div id="workflowBlocks" class="space-y-3">
                     <!-- Empty state -->
                     <div id="emptyState" class="text-center py-16 text-gray-400">
                         <i class="ri-file-text-line text-4xl mb-4"></i>
                         <h3 class="text-lg font-medium mb-2">Start building your workflow</h3>
-                        <p>Type <span class="bg-gray-100 px-2 py-1 rounded font-mono text-sm">/</span> to add a block or click an action from the sidebar</p>
+                        <p>Press <span class="bg-gray-100 px-2 py-1 rounded font-mono text-sm">⌘K</span> to open the command palette and add blocks</p>
                     </div>
                 </div>
                 
-                <!-- New Block Input -->
-                <div id="newBlockInput" class="mt-4 opacity-0 pointer-events-none transition-opacity duration-200">
-                    <div class="flex items-center py-3 px-4 border border-gray-200 rounded-lg bg-white">
-                        <i class="ri-add-line text-gray-400 mr-3"></i>
-                        <input type="text" placeholder="Type '/' to insert a block or just start typing..." 
-                               class="flex-1 bg-transparent border-none outline-none text-gray-700 placeholder-gray-400">
+            </div>
+            
+            
+        </div>
+
+        <!-- Right Panel - AI Chat -->
+        <div class="w-96 bg-white border-l border-gray-200 flex flex-col" id="aiChatPanel">
+            <!-- Chat Header -->
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                        <i class="ri-magic-line text-purple-600"></i>
                     </div>
+                    <h3 class="text-lg font-medium text-gray-900">AI Assistant</h3>
+                </div>
+                <p class="text-sm text-gray-500 mt-1">Ask me to help with your workflow</p>
+            </div>
+            
+            <!-- Chat Messages -->
+            <div class="flex-1 overflow-y-auto p-4" id="chatMessages">
+                <div class="text-center text-gray-400 py-8">
+                    <i class="ri-chat-3-line text-3xl mb-2"></i>
+                    <p class="text-sm">Start a conversation with AI to get help with your workflow</p>
                 </div>
             </div>
             
-            <!-- Slash Command Menu -->
-            <div id="slashMenu" class="slash-menu hidden absolute bg-white border border-gray-200 rounded-lg shadow-lg z-50 w-64">
-                <div class="p-2 max-h-64 overflow-y-auto">
-                    <!-- Dynamic content will be populated here -->
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Panel - Properties -->
-        <div class="w-80 bg-white border-l border-gray-200" id="propertiesPanel" style="display: none;">
-            <div class="p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-medium text-gray-900">Node Properties</h3>
-                    <button id="closePropertiesBtn" class="p-1 text-gray-400 hover:text-gray-600">
-                        <i class="ri-close-line"></i>
+            <!-- Chat Input -->
+            <div class="p-4 border-t border-gray-200">
+                <div class="flex items-center space-x-2">
+                    <div class="flex-1">
+                        <textarea 
+                            id="chatInput" 
+                            class="w-full h-12 px-3 py-2 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" 
+                            placeholder="Ask AI to help with your workflow..."
+                            
+                        ></textarea>
+                    </div>
+                    <button 
+                        id="sendChatBtn" 
+                        class="flex-shrink-0 h-12 w-12 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 flex items-center justify-center"
+                    >
+                        <i class="ri-send-plane-line text-lg"></i>
                     </button>
                 </div>
-                <div id="nodeProperties" class="space-y-4">
-                    <!-- Dynamic content based on selected node -->
-                </div>
+                <div class="text-xs text-gray-500 mt-2">Press Shift+Enter for new line, Enter to send</div>
             </div>
         </div>
     </div>
@@ -260,13 +259,45 @@
         </div>
     </div>
 
+    <!-- Command Palette Modal -->
+    <div id="commandPalette" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-200">
+        <!-- Backdrop -->
+        <div class="fixed inset-0 bg-black/20 backdrop-blur-sm" onclick="hideCommandPalette()"></div>
+        
+        <!-- Modal -->
+        <div class="fixed top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-4 w-full max-w-2xl mx-4 transition-all duration-200">
+            <div class="bg-white rounded-xl shadow-2xl border border-gray-200 overflow-hidden">
+                <!-- Search Input -->
+                <div class="p-4 border-b border-gray-100">
+                    <div class="relative">
+                        <i class="ri-search-line absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <input 
+                            id="commandSearch" 
+                            type="text" 
+                            placeholder="Search for blocks..." 
+                            class="w-full pl-10 pr-4 py-3 text-lg border-none outline-none bg-transparent"
+                            autocomplete="off"
+                        >
+                        <div class="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-gray-400">
+                            Press <kbd class="px-2 py-1 bg-gray-100 rounded text-xs">ESC</kbd> to close
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Results -->
+                <div id="commandResults" class="max-h-96 overflow-y-auto p-2">
+                    <!-- Results will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Initialize workflow composer
         let workflowBlocks = [];
         let blockCounter = 0;
         let selectedBlock = null;
         let currentInput = null;
-        let slashMenuVisible = false;
 
         // Block type configurations
         const blockConfigs = {
@@ -308,7 +339,7 @@
             },
             'nested-workflow': { 
                 title: 'Nest Workflow', 
-                icon: 'ri-workflow-line', 
+                icon: 'ri-links-line', 
                 color: 'indigo',
                 description: 'Execute another workflow'
             },
@@ -332,44 +363,155 @@
             },
             'approval': { 
                 title: 'Human Approval', 
-                icon: 'ri-user-check-line', 
+                icon: 'ri-shield-check-line', 
                 color: 'red',
                 description: 'Require human approval'
             },
             'ai-touch': {
                 title: 'AI Touch',
-                icon: 'ri-ai-generate',
+                icon: 'ri-magic-line',
                 color: 'purple',
                 description: 'AI analysis and smart execution'
+            },
+            'trigger-appointment-booked': {
+                title: 'Trigger: Appointment Booked',
+                icon: 'ri-calendar-check-line',
+                color: 'green',
+                description: 'Triggered when appointment is booked'
+            },
+            'trigger-form-submitted': {
+                title: 'Trigger: Form Submitted',
+                icon: 'ri-file-check-line',
+                color: 'blue',
+                description: 'Triggered when form is submitted'
+            },
+            'trigger-patient-message': {
+                title: 'Trigger: Patient Message',
+                icon: 'ri-chat-check-line',
+                color: 'orange',
+                description: 'Triggered when patient sends message'
+            },
+            'trigger-test-result': {
+                title: 'Trigger: Test Result Available',
+                icon: 'ri-file-text-line',
+                color: 'purple',
+                description: 'Triggered when test result is available'
+            },
+            'trigger-manual': {
+                title: 'Trigger: Manual Start',
+                icon: 'ri-play-circle-line',
+                color: 'gray',
+                description: 'Manually triggered workflow'
             }
         };
 
-        // Slash menu items
-        const slashMenuItems = Object.entries(blockConfigs).map(([type, config]) => ({
-            type,
-            title: config.title,
-            icon: config.icon,
-            description: config.description
-        }));
 
         document.addEventListener('DOMContentLoaded', () => {
             initializeEditor();
             setupEventListeners();
+            initializeBlockLibrary();
             
             // Show empty state initially
             showEmptyState();
         });
 
         function initializeEditor() {
-            const blockEditor = document.getElementById('blockEditor');
-            const newBlockInput = document.getElementById('newBlockInput');
+            // Block editor is now initialized without the input field
+        }
+
+        function initializeBlockLibrary() {
+            const blockCategories = document.getElementById('blockCategories');
             
-            // Make the editor clickable to show input
-            blockEditor.addEventListener('click', (e) => {
-                if (e.target === blockEditor || e.target.closest('#emptyState')) {
-                    showNewBlockInput();
-                }
+            // Group blocks by category
+            const triggers = Object.entries(blockConfigs).filter(([type]) => type.startsWith('trigger-') && type !== 'trigger-manual');
+            const actions = Object.entries(blockConfigs).filter(([type]) => 
+                !type.startsWith('trigger-') && !['wait', 'condition', 'loop', 'approval', 'ai-touch', 'nested-workflow'].includes(type)
+            );
+            const logic = Object.entries(blockConfigs).filter(([type]) => 
+                ['wait', 'condition', 'loop', 'approval'].includes(type)
+            );
+
+            let html = '';
+
+            // Triggers section
+            if (triggers.length > 0) {
+                html += createCategorySection('Triggers', triggers);
+            }
+
+            // Actions section
+            if (actions.length > 0) {
+                html += createCategorySection('Actions', actions);
+            }
+
+            // Logic section
+            if (logic.length > 0) {
+                html += createCategorySection('Logic', logic);
+            }
+
+            blockCategories.innerHTML = html;
+
+            // Add click handlers to all block items
+            blockCategories.querySelectorAll('.block-library-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const blockType = item.dataset.type;
+                    addBlock(blockType);
+                });
             });
+        }
+
+        function createCategorySection(categoryName, blocks) {
+            let html = `
+                <div class="mb-6">
+                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">${categoryName}</h4>
+                    <div class="grid grid-cols-2 gap-2">
+            `;
+
+            blocks.forEach(([type, config]) => {
+                const colorClass = getColorClasses(config.color);
+                const shortTitle = shortenBlockTitle(config.title);
+                html += `
+                    <div class="block-library-item flex flex-col items-center p-2 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 hover:border-gray-300 transition-colors" data-type="${type}" title="${config.title} - ${config.description}">
+                        <div class="w-6 h-6 ${colorClass.bg} ${colorClass.text} rounded-full flex items-center justify-center mb-1 flex-shrink-0">
+                            <i class="${config.icon} text-sm"></i>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xs font-medium text-gray-900 leading-tight">${shortTitle}</div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+            `;
+
+            return html;
+        }
+
+        function shortenBlockTitle(title) {
+            // Mapping of long titles to shorter versions
+            const titleMappings = {
+                'Send Message/SMS/Email': 'Send Message',
+                'Make Appointment': 'Appointment',
+                'Assign Task': 'Task',
+                'Send Document': 'Document',
+                'Place Order': 'Order',
+                'Add Internal Note': 'Note',
+                'Nest Workflow': 'Workflow',
+                'Wait': 'Wait',
+                'Condition': 'Condition',
+                'Loop': 'Loop',
+                'Human Approval': 'Approval',
+                'AI Touch': 'AI Touch',
+                'Trigger: Appointment Booked': 'Appt Booked',
+                'Trigger: Form Submitted': 'Form Submit',
+                'Trigger: Patient Message': 'Patient Msg',
+                'Trigger: Test Result Available': 'Test Result',
+                'Trigger: Manual Start': 'Manual'
+            };
+
+            return titleMappings[title] || title;
         }
 
         function setupEventListeners() {
@@ -378,32 +520,72 @@
                 window.location.href = 'Healthcare-Provider-Workbench.html';
             });
 
-            // AI Generate button
-            const aiGenerateBtn = document.getElementById('aiGenerateBtn');
-            aiGenerateBtn.addEventListener('click', () => {
-                showAIGenerateModal();
+            // AI Chat functionality
+            const sendChatBtn = document.getElementById('sendChatBtn');
+            const chatInput = document.getElementById('chatInput');
+            
+            sendChatBtn.addEventListener('click', () => {
+                sendChatMessage();
             });
-
-            // Quick insert buttons
-            document.querySelectorAll('.block-insert').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const blockType = button.dataset.type;
-                    addBlock(blockType);
-                });
+            
+            chatInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendChatMessage();
+                }
             });
 
             // Save and Preview
             document.getElementById('saveBtn').addEventListener('click', saveWorkflow);
             document.getElementById('previewBtn').addEventListener('click', previewWorkflow);
+
+            
+            // Command palette search
+            document.getElementById('commandSearch').addEventListener('input', (e) => {
+                updateCommandPaletteResults(e.target.value);
+            });
+
+            // Keyboard shortcuts for command palette
+            document.addEventListener('keydown', (e) => {
+                // Cmd/Ctrl + K to open command palette
+                if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                    e.preventDefault();
+                    showCommandPalette();
+                    return;
+                }
+
+                // ESC to close command palette
+                if (e.key === 'Escape' && commandPaletteVisible) {
+                    e.preventDefault();
+                    hideCommandPalette();
+                    return;
+                }
+
+                // Arrow keys and Enter for navigation when palette is open
+                if (commandPaletteVisible) {
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        selectedIndex = Math.min(selectedIndex + 1, filteredItems.length - 1);
+                        updateCommandPaletteResults(document.getElementById('commandSearch').value);
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        selectedIndex = Math.max(selectedIndex - 1, 0);
+                        updateCommandPaletteResults(document.getElementById('commandSearch').value);
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (filteredItems[selectedIndex]) {
+                            const [blockType] = filteredItems[selectedIndex];
+                            addBlock(blockType);
+                            hideCommandPalette();
+                        }
+                    }
+                }
+            });
         }
 
         function showEmptyState() {
             const emptyState = document.getElementById('emptyState');
-            const newBlockInput = document.getElementById('newBlockInput');
-            
             emptyState.style.display = 'block';
-            newBlockInput.style.opacity = '0';
-            newBlockInput.style.pointerEvents = 'none';
         }
 
         function hideEmptyState() {
@@ -411,103 +593,10 @@
             emptyState.style.display = 'none';
         }
 
-        function showNewBlockInput() {
-            const newBlockInput = document.getElementById('newBlockInput');
-            const input = newBlockInput.querySelector('input');
-            
-            newBlockInput.style.opacity = '1';
-            newBlockInput.style.pointerEvents = 'auto';
-            input.focus();
-            
-            // Setup input handlers
-            input.addEventListener('input', handleInputChange);
-            input.addEventListener('keydown', handleKeyDown);
-            input.addEventListener('blur', handleInputBlur);
-            
-            currentInput = input;
-        }
 
-        function handleInputChange(e) {
-            const value = e.target.value;
-            
-            if (value.startsWith('/')) {
-                showSlashMenu(value.slice(1));
-            } else {
-                hideSlashMenu();
-            }
-        }
 
-        function handleKeyDown(e) {
-            if (e.key === 'Escape') {
-                hideSlashMenu();
-                if (workflowBlocks.length === 0) {
-                    showEmptyState();
-                }
-            } else if (e.key === 'Enter' && !slashMenuVisible) {
-                // Create a text block if not using slash command
-                const value = e.target.value.trim();
-                if (value && !value.startsWith('/')) {
-                    addTextBlock(value);
-                }
-            }
-        }
 
-        function handleInputBlur(e) {
-            // Delay hiding to allow click on slash menu
-            setTimeout(() => {
-                hideSlashMenu();
-                if (workflowBlocks.length === 0) {
-                    showEmptyState();
-                }
-            }, 200);
-        }
-
-        function showSlashMenu(query = '') {
-            const slashMenu = document.getElementById('slashMenu');
-            const menuContent = slashMenu.querySelector('div');
-            
-            // Filter items based on query
-            const filteredItems = slashMenuItems.filter(item => 
-                item.title.toLowerCase().includes(query.toLowerCase()) ||
-                item.type.includes(query.toLowerCase())
-            );
-
-            menuContent.innerHTML = filteredItems.map(item => `
-                <div class="slash-menu-item p-2 hover:bg-gray-50 rounded cursor-pointer" data-type="${item.type}">
-                    <div class="flex items-center">
-                        <i class="${item.icon} text-gray-600 mr-3"></i>
-                        <div>
-                            <div class="text-sm font-medium text-gray-900">${item.title}</div>
-                            <div class="text-xs text-gray-500">${item.description}</div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-
-            // Position menu near input
-            const inputRect = currentInput.getBoundingClientRect();
-            slashMenu.style.left = inputRect.left + 'px';
-            slashMenu.style.top = (inputRect.bottom + 5) + 'px';
-            slashMenu.classList.remove('hidden');
-            slashMenuVisible = true;
-
-            // Add click handlers
-            menuContent.querySelectorAll('.slash-menu-item').forEach(item => {
-                item.addEventListener('click', (e) => {
-                    const blockType = item.dataset.type;
-                    addBlock(blockType);
-                    hideSlashMenu();
-                });
-            });
-        }
-
-        function hideSlashMenu() {
-            const slashMenu = document.getElementById('slashMenu');
-            slashMenu.classList.add('hidden');
-            slashMenuVisible = false;
-        }
-
-        function addBlock(type) {
+        function addBlock(type, parentId = null) {
             blockCounter++;
             const config = blockConfigs[type];
             
@@ -515,18 +604,24 @@
                 id: `block-${blockCounter}`,
                 type: type,
                 config: { ...config },
-                data: {}
+                data: {},
+                parentId: parentId,
+                children: type === 'condition' ? { true: [], false: [] } : 
+                         type === 'loop' ? { items: [] } : null
             };
 
-            workflowBlocks.push(block);
-            renderBlock(block);
-            hideEmptyState();
-            
-            // Clear input and reset
-            if (currentInput) {
-                currentInput.value = '';
-                currentInput.blur();
+            if (parentId) {
+                // Add to parent's children instead of main workflow
+                const parentBlock = findBlockById(parentId);
+                if (parentBlock) {
+                    // This will be handled by the container-specific logic
+                }
+            } else {
+                workflowBlocks.push(block);
             }
+            
+            renderWorkflow();
+            hideEmptyState();
 
             // Show configuration for the new block
             setTimeout(() => {
@@ -545,25 +640,66 @@
                     icon: 'ri-text',
                     color: 'gray'
                 },
-                data: { content: text }
+                data: { content: text },
+                parentId: null,
+                children: null
             };
 
             workflowBlocks.push(block);
-            renderBlock(block);
+            renderWorkflow();
             hideEmptyState();
-            
-            // Clear input
-            if (currentInput) {
-                currentInput.value = '';
-                currentInput.blur();
-            }
         }
 
-        function renderBlock(block) {
+        function findBlockById(blockId) {
+            function searchInBlocks(blocks) {
+                for (let block of blocks) {
+                    if (block.id === blockId) {
+                        return block;
+                    }
+                    if (block.children) {
+                        if (block.children.true) {
+                            const found = searchInBlocks(block.children.true);
+                            if (found) return found;
+                        }
+                        if (block.children.false) {
+                            const found = searchInBlocks(block.children.false);
+                            if (found) return found;
+                        }
+                        if (block.children.items) {
+                            const found = searchInBlocks(block.children.items);
+                            if (found) return found;
+                        }
+                    }
+                }
+                return null;
+            }
+            return searchInBlocks(workflowBlocks);
+        }
+
+        function renderWorkflow() {
             const workflowBlocksContainer = document.getElementById('workflowBlocks');
+            workflowBlocksContainer.innerHTML = '';
             
+            workflowBlocks.forEach(block => {
+                renderBlock(block, workflowBlocksContainer);
+            });
+        }
+
+        function renderBlock(block, container, nestingLevel = 0) {
             const blockElement = document.createElement('div');
-            blockElement.className = 'workflow-block p-4 rounded-lg border border-gray-200 cursor-pointer';
+            const indentClass = nestingLevel > 0 ? `ml-${nestingLevel * 4} border-l-2 border-gray-200 pl-4` : '';
+            
+            // Check if this is a container block
+            if (block.type === 'condition') {
+                renderConditionBlock(block, container, nestingLevel);
+                return;
+            } else if (block.type === 'loop') {
+                renderLoopBlock(block, container, nestingLevel);
+                return;
+            }
+            
+            // Render regular block
+            blockElement.className = `workflow-block p-4 rounded-lg border border-gray-200 cursor-pointer mb-3 ${indentClass}`;
             blockElement.dataset.blockId = block.id;
             
             const colorClass = getColorClasses(block.config.color);
@@ -602,12 +738,185 @@
             });
             blockElement.querySelector('.delete-block').addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (confirm('Are you sure you want to delete this block?')) {
-                    deleteBlock(block.id);
-                }
+                showDeleteConfirmation(block.id, block.config.title);
             });
             
-            workflowBlocksContainer.appendChild(blockElement);
+            container.appendChild(blockElement);
+        }
+
+        function renderConditionBlock(block, container, nestingLevel = 0) {
+            const containerElement = document.createElement('div');
+            const indentClass = nestingLevel > 0 ? `ml-${nestingLevel * 4} border-l-2 border-gray-200 pl-4` : '';
+            
+            containerElement.className = `workflow-container mb-4 ${indentClass}`;
+            containerElement.dataset.blockId = block.id;
+            
+            const colorClass = getColorClasses(block.config.color);
+            const conditionText = block.data.condition || 'Set condition...';
+            const isExpanded = block.data.expanded !== false; // Default to expanded
+            
+            containerElement.innerHTML = `
+                <div class="condition-container border-2 border-yellow-200 rounded-lg bg-yellow-50">
+                    <!-- Container Header -->
+                    <div class="condition-header p-4 border-b border-yellow-200 cursor-pointer" onclick="toggleContainer('${block.id}')">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 ${colorClass.bg} ${colorClass.text} rounded-full flex items-center justify-center mr-3">
+                                    <i class="${block.config.icon}"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium text-gray-900">IF: ${conditionText}</div>
+                                    <div class="text-xs text-gray-500">Click to ${isExpanded ? 'collapse' : 'expand'}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="configure-block p-1 text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showBlockConfiguration(findBlockById('${block.id}'))">
+                                    <i class="ri-settings-line"></i>
+                                </button>
+                                <button class="delete-block p-1 text-gray-400 hover:text-red-500" onclick="event.stopPropagation(); showDeleteConfirmation('${block.id}', '${block.config.title}')">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                                <i class="ri-arrow-${isExpanded ? 'up' : 'down'}-s-line text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Container Content -->
+                    <div class="condition-content ${isExpanded ? '' : 'hidden'}" id="container-${block.id}">
+                        <div class="grid grid-cols-2 gap-4 p-4">
+                            <!-- True Branch -->
+                            <div class="condition-branch true-branch">
+                                <div class="branch-header mb-3">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
+                                        <span class="text-sm font-medium text-green-700">When TRUE</span>
+                                    </div>
+                                </div>
+                                <div class="drop-zone min-h-16 border-2 border-dashed border-green-300 rounded-lg p-2 bg-green-50" 
+                                     data-parent-id="${block.id}" data-branch="true">
+                                    ${block.children.true.length === 0 ? 
+                                        '<div class="text-xs text-green-600 text-center py-2">Drop blocks here for TRUE case</div>' : ''}
+                                </div>
+                            </div>
+                            
+                            <!-- False Branch -->
+                            <div class="condition-branch false-branch">
+                                <div class="branch-header mb-3">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
+                                        <span class="text-sm font-medium text-red-700">When FALSE</span>
+                                    </div>
+                                </div>
+                                <div class="drop-zone min-h-16 border-2 border-dashed border-red-300 rounded-lg p-2 bg-red-50" 
+                                     data-parent-id="${block.id}" data-branch="false">
+                                    ${block.children.false.length === 0 ? 
+                                        '<div class="text-xs text-red-600 text-center py-2">Drop blocks here for FALSE case</div>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(containerElement);
+            
+            // Render nested blocks if expanded
+            if (isExpanded) {
+                const trueDropZone = containerElement.querySelector('[data-branch="true"]');
+                const falseDropZone = containerElement.querySelector('[data-branch="false"]');
+                
+                if (block.children.true.length > 0) {
+                    trueDropZone.innerHTML = '';
+                    block.children.true.forEach(childBlock => {
+                        renderBlock(childBlock, trueDropZone, nestingLevel + 1);
+                    });
+                }
+                
+                if (block.children.false.length > 0) {
+                    falseDropZone.innerHTML = '';
+                    block.children.false.forEach(childBlock => {
+                        renderBlock(childBlock, falseDropZone, nestingLevel + 1);
+                    });
+                }
+            }
+        }
+
+        function renderLoopBlock(block, container, nestingLevel = 0) {
+            const containerElement = document.createElement('div');
+            const indentClass = nestingLevel > 0 ? `ml-${nestingLevel * 4} border-l-2 border-gray-200 pl-4` : '';
+            
+            containerElement.className = `workflow-container mb-4 ${indentClass}`;
+            containerElement.dataset.blockId = block.id;
+            
+            const colorClass = getColorClasses(block.config.color);
+            const loopText = block.data.count ? `Repeat ${block.data.count} times` : 'Set loop count...';
+            const isExpanded = block.data.expanded !== false; // Default to expanded
+            
+            containerElement.innerHTML = `
+                <div class="loop-container border-2 border-blue-200 rounded-lg bg-blue-50">
+                    <!-- Container Header -->
+                    <div class="loop-header p-4 border-b border-blue-200 cursor-pointer" onclick="toggleContainer('${block.id}')">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 ${colorClass.bg} ${colorClass.text} rounded-full flex items-center justify-center mr-3">
+                                    <i class="${block.config.icon}"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <div class="text-sm font-medium text-gray-900">LOOP: ${loopText}</div>
+                                    <div class="text-xs text-gray-500">Click to ${isExpanded ? 'collapse' : 'expand'}</div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="configure-block p-1 text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showBlockConfiguration(findBlockById('${block.id}'))">
+                                    <i class="ri-settings-line"></i>
+                                </button>
+                                <button class="delete-block p-1 text-gray-400 hover:text-red-500" onclick="event.stopPropagation(); showDeleteConfirmation('${block.id}', '${block.config.title}')">
+                                    <i class="ri-delete-bin-line"></i>
+                                </button>
+                                <i class="ri-arrow-${isExpanded ? 'up' : 'down'}-s-line text-gray-400"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Container Content -->
+                    <div class="loop-content ${isExpanded ? '' : 'hidden'}" id="container-${block.id}">
+                        <div class="p-4">
+                            <div class="loop-items">
+                                <div class="branch-header mb-3">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 bg-blue-500 rounded-full mr-2"></div>
+                                        <span class="text-sm font-medium text-blue-700">Repeated Actions</span>
+                                    </div>
+                                </div>
+                                <div class="drop-zone min-h-16 border-2 border-dashed border-blue-300 rounded-lg p-2 bg-blue-50" 
+                                     data-parent-id="${block.id}" data-branch="items">
+                                    ${block.children.items.length === 0 ? 
+                                        '<div class="text-xs text-blue-600 text-center py-2">Drop blocks here to repeat</div>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(containerElement);
+            
+            // Render nested blocks if expanded
+            if (isExpanded && block.children.items.length > 0) {
+                const itemsDropZone = containerElement.querySelector('[data-branch="items"]');
+                itemsDropZone.innerHTML = '';
+                block.children.items.forEach(childBlock => {
+                    renderBlock(childBlock, itemsDropZone, nestingLevel + 1);
+                });
+            }
+        }
+
+        function toggleContainer(blockId) {
+            const block = findBlockById(blockId);
+            if (block) {
+                block.data.expanded = !block.data.expanded;
+                renderWorkflow();
+            }
         }
 
         function renderBlockContent(block) {
@@ -713,10 +1022,75 @@
             selectedBlock = block;
         }
 
+        function showDeleteConfirmation(blockId, blockTitle) {
+            const modal = document.createElement('div');
+            modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-sm mx-4 shadow-xl">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                            <i class="ri-delete-bin-line text-red-600 text-lg"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-gray-900">Delete Block</h3>
+                    </div>
+                    <p class="text-gray-600 mb-6">Are you sure you want to delete the <strong>${blockTitle}</strong> block? This action cannot be undone.</p>
+                    <div class="flex justify-end space-x-3">
+                        <button class="cancel-delete px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                        <button class="confirm-delete px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                            Delete Block
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Add event listeners
+            modal.querySelector('.cancel-delete').addEventListener('click', () => {
+                modal.remove();
+            });
+            
+            modal.querySelector('.confirm-delete').addEventListener('click', () => {
+                deleteBlock(blockId);
+                modal.remove();
+            });
+            
+            // Close on backdrop click
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
         function deleteBlock(blockId) {
+            // Remove from main workflow blocks
             workflowBlocks = workflowBlocks.filter(block => block.id !== blockId);
-            const blockElement = document.querySelector(`[data-block-id="${blockId}"]`);
-            blockElement.remove();
+            
+            // Also remove from any parent containers
+            function removeFromChildren(blocks) {
+                blocks.forEach(block => {
+                    if (block.children) {
+                        if (block.children.true) {
+                            block.children.true = block.children.true.filter(child => child.id !== blockId);
+                            removeFromChildren(block.children.true);
+                        }
+                        if (block.children.false) {
+                            block.children.false = block.children.false.filter(child => child.id !== blockId);
+                            removeFromChildren(block.children.false);
+                        }
+                        if (block.children.items) {
+                            block.children.items = block.children.items.filter(child => child.id !== blockId);
+                            removeFromChildren(block.children.items);
+                        }
+                    }
+                });
+            }
+            
+            removeFromChildren(workflowBlocks);
+            renderWorkflow();
             
             if (workflowBlocks.length === 0) {
                 showEmptyState();
@@ -1100,67 +1474,140 @@
             showNotification('Block configuration saved!', 'success');
         }
 
-        function showAIGenerateModal() {
-            const hasExistingWorkflow = workflowBlocks.length > 0;
-            const modal = document.createElement('div');
-            modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
-            modal.innerHTML = `
-                <div class="bg-white rounded-lg p-6 max-w-lg mx-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">AI Workflow ${hasExistingWorkflow ? 'Assistant' : 'Generator'}</h3>
-                    <div class="text-sm text-gray-600 mb-4">
-                        ${hasExistingWorkflow ? 
-                            'Describe how you want to modify your current workflow or ask questions about it.' : 
-                            'Describe the workflow you want to create and AI will generate the blocks for you.'
-                        }
+        function sendChatMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const message = chatInput.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message to chat
+            addChatMessage(message, 'user');
+            
+            // Clear input
+            chatInput.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate AI response (replace with actual API call)
+            setTimeout(() => {
+                hideTypingIndicator();
+                const hasExistingWorkflow = workflowBlocks.length > 0;
+                const aiResponse = generateAIResponse(message, hasExistingWorkflow);
+                addChatMessage(aiResponse, 'ai');
+            }, 1500);
+        }
+        
+        function addChatMessage(message, sender) {
+            const chatMessages = document.getElementById('chatMessages');
+            
+            // Remove empty state if it exists
+            const emptyState = chatMessages.querySelector('.text-center');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            const messageElement = document.createElement('div');
+            messageElement.className = `mb-4 chat-message ${sender === 'user' ? 'text-right' : 'text-left'}`;
+            
+            const time = new Date().toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            
+            if (sender === 'user') {
+                messageElement.innerHTML = `
+                    <div class="inline-block max-w-xs">
+                        <div class="bg-purple-600 text-white px-4 py-2 rounded-lg rounded-br-sm">
+                            ${message}
+                        </div>
+                        <div class="text-xs text-gray-400 mt-1">${time}</div>
                     </div>
-                    <textarea id="aiPrompt" class="w-full p-3 border border-gray-300 rounded-lg text-sm" rows="4" 
-                              placeholder="${hasExistingWorkflow ? 
-                                'Example: "Add a follow-up SMS if patient doesn\'t respond within 2 hours"' : 
-                                'Example: "Send appointment reminder 24 hours before, if no response wait 2 hours then send SMS"'
-                              }"></textarea>
-                    <div class="mt-4 flex justify-end space-x-3">
-                        <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50" onclick="this.closest('.fixed').remove()">
-                            Cancel
-                        </button>
-                        <button class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700" onclick="handleAIGenerate(this)">
-                            ${hasExistingWorkflow ? 'Modify Workflow' : 'Generate Workflow'}
-                        </button>
+                `;
+            } else {
+                messageElement.innerHTML = `
+                    <div class="inline-block max-w-xs">
+                        <div class="bg-gray-100 text-gray-900 px-4 py-2 rounded-lg rounded-bl-sm">
+                            <div class="flex items-start">
+                                <i class="ri-magic-line text-purple-600 mr-2 mt-1 text-sm"></i>
+                                <div>${message}</div>
+                            </div>
+                        </div>
+                        <div class="text-xs text-gray-400 mt-1">${time}</div>
+                    </div>
+                `;
+            }
+            
+            chatMessages.appendChild(messageElement);
+            
+            // Scroll to bottom
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function showTypingIndicator() {
+            const chatMessages = document.getElementById('chatMessages');
+            const typingElement = document.createElement('div');
+            typingElement.id = 'typingIndicator';
+            typingElement.className = 'mb-4 text-left';
+            typingElement.innerHTML = `
+                <div class="inline-block">
+                    <div class="bg-gray-100 text-gray-600 px-4 py-2 rounded-lg rounded-bl-sm">
+                        <div class="flex items-center">
+                            <i class="ri-magic-line text-purple-600 mr-2"></i>
+                            <div class="flex space-x-1">
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.1s"></div>
+                                <div class="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style="animation-delay: 0.2s"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
-            document.body.appendChild(modal);
             
-            // Focus the textarea
-            setTimeout(() => {
-                modal.querySelector('#aiPrompt').focus();
-            }, 100);
+            chatMessages.appendChild(typingElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
         
-        function handleAIGenerate(button) {
-            const modal = button.closest('.fixed');
-            const prompt = modal.querySelector('#aiPrompt').value.trim();
-            
-            if (!prompt) {
-                alert('Please enter a description for your workflow.');
-                return;
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
             }
+        }
+        
+        function generateAIResponse(userMessage, hasWorkflow) {
+            // Simple AI response simulation - replace with actual AI integration
+            const responses = {
+                greeting: "Hello! I'm here to help you build and improve your healthcare workflow. What would you like to work on?",
+                generate: hasWorkflow ? 
+                    "I can help you modify your existing workflow. What changes would you like to make?" :
+                    "I can help you create a new workflow. What process would you like to automate?",
+                placeholder: "I understand you want to work on your workflow. This is a demo - full AI integration will provide intelligent suggestions and modifications to your workflow blocks."
+            };
             
-            // Show loading state
-            button.disabled = true;
-            button.innerHTML = '<i class="ri-loader-4-line animate-spin mr-2"></i>Generating...';
+            const lowerMessage = userMessage.toLowerCase();
             
-            // Simulate AI generation (replace with actual API call)
-            setTimeout(() => {
-                showNotification('AI workflow generation coming soon!', 'info');
-                modal.remove();
-            }, 2000);
+            if (lowerMessage.includes('hello') || lowerMessage.includes('hi')) {
+                return responses.greeting;
+            } else if (lowerMessage.includes('create') || lowerMessage.includes('generate') || lowerMessage.includes('build')) {
+                return responses.generate;
+            } else {
+                return responses.placeholder;
+            }
         }
 
         function saveWorkflow() {
+            // Extract trigger blocks from workflow blocks
+            const triggerBlocks = workflowBlocks.filter(block => block.type.startsWith('trigger-'));
+            const triggerInfo = triggerBlocks.map(block => ({
+                type: block.type.replace('trigger-', ''),
+                blockId: block.id
+            }));
+
             const workflowData = {
                 name: document.getElementById('workflowName').value || 'Untitled Workflow',
                 description: document.getElementById('workflowDescription').value || '',
-                trigger: document.getElementById('triggerEvent').value || '',
+                triggers: triggerInfo,
                 blocks: workflowBlocks
             };
             
@@ -1171,6 +1618,151 @@
 
         function previewWorkflow() {
             showNotification('Preview feature coming soon!', 'info');
+        }
+
+        // Command Palette functionality
+        let commandPaletteVisible = false;
+        let filteredItems = [];
+        let selectedIndex = 0;
+
+        function showCommandPalette() {
+            if (commandPaletteVisible) return;
+            
+            commandPaletteVisible = true;
+            const palette = document.getElementById('commandPalette');
+            const modal = palette.querySelector('div:nth-child(2)');
+            const searchInput = document.getElementById('commandSearch');
+            
+            palette.classList.remove('hidden');
+            
+            // Trigger animation after a small delay
+            setTimeout(() => {
+                palette.classList.remove('opacity-0');
+                modal.classList.remove('-translate-y-4');
+            }, 10);
+            
+            setTimeout(() => {
+                searchInput.focus();
+            }, 150);
+            
+            searchInput.value = '';
+            
+            // Show all items initially
+            updateCommandPaletteResults('');
+        }
+
+        function hideCommandPalette() {
+            if (!commandPaletteVisible) return;
+            
+            commandPaletteVisible = false;
+            const palette = document.getElementById('commandPalette');
+            const modal = palette.querySelector('div:nth-child(2)');
+            
+            palette.classList.add('opacity-0');
+            modal.classList.add('-translate-y-4');
+            
+            setTimeout(() => {
+                palette.classList.add('hidden');
+            }, 200);
+            
+            selectedIndex = 0;
+        }
+
+        function updateCommandPaletteResults(query) {
+            const resultsContainer = document.getElementById('commandResults');
+            
+            // Filter items based on query, using same exclusions as left panel
+            filteredItems = Object.entries(blockConfigs).filter(([type, config]) => {
+                // Exclude same items as left panel
+                if (type === 'trigger-manual' || type === 'nested-workflow' || type === 'ai-touch') {
+                    return false;
+                }
+                
+                return config.title.toLowerCase().includes(query.toLowerCase()) ||
+                       config.description.toLowerCase().includes(query.toLowerCase());
+            });
+
+            // Group by category (same as left panel)
+            const triggers = filteredItems.filter(([type]) => type.startsWith('trigger-'));
+            const actions = filteredItems.filter(([type]) => !type.startsWith('trigger-') && !['wait', 'condition', 'loop', 'approval'].includes(type));
+            const logic = filteredItems.filter(([type]) => ['wait', 'condition', 'loop', 'approval'].includes(type));
+
+            let html = '';
+
+            if (triggers.length > 0) {
+                html += '<div class="mb-4"><div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Triggers</div>';
+                triggers.forEach(([type, config], index) => {
+                    const isSelected = index === selectedIndex;
+                    html += `
+                        <div class="command-item flex items-center p-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-primary text-white' : 'hover:bg-gray-50'}" data-type="${type}">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center mr-3 ${isSelected ? 'bg-white/20' : `bg-${config.color}-100`}">
+                                <i class="${config.icon} ${isSelected ? 'text-white' : `text-${config.color}-600`}"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">${config.title}</div>
+                                <div class="text-sm ${isSelected ? 'text-white/80' : 'text-gray-500'}">${config.description}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            if (actions.length > 0) {
+                html += '<div class="mb-4"><div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Actions</div>';
+                actions.forEach(([type, config], index) => {
+                    const globalIndex = triggers.length + index;
+                    const isSelected = globalIndex === selectedIndex;
+                    html += `
+                        <div class="command-item flex items-center p-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-primary text-white' : 'hover:bg-gray-50'}" data-type="${type}">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center mr-3 ${isSelected ? 'bg-white/20' : `bg-${config.color}-100`}">
+                                <i class="${config.icon} ${isSelected ? 'text-white' : `text-${config.color}-600`}"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">${config.title}</div>
+                                <div class="text-sm ${isSelected ? 'text-white/80' : 'text-gray-500'}">${config.description}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            if (logic.length > 0) {
+                html += '<div class="mb-4"><div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Logic</div>';
+                logic.forEach(([type, config], index) => {
+                    const globalIndex = triggers.length + actions.length + index;
+                    const isSelected = globalIndex === selectedIndex;
+                    html += `
+                        <div class="command-item flex items-center p-3 rounded-lg cursor-pointer transition-colors ${isSelected ? 'bg-primary text-white' : 'hover:bg-gray-50'}" data-type="${type}">
+                            <div class="w-8 h-8 rounded-full flex items-center justify-center mr-3 ${isSelected ? 'bg-white/20' : `bg-${config.color}-100`}">
+                                <i class="${config.icon} ${isSelected ? 'text-white' : `text-${config.color}-600`}"></i>
+                            </div>
+                            <div>
+                                <div class="font-medium">${config.title}</div>
+                                <div class="text-sm ${isSelected ? 'text-white/80' : 'text-gray-500'}">${config.description}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+            }
+
+            if (filteredItems.length === 0) {
+                html = '<div class="text-center py-8 text-gray-500">No blocks found</div>';
+            }
+
+            resultsContainer.innerHTML = html;
+            selectedIndex = 0;
+
+            // Add click handlers
+            document.querySelectorAll('.command-item').forEach((item, index) => {
+                item.addEventListener('click', () => {
+                    const blockType = item.dataset.type;
+                    addBlock(blockType);
+                    hideCommandPalette();
+                });
+            });
         }
 
         function showNotification(message, type = 'info') {
