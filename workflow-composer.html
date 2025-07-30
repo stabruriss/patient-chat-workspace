@@ -135,6 +135,22 @@
         .condition-container:hover, .loop-container:hover {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
+        
+        /* Workflow type styling */
+        .workflow-type-card.selected {
+            border-color: #6366f1;
+            background-color: rgba(99, 102, 241, 0.05);
+        }
+        
+        .workflow-type-badge-patient {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #1d4ed8;
+        }
+        
+        .workflow-type-badge-practice {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #166534;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -146,9 +162,15 @@
                     <button id="backBtn" class="mr-4 p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
                         <i class="ri-arrow-left-line text-xl"></i>
                     </button>
-                    <div class="flex flex-col">
-                        <input id="workflowName" type="text" placeholder="My New Workflow" class="text-xl font-semibold text-gray-900 bg-transparent border-none outline-none focus:bg-white focus:px-2 focus:py-1 focus:rounded focus:border focus:border-gray-200" style="min-width: 200px;">
-                        <input id="workflowDescription" type="text" placeholder="Workflow description..." class="text-sm text-gray-600 bg-transparent border-none outline-none focus:bg-white focus:px-2 focus:py-1 focus:rounded focus:border focus:border-gray-200 mt-1" style="min-width: 300px;">
+                    <div class="flex items-center">
+                        <div class="flex flex-col">
+                            <input id="workflowName" type="text" placeholder="My New Workflow" class="text-xl font-semibold text-gray-900 bg-transparent border-none outline-none focus:bg-white focus:px-2 focus:py-1 focus:rounded focus:border focus:border-gray-200" style="min-width: 200px;">
+                            <input id="workflowDescription" type="text" placeholder="Workflow description..." class="text-sm text-gray-600 bg-transparent border-none outline-none focus:bg-white focus:px-2 focus:py-1 focus:rounded focus:border focus:border-gray-200 mt-1" style="min-width: 300px;">
+                        </div>
+                        <div id="workflowTypeBadge" class="ml-4 px-3 py-1 rounded-full text-sm font-medium hidden">
+                            <i class="mr-1"></i>
+                            <span></span>
+                        </div>
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
@@ -242,19 +264,81 @@
         </div>
     </div>
 
-    <!-- Placeholder Message Modal -->
-    <div id="placeholderModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
-        <div class="bg-white rounded-lg p-6 max-w-md mx-4">
-            <div class="text-center">
-                <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <i class="ri-tools-line text-2xl text-blue-600"></i>
+    <!-- Workflow Type Selection Modal -->
+    <div id="workflowTypeModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-8 max-w-4xl mx-4 shadow-2xl">
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i class="ri-workflow-line text-2xl text-purple-600"></i>
                 </div>
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Workflow Composer</h3>
-                <p class="text-gray-600 mb-6">This is a placeholder for the workflow composer. The full visual workflow builder will be implemented here.</p>
-                <p class="text-sm text-gray-500 mb-6">Features will include drag-and-drop node creation, visual connections, and advanced workflow logic.</p>
-                <button id="closePlaceholderBtn" class="px-6 py-2 bg-primary text-white rounded-button">
-                    Got it
-                </button>
+                <h2 class="text-2xl font-bold text-gray-900 mb-2">Choose Workflow Type</h2>
+                <p class="text-gray-600">Select the type of workflow you want to create</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Patient Workflow Option -->
+                <div class="workflow-type-card cursor-pointer p-6 border-2 border-gray-200 rounded-xl hover:border-blue-400 hover:bg-blue-50 transition-all duration-200" data-type="patient">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="ri-user-heart-line text-2xl text-blue-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-3">Patient Workflow</h3>
+                        <p class="text-gray-600 mb-4">Create workflows that run for individual patients based on their specific data and interactions.</p>
+                        
+                        <div class="text-left">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Examples:</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• Post-appointment follow-up sequence</li>
+                                <li>• Medication adherence monitoring</li>
+                                <li>• Care plan execution</li>
+                                <li>• Patient onboarding process</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mt-4 text-left">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Triggers:</h4>
+                            <div class="flex flex-wrap gap-1">
+                                <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">Patient Event</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">Form Submit</span>
+                                <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded">Timeline</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Practice Workflow Option -->
+                <div class="workflow-type-card cursor-pointer p-6 border-2 border-gray-200 rounded-xl hover:border-green-400 hover:bg-green-50 transition-all duration-200" data-type="practice">
+                    <div class="text-center">
+                        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <i class="ri-building-line text-2xl text-green-600"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold text-gray-900 mb-3">Practice Workflow</h3>
+                        <p class="text-gray-600 mb-4">Create workflows that monitor system-wide events and run across your entire practice.</p>
+                        
+                        <div class="text-left">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Examples:</h4>
+                            <ul class="text-sm text-gray-600 space-y-1">
+                                <li>• Daily operational reports</li>
+                                <li>• Threshold-based alerts</li>
+                                <li>• Bulk patient communications</li>
+                                <li>• Scheduled maintenance tasks</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="mt-4 text-left">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Triggers:</h4>
+                            <div class="flex flex-wrap gap-1">
+                                <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">Schedule</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">Threshold</span>
+                                <span class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">System Event</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center mt-8">
+                <p class="text-sm text-gray-500">You can change the workflow type later if needed</p>
             </div>
         </div>
     </div>
@@ -298,6 +382,7 @@
         let blockCounter = 0;
         let selectedBlock = null;
         let currentInput = null;
+        let currentWorkflowType = null;
 
         // Block type configurations
         const blockConfigs = {
@@ -362,10 +447,10 @@
                 description: 'Repeat actions'
             },
             'approval': { 
-                title: 'Human Approval', 
-                icon: 'ri-shield-check-line', 
+                title: 'Smart Review', 
+                icon: 'ri-brain-line', 
                 color: 'red',
-                description: 'Require human approval'
+                description: 'AI analysis + human review for approval decisions'
             },
             'ai-touch': {
                 title: 'AI Touch',
@@ -373,60 +458,206 @@
                 color: 'purple',
                 description: 'AI analysis and smart execution'
             },
-            'trigger-appointment-booked': {
-                title: 'Trigger: Appointment Booked',
-                icon: 'ri-calendar-check-line',
+            'trigger-order-events': {
+                title: 'Order Update',
+                icon: 'ri-shopping-cart-line',
+                color: 'teal',
+                description: 'Triggered by order status changes'
+            },
+            'trigger-appointment-events': {
+                title: 'Appointment Update',
+                icon: 'ri-calendar-event-line',
                 color: 'green',
-                description: 'Triggered when appointment is booked'
+                description: 'Triggered by appointment status changes'
             },
-            'trigger-form-submitted': {
-                title: 'Trigger: Form Submitted',
-                icon: 'ri-file-check-line',
-                color: 'blue',
-                description: 'Triggered when form is submitted'
-            },
-            'trigger-patient-message': {
-                title: 'Trigger: Patient Message',
-                icon: 'ri-chat-check-line',
-                color: 'orange',
-                description: 'Triggered when patient sends message'
-            },
-            'trigger-test-result': {
-                title: 'Trigger: Test Result Available',
+            'trigger-document-events': {
+                title: 'Document/Form Update',
                 icon: 'ri-file-text-line',
+                color: 'blue',
+                description: 'Triggered by document or form interactions'
+            },
+            'trigger-report-events': {
+                title: 'Report Update',
+                icon: 'ri-file-chart-line',
                 color: 'purple',
-                description: 'Triggered when test result is available'
+                description: 'Triggered by report status changes'
+            },
+            'trigger-task-events': {
+                title: 'Task Update',
+                icon: 'ri-task-line',
+                color: 'orange',
+                description: 'Triggered by task status changes'
+            },
+            'trigger-profile-events': {
+                title: 'Profile Update',
+                icon: 'ri-user-line',
+                color: 'indigo',
+                description: 'Triggered by patient profile changes'
             },
             'trigger-manual': {
                 title: 'Trigger: Manual Start',
                 icon: 'ri-play-circle-line',
                 color: 'gray',
                 description: 'Manually triggered workflow'
+            },
+            'trigger-scheduled': {
+                title: 'Trigger: Scheduled',
+                icon: 'ri-calendar-schedule-line',
+                color: 'blue',
+                description: 'Runs on a schedule (daily, weekly, monthly)'
+            },
+            'trigger-threshold': {
+                title: 'Trigger: Threshold Alert',
+                icon: 'ri-alarm-warning-line',
+                color: 'orange',
+                description: 'Triggered when metrics exceed thresholds'
+            },
+            'trigger-system-event': {
+                title: 'Trigger: System Event',
+                icon: 'ri-server-line',
+                color: 'purple',
+                description: 'Triggered by system-wide events'
+            },
+            'bulk-communication': {
+                title: 'Bulk Communication',
+                icon: 'ri-mail-send-line',
+                color: 'blue',
+                description: 'Send messages to multiple patients'
+            },
+            'generate-report': {
+                title: 'Generate Report',
+                icon: 'ri-file-chart-line',
+                color: 'green',
+                description: 'Generate practice reports and analytics'
+            },
+            'system-maintenance': {
+                title: 'System Maintenance',
+                icon: 'ri-tools-line',
+                color: 'gray',
+                description: 'Perform system maintenance tasks'
             }
         };
 
 
         document.addEventListener('DOMContentLoaded', () => {
-            initializeEditor();
-            setupEventListeners();
-            initializeBlockLibrary();
+            // Get workflow type from URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const workflowType = urlParams.get('type');
             
-            // Show empty state initially
-            showEmptyState();
+            if (workflowType && (workflowType === 'patient' || workflowType === 'practice')) {
+                // Set workflow type directly from URL
+                selectWorkflowType(workflowType);
+                
+                // Hide the selection modal
+                document.getElementById('workflowTypeModal').classList.add('hidden');
+                
+                initializeEditor();
+                setupEventListeners();
+            } else {
+                // Fallback to showing selection modal if no/invalid type parameter
+                showWorkflowTypeSelection();
+                initializeEditor();
+                setupEventListeners();
+            }
         });
 
         function initializeEditor() {
             // Block editor is now initialized without the input field
         }
 
+        function showWorkflowTypeSelection() {
+            const modal = document.getElementById('workflowTypeModal');
+            
+            // Show the modal
+            modal.classList.remove('hidden');
+            
+            // Add click handlers to workflow type cards
+            const typeCards = modal.querySelectorAll('.workflow-type-card');
+            typeCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const workflowType = card.dataset.type;
+                    selectWorkflowType(workflowType);
+                });
+            });
+        }
+
+        function selectWorkflowType(type) {
+            currentWorkflowType = type;
+            
+            // Hide the selection modal
+            const modal = document.getElementById('workflowTypeModal');
+            modal.classList.add('hidden');
+            
+            // Update the workflow badge
+            updateWorkflowTypeBadge(type);
+            
+            // Initialize the block library with type-specific content
+            initializeBlockLibrary();
+            
+            // Show empty state
+            showEmptyState();
+            
+            // Update AI assistant context
+            updateAIAssistantContext(type);
+        }
+
+        function updateWorkflowTypeBadge(type) {
+            const badge = document.getElementById('workflowTypeBadge');
+            const icon = badge.querySelector('i');
+            const text = badge.querySelector('span');
+            
+            if (type === 'patient') {
+                badge.className = 'ml-4 px-3 py-1 rounded-full text-sm font-medium workflow-type-badge-patient';
+                icon.className = 'ri-user-heart-line mr-1';
+                text.textContent = 'Patient Workflow';
+            } else if (type === 'practice') {
+                badge.className = 'ml-4 px-3 py-1 rounded-full text-sm font-medium workflow-type-badge-practice';
+                icon.className = 'ri-building-line mr-1';
+                text.textContent = 'Practice Workflow';
+            }
+            
+            badge.classList.remove('hidden');
+        }
+
+        function updateAIAssistantContext(type) {
+            // Update AI assistant header and context
+            const chatHeader = document.querySelector('#aiChatPanel .p-4.border-b.border-gray-200 p');
+            if (chatHeader) {
+                if (type === 'patient') {
+                    chatHeader.textContent = 'Ask me to help with your patient workflow';
+                } else if (type === 'practice') {
+                    chatHeader.textContent = 'Ask me to help with your practice workflow';
+                }
+            }
+        }
+
         function initializeBlockLibrary() {
             const blockCategories = document.getElementById('blockCategories');
             
-            // Group blocks by category
-            const triggers = Object.entries(blockConfigs).filter(([type]) => type.startsWith('trigger-') && type !== 'trigger-manual');
-            const actions = Object.entries(blockConfigs).filter(([type]) => 
-                !type.startsWith('trigger-') && !['wait', 'condition', 'loop', 'approval', 'ai-touch', 'nested-workflow'].includes(type)
-            );
+            // Define workflow type specific blocks
+            const patientTriggers = ['trigger-order-events', 'trigger-appointment-events', 'trigger-document-events', 'trigger-report-events', 'trigger-task-events', 'trigger-profile-events'];
+            const practiceTriggers = ['trigger-scheduled', 'trigger-threshold', 'trigger-system-event'];
+            const patientActions = ['send-message', 'appointment', 'task', 'document', 'order', 'note'];
+            const practiceActions = ['bulk-communication', 'generate-report', 'system-maintenance'];
+            
+            // Filter blocks based on current workflow type
+            let availableTriggers, availableActions;
+            
+            if (currentWorkflowType === 'patient') {
+                availableTriggers = patientTriggers;
+                availableActions = patientActions;
+            } else if (currentWorkflowType === 'practice') {
+                availableTriggers = practiceTriggers;
+                availableActions = practiceActions;
+            } else {
+                // Fallback to all blocks if no type is selected yet
+                availableTriggers = [...patientTriggers, ...practiceTriggers];
+                availableActions = [...patientActions, ...practiceActions];
+            }
+            
+            // Group blocks by category with type filtering
+            const triggers = Object.entries(blockConfigs).filter(([type]) => availableTriggers.includes(type));
+            const actions = Object.entries(blockConfigs).filter(([type]) => availableActions.includes(type));
             const logic = Object.entries(blockConfigs).filter(([type]) => 
                 ['wait', 'condition', 'loop', 'approval'].includes(type)
             );
@@ -502,13 +733,22 @@
                 'Wait': 'Wait',
                 'Condition': 'Condition',
                 'Loop': 'Loop',
-                'Human Approval': 'Approval',
+                'Smart Review': 'Smart Review',
                 'AI Touch': 'AI Touch',
+                // Patient triggers
                 'Trigger: Appointment Booked': 'Appt Booked',
                 'Trigger: Form Submitted': 'Form Submit',
                 'Trigger: Patient Message': 'Patient Msg',
                 'Trigger: Test Result Available': 'Test Result',
-                'Trigger: Manual Start': 'Manual'
+                'Trigger: Manual Start': 'Manual',
+                // Practice triggers
+                'Trigger: Scheduled': 'Scheduled',
+                'Trigger: Threshold Alert': 'Threshold',
+                'Trigger: System Event': 'System Event',
+                // Practice actions
+                'Bulk Communication': 'Bulk Comm',
+                'Generate Report': 'Report',
+                'System Maintenance': 'Maintenance'
             };
 
             return titleMappings[title] || title;
@@ -954,6 +1194,23 @@
                 return `<div class="text-sm text-gray-600 mt-1">Repeat ${block.data.count} times</div>`;
             }
             
+            if (block.type === 'approval' && block.data.configured) {
+                const aiStatus = block.data.aiEnabled ? '🤖 AI Analysis + Human' : '👤 Human Only';
+                const reviewer = block.data.defaultReviewer || 'Not set';
+                const reviewerLabel = reviewer === 'practice-manager' ? 'Practice Manager' : 
+                                   reviewer === 'clinical-director' ? 'Clinical Director' :
+                                   reviewer === 'admin-staff' ? 'Admin Staff' :
+                                   reviewer === 'custom' ? 'Custom User' : 'Not set';
+                
+                return `
+                    <div class="mt-2 space-y-1">
+                        <div class="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">${aiStatus}</div>
+                        ${block.data.aiEnabled ? `<div class="text-xs text-gray-600">AI decisions: ✅ Approve • ❌ Reject • 🔄 Escalate</div>` : ''}
+                        <div class="text-xs text-gray-600">👤 Reviewer: ${reviewerLabel}</div>
+                    </div>
+                `;
+            }
+            
             if (block.type === 'ai-touch' && block.data.configured) {
                 const contextLabels = {
                     'previous-1': '1 previous step',
@@ -986,6 +1243,11 @@
                 `;
             }
             
+            // Handle grouped trigger blocks
+            if (block.type.startsWith('trigger-') && block.data.configured) {
+                return renderGroupedTriggerContent(block);
+            }
+            
             // Show configuration status
             const hasConfig = Object.keys(block.data).length > 0;
             if (!hasConfig) {
@@ -993,6 +1255,46 @@
             }
             
             return `<div class="text-xs text-green-600 mt-1">✓ Configured</div>`;
+        }
+        
+        function renderGroupedTriggerContent(block) {
+            const selectedEvents = [];
+            
+            // Get all selected events from block data
+            Object.keys(block.data).forEach(key => {
+                if (key !== 'configured' && block.data[key] === true) {
+                    // Convert camelCase to readable text
+                    const eventText = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                    selectedEvents.push(eventText);
+                }
+            });
+            
+            if (selectedEvents.length === 0) {
+                return `<div class="text-xs text-orange-500 mt-1">⚠️ No events selected</div>`;
+            }
+            
+            const eventColors = {
+                'trigger-order-events': 'teal',
+                'trigger-appointment-events': 'green',
+                'trigger-document-events': 'blue',
+                'trigger-report-events': 'purple',
+                'trigger-task-events': 'orange',
+                'trigger-profile-events': 'indigo'
+            };
+            
+            const color = eventColors[block.type] || 'gray';
+            
+            return `
+                <div class="mt-3">
+                    <div class="text-xs text-gray-600 mb-2">Monitoring ${selectedEvents.length} event${selectedEvents.length > 1 ? 's' : ''}:</div>
+                    <div class="flex flex-wrap gap-1">
+                        ${selectedEvents.slice(0, 3).map(event => 
+                            `<span class="px-2 py-1 bg-${color}-100 text-${color}-700 text-xs rounded">${event}</span>`
+                        ).join('')}
+                        ${selectedEvents.length > 3 ? `<span class="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded">+${selectedEvents.length - 3} more</span>` : ''}
+                    </div>
+                </div>
+            `;
         }
 
         function getColorClasses(color) {
@@ -1127,6 +1429,24 @@
                     break;
                 case 'ai-touch':
                     modalContent = createAITouchConfigModal(block);
+                    break;
+                case 'trigger-order-events':
+                    modalContent = createOrderEventsConfigModal(block);
+                    break;
+                case 'trigger-appointment-events':
+                    modalContent = createAppointmentEventsConfigModal(block);
+                    break;
+                case 'trigger-document-events':
+                    modalContent = createDocumentEventsConfigModal(block);
+                    break;
+                case 'trigger-report-events':
+                    modalContent = createReportEventsConfigModal(block);
+                    break;
+                case 'trigger-task-events':
+                    modalContent = createTaskEventsConfigModal(block);
+                    break;
+                case 'trigger-profile-events':
+                    modalContent = createProfileEventsConfigModal(block);
                     break;
                 default:
                     modalContent = createGenericConfigModal(block);
@@ -1310,7 +1630,133 @@
         }
         
         function createApprovalConfigModal(block) {
-            return createGenericConfigModal(block);
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Smart Review</h3>
+                    <div class="space-y-4">
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                            <div class="flex items-start">
+                                <i class="ri-brain-line text-red-600 mr-2 mt-1"></i>
+                                <div class="text-sm text-red-800">
+                                    <strong>Smart Review</strong> combines AI analysis with human oversight for intelligent approval decisions. Configure AI pre-screening or route directly to human review.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border-b border-gray-200 pb-4">
+                            <label class="flex items-center">
+                                <input type="checkbox" class="config-input mr-3" data-field="aiEnabled">
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">Enable AI Analysis</div>
+                                    <div class="text-xs text-gray-500">AI will analyze input and make initial decisions before human review if needed</div>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div id="ai-analysis-section" class="space-y-4" style="display: none;">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">AI Analysis Prompt</label>
+                                <textarea class="config-input w-full p-3 border border-gray-300 rounded-lg text-sm" rows="3" 
+                                          data-field="aiPrompt" placeholder="Describe what AI should analyze from previous workflow steps...&#10;&#10;Example: 'Analyze patient response time and message content to determine if approval is needed for appointment rescheduling'"></textarea>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Context from Previous Steps</label>
+                                <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="contextSteps">
+                                    <option value="previous-1">Previous 1 step</option>
+                                    <option value="previous-2">Previous 2 steps</option>
+                                    <option value="previous-3">Previous 3 steps</option>
+                                    <option value="previous-all">All previous steps</option>
+                                </select>
+                            </div>
+                            
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                                <h4 class="text-sm font-medium text-gray-900 mb-3">AI Decision Instructions</h4>
+                                <div class="space-y-3">
+                                    <div>
+                                        <label class="block text-sm font-medium text-green-700 mb-1">✅ Approval Instructions</label>
+                                        <textarea class="config-input w-full p-2 border border-gray-300 rounded-lg text-sm" rows="2" 
+                                                  data-field="approvalInstructions" placeholder="When should AI approve and continue workflow? &#10;Example: 'If patient confirmed appointment within 24 hours'"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-red-700 mb-1">❌ Rejection Instructions</label>
+                                        <textarea class="config-input w-full p-2 border border-gray-300 rounded-lg text-sm" rows="2" 
+                                                  data-field="rejectionInstructions" placeholder="When should AI reject and stop workflow? &#10;Example: 'If patient requested cancellation or no response after 48 hours'"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-orange-700 mb-1">🔄 Escalation Instructions</label>
+                                        <textarea class="config-input w-full p-2 border border-gray-300 rounded-lg text-sm" rows="2" 
+                                                  data-field="escalationInstructions" placeholder="When should AI escalate to human review? &#10;Example: 'If patient response is unclear or requests special accommodation'"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="border-t border-gray-200 pt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Human Review Configuration</label>
+                            <div class="space-y-3">
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-1">Default Reviewer</label>
+                                    <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="defaultReviewer">
+                                        <option value="">Select reviewer...</option>
+                                        <option value="practice-manager">Practice Manager</option>
+                                        <option value="clinical-director">Clinical Director</option>
+                                        <option value="admin-staff">Administrative Staff</option>
+                                        <option value="custom">Custom User</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-3">
+                                    <div>
+                                        <label class="block text-sm text-gray-600 mb-1">Review Timeout</label>
+                                        <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="reviewTimeout">
+                                            <option value="1h">1 Hour</option>
+                                            <option value="4h">4 Hours</option>
+                                            <option value="1d" selected>1 Day</option>
+                                            <option value="3d">3 Days</option>
+                                            <option value="none">No Timeout</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm text-gray-600 mb-1">Timeout Action</label>
+                                        <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="timeoutAction">
+                                            <option value="escalate">Escalate to Manager</option>
+                                            <option value="auto-approve">Auto Approve</option>
+                                            <option value="auto-reject" selected>Auto Reject</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" class="config-input mr-2" data-field="allowForwarding">
+                                        <span class="text-sm text-gray-700">Allow reviewers to forward to other users</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <div class="flex items-start">
+                                <i class="ri-information-line text-blue-600 mr-2 mt-1 cursor-pointer" onclick="showReviewDemo()"></i>
+                                <div class="text-sm text-blue-800">
+                                    <strong>Human Review Interface:</strong> When triggered, reviewers can approve, reject, check event source, or forward to another reviewer. 
+                                    <span class="underline cursor-pointer" onclick="showReviewDemo()">Click icon to see demo</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
+                        <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button class="save-btn px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                            Save Configuration
+                        </button>
+                    </div>
+                </div>
+            `;
         }
         
         function createAITouchConfigModal(block) {
@@ -1396,6 +1842,356 @@
             `;
         }
         
+        function createOrderEventsConfigModal(block) {
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Order Update Trigger</h3>
+                    <div class="space-y-4">
+                        <div class="bg-teal-50 border border-teal-200 rounded-lg p-4 mb-4">
+                            <div class="flex items-start">
+                                <i class="ri-shopping-cart-line text-teal-600 mr-2 mt-1"></i>
+                                <div class="text-sm text-teal-800">
+                                    <strong>Order Update</strong> triggers when order status changes occur in your system.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Select Order Updates to Monitor:</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="orderCreated" value="order-created">
+                                    <span class="text-sm text-gray-700">Order Created</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="orderModified" value="order-modified">
+                                    <span class="text-sm text-gray-700">Order Modified</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="orderRedrawn" value="order-redrawn">
+                                    <span class="text-sm text-gray-700">Order Redrawn</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="paymentComplete" value="payment-complete">
+                                    <span class="text-sm text-gray-700">Payment Complete</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="paymentFailed" value="payment-failed">
+                                    <span class="text-sm text-gray-700">Payment Failed</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="paymentRefund" value="payment-refund">
+                                    <span class="text-sm text-gray-700">Payment Refund</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="labShipped" value="lab-shipped">
+                                    <span class="text-sm text-gray-700">Lab Shipped</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="questionnaireAssigned" value="questionnaire-assigned">
+                                    <span class="text-sm text-gray-700">Questionnaire Assigned</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="missingInformation" value="missing-information">
+                                    <span class="text-sm text-gray-700">Missing Information</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="testNotPerformed" value="test-not-performed">
+                                    <span class="text-sm text-gray-700">Test Not Performed</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="orderCanceled" value="order-canceled">
+                                    <span class="text-sm text-gray-700">Order Canceled</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button class="save-btn px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700">
+                            Save Trigger
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createAppointmentEventsConfigModal(block) {
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Appointment Update Trigger</h3>
+                    <div class="space-y-4">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+                            <div class="flex items-start">
+                                <i class="ri-calendar-event-line text-green-600 mr-2 mt-1"></i>
+                                <div class="text-sm text-green-800">
+                                    <strong>Appointment Update</strong> triggers when calendar appointment status changes occur.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Select Appointment Updates to Monitor:</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="appointmentCreated" value="appointment-created">
+                                    <span class="text-sm text-gray-700">Appointment Created</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="appointmentAccepted" value="appointment-accepted">
+                                    <span class="text-sm text-gray-700">Appointment Accepted</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="appointmentRejected" value="appointment-rejected">
+                                    <span class="text-sm text-gray-700">Appointment Rejected</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="appointmentTentative" value="appointment-tentative">
+                                    <span class="text-sm text-gray-700">Appointment Tentative</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="appointmentCancelled" value="appointment-cancelled">
+                                    <span class="text-sm text-gray-700">Appointment Cancelled</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button class="save-btn px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                            Save Trigger
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createDocumentEventsConfigModal(block) {
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Document/Form Update Trigger</h3>
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                            <div class="flex items-start">
+                                <i class="ri-file-text-line text-blue-600 mr-2 mt-1"></i>
+                                <div class="text-sm text-blue-800">
+                                    <strong>Document/Form Update</strong> triggers when document or form interactions occur.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Select Document/Form Updates to Monitor:</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="documentViewed" value="document-viewed">
+                                    <span class="text-sm text-gray-700">Document/Form Viewed</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="formSubmitted" value="form-submitted">
+                                    <span class="text-sm text-gray-700">Form Submitted</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="encounterShared" value="encounter-shared">
+                                    <span class="text-sm text-gray-700">Encounter Note Shared</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="encounterUpdated" value="encounter-updated">
+                                    <span class="text-sm text-gray-700">Encounter Note Updated</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button class="save-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                            Save Trigger
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createReportEventsConfigModal(block) {
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Report Update Trigger</h3>
+                    <div class="space-y-4">
+                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4 mb-4">
+                            <div class="flex items-start">
+                                <i class="ri-file-chart-line text-purple-600 mr-2 mt-1"></i>
+                                <div class="text-sm text-purple-800">
+                                    <strong>Report Update</strong> triggers when report status changes occur.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Select Report Updates to Monitor:</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="reportAvailable" value="report-available">
+                                    <span class="text-sm text-gray-700">Report Available</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="reportShared" value="report-shared">
+                                    <span class="text-sm text-gray-700">Report Shared</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button class="save-btn px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
+                            Save Trigger
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createTaskEventsConfigModal(block) {
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Task Update Trigger</h3>
+                    <div class="space-y-4">
+                        <div class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+                            <div class="flex items-start">
+                                <i class="ri-task-line text-orange-600 mr-2 mt-1"></i>
+                                <div class="text-sm text-orange-800">
+                                    <strong>Task Update</strong> triggers when task status changes occur.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Select Task Updates to Monitor:</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="taskOpen" value="task-open">
+                                    <span class="text-sm text-gray-700">Task Open</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="taskCompleted" value="task-completed">
+                                    <span class="text-sm text-gray-700">Task Completed</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button class="save-btn px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
+                            Save Trigger
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createProfileEventsConfigModal(block) {
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Profile Update Trigger</h3>
+                    <div class="space-y-4">
+                        <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
+                            <div class="flex items-start">
+                                <i class="ri-user-line text-indigo-600 mr-2 mt-1"></i>
+                                <div class="text-sm text-indigo-800">
+                                    <strong>Profile Update</strong> triggers when patient profile or note changes occur.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-3">Select Profile Updates to Monitor:</label>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="profileUpdated" value="profile-updated">
+                                    <span class="text-sm text-gray-700">Patient Profile Updated</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="checkbox" class="config-input mr-2" data-field="internalNoteUpdated" value="internal-note-updated">
+                                    <span class="text-sm text-gray-700">Internal Note Updated</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
+                            Cancel
+                        </button>
+                        <button class="save-btn px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">
+                            Save Trigger
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function showReviewDemo() {
+            const demoModal = document.createElement('div');
+            demoModal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+            demoModal.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-md mx-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Human Review Interface Demo</h3>
+                    <div class="space-y-4">
+                        <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                            <div class="text-sm font-medium text-gray-900 mb-2">📧 Review Request</div>
+                            <div class="text-xs text-gray-600 mb-3">Patient appointment rescheduling requires your approval</div>
+                            
+                            <div class="space-y-2">
+                                <button class="w-full p-2 bg-green-100 border border-green-300 rounded text-sm text-green-800 hover:bg-green-200">
+                                    ✅ Approve & Continue Workflow
+                                </button>
+                                <button class="w-full p-2 bg-red-100 border border-red-300 rounded text-sm text-red-800 hover:bg-red-200">
+                                    ❌ Reject & Stop Workflow
+                                </button>
+                                <button class="w-full p-2 bg-blue-100 border border-blue-300 rounded text-sm text-blue-800 hover:bg-blue-200">
+                                    📄 Check Event Source
+                                </button>
+                                <button class="w-full p-2 bg-yellow-100 border border-yellow-300 rounded text-sm text-yellow-800 hover:bg-yellow-200">
+                                    🔄 Forward to Another Reviewer
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="text-xs text-gray-500 text-center">
+                            This interface appears when a review is actually triggered during workflow execution
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end mt-6">
+                        <button class="close-demo px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
+                            Close Demo
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(demoModal);
+            
+            // Close demo functionality
+            demoModal.querySelector('.close-demo').addEventListener('click', () => {
+                document.body.removeChild(demoModal);
+            });
+            
+            demoModal.addEventListener('click', (e) => {
+                if (e.target === demoModal) {
+                    document.body.removeChild(demoModal);
+                }
+            });
+        }
+        
         function setupModalEventListeners(modal, block) {
             // Wait type toggle for wait blocks
             const waitTypeSelect = modal.querySelector('select[data-field="type"]');
@@ -1410,6 +2206,26 @@
                     } else {
                         timeConfig.classList.remove('hidden');
                         inputConfig.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // AI analysis toggle for approval blocks
+            const aiEnabledToggle = modal.querySelector('input[data-field="aiEnabled"]');
+            if (aiEnabledToggle && block.type === 'approval') {
+                const aiAnalysisSection = modal.querySelector('#ai-analysis-section');
+                
+                // Set initial state
+                if (block.data.aiEnabled) {
+                    aiEnabledToggle.checked = true;
+                    aiAnalysisSection.style.display = 'block';
+                }
+                
+                aiEnabledToggle.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        aiAnalysisSection.style.display = 'block';
+                    } else {
+                        aiAnalysisSection.style.display = 'none';
                     }
                 });
             }
@@ -1459,17 +2275,8 @@
             // Update block data
             block.data = { ...block.data, ...data };
             
-            // Re-render the block to show updated configuration
-            const blockElement = document.querySelector(`[data-block-id="${block.id}"]`);
-            if (blockElement) {
-                const contentDiv = blockElement.querySelector('.flex-1');
-                const newContent = `
-                    <div class="text-sm font-medium text-gray-900">${block.config.title}</div>
-                    <div class="text-xs text-gray-500">${block.config.description}</div>
-                    ${renderBlockContent(block)}
-                `;
-                contentDiv.innerHTML = newContent;
-            }
+            // Re-render the workflow to show updated configuration
+            renderWorkflow();
             
             showNotification('Block configuration saved!', 'success');
         }
@@ -1576,13 +2383,17 @@
         }
         
         function generateAIResponse(userMessage, hasWorkflow) {
-            // Simple AI response simulation - replace with actual AI integration
+            // Type-aware AI response simulation - replace with actual AI integration
+            const workflowTypeText = currentWorkflowType === 'patient' ? 'patient' : 'practice-wide';
+            
             const responses = {
-                greeting: "Hello! I'm here to help you build and improve your healthcare workflow. What would you like to work on?",
+                greeting: `Hello! I'm here to help you build your ${workflowTypeText} workflow. What would you like to work on?`,
                 generate: hasWorkflow ? 
-                    "I can help you modify your existing workflow. What changes would you like to make?" :
-                    "I can help you create a new workflow. What process would you like to automate?",
-                placeholder: "I understand you want to work on your workflow. This is a demo - full AI integration will provide intelligent suggestions and modifications to your workflow blocks."
+                    `I can help you modify your existing ${workflowTypeText} workflow. What changes would you like to make?` :
+                    `I can help you create a new ${workflowTypeText} workflow. What process would you like to automate?`,
+                patient_specific: "For patient workflows, I can help you create personalized care paths, appointment follow-ups, or medication adherence workflows. What patient process would you like to automate?",
+                practice_specific: "For practice workflows, I can help you set up scheduled reports, threshold alerts, or bulk operations. What system-wide process would you like to automate?",
+                placeholder: `I understand you want to work on your ${workflowTypeText} workflow. This is a demo - full AI integration will provide intelligent suggestions and modifications to your workflow blocks.`
             };
             
             const lowerMessage = userMessage.toLowerCase();
@@ -1591,6 +2402,10 @@
                 return responses.greeting;
             } else if (lowerMessage.includes('create') || lowerMessage.includes('generate') || lowerMessage.includes('build')) {
                 return responses.generate;
+            } else if (lowerMessage.includes('patient') && currentWorkflowType === 'patient') {
+                return responses.patient_specific;
+            } else if (lowerMessage.includes('practice') && currentWorkflowType === 'practice') {
+                return responses.practice_specific;
             } else {
                 return responses.placeholder;
             }
@@ -1671,10 +2486,30 @@
         function updateCommandPaletteResults(query) {
             const resultsContainer = document.getElementById('commandResults');
             
-            // Filter items based on query, using same exclusions as left panel
+            // Get workflow type specific blocks (same logic as block library)
+            const patientTriggers = ['trigger-order-events', 'trigger-appointment-events', 'trigger-document-events', 'trigger-report-events', 'trigger-task-events', 'trigger-profile-events'];
+            const practiceTriggers = ['trigger-scheduled', 'trigger-threshold', 'trigger-system-event'];
+            const patientActions = ['send-message', 'appointment', 'task', 'document', 'order', 'note'];
+            const practiceActions = ['bulk-communication', 'generate-report', 'system-maintenance'];
+            
+            let availableTriggers, availableActions;
+            if (currentWorkflowType === 'patient') {
+                availableTriggers = patientTriggers;
+                availableActions = patientActions;
+            } else if (currentWorkflowType === 'practice') {
+                availableTriggers = practiceTriggers;
+                availableActions = practiceActions;
+            } else {
+                availableTriggers = [...patientTriggers, ...practiceTriggers];
+                availableActions = [...patientActions, ...practiceActions];
+            }
+            
+            const allowedTypes = [...availableTriggers, ...availableActions, 'wait', 'condition', 'loop', 'approval'];
+            
+            // Filter items based on query and workflow type
             filteredItems = Object.entries(blockConfigs).filter(([type, config]) => {
-                // Exclude same items as left panel
-                if (type === 'trigger-manual' || type === 'nested-workflow' || type === 'ai-touch') {
+                // Only include workflow type appropriate blocks
+                if (!allowedTypes.includes(type)) {
                     return false;
                 }
                 
@@ -1682,9 +2517,9 @@
                        config.description.toLowerCase().includes(query.toLowerCase());
             });
 
-            // Group by category (same as left panel)
-            const triggers = filteredItems.filter(([type]) => type.startsWith('trigger-'));
-            const actions = filteredItems.filter(([type]) => !type.startsWith('trigger-') && !['wait', 'condition', 'loop', 'approval'].includes(type));
+            // Group by category with type filtering
+            const triggers = filteredItems.filter(([type]) => availableTriggers.includes(type));
+            const actions = filteredItems.filter(([type]) => availableActions.includes(type));
             const logic = filteredItems.filter(([type]) => ['wait', 'condition', 'loop', 'approval'].includes(type));
 
             let html = '';
