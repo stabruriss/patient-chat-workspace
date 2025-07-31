@@ -111,6 +111,170 @@
         /* Container block styling */
         .workflow-container {
             position: relative;
+            margin: 8px auto;
+            width: 100%;
+            max-width: none;
+            min-width: 400px;
+            padding: 0 20px;
+        }
+        
+        /* Flowchart styling */
+        .flowchart-block {
+            position: relative;
+            margin: 8px auto;
+            padding: 16px 20px;
+            background: white;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+            width: fit-content;
+            max-width: 500px;
+            min-width: 300px;
+        }
+        
+        .flowchart-block:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            transform: translateY(-1px);
+        }
+        
+        .flowchart-block.configured {
+            border-color: #10b981;
+            background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+        }
+        
+        .flowchart-block.needs-config {
+            border-color: #f59e0b;
+            background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%);
+            animation: pulse-warning 2s infinite;
+        }
+        
+        @keyframes pulse-warning {
+            0%, 100% { border-color: #f59e0b; }
+            50% { border-color: #fbbf24; }
+        }
+        
+        .flowchart-connector {
+            position: absolute;
+            left: 50%;
+            bottom: -12px;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 8px;
+            background: #6b7280;
+        }
+        
+        .flowchart-connector::after {
+            content: '';
+            position: absolute;
+            bottom: -6px;
+            left: -3px;
+            width: 0;
+            height: 0;
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 6px solid #6b7280;
+        }
+        
+        .flowchart-block-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .flowchart-block-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        
+        .flowchart-block-content {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .flowchart-block-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 2px;
+        }
+        
+        .flowchart-block-description {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+        
+        .flowchart-block-status {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .flowchart-block-status.configured {
+            background: #dcfce7;
+            color: #166534;
+        }
+        
+        .flowchart-block-status.needs-config {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .flowchart-block-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+        }
+        
+        .flowchart-action-btn {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid #d1d5db;
+            background: white;
+            color: #374151;
+            flex: 1;
+        }
+        
+        .flowchart-action-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+        
+        .flowchart-action-btn.primary {
+            background: #3b82f6;
+            border-color: #3b82f6;
+            color: white;
+        }
+        
+        .flowchart-action-btn.primary:hover {
+            background: #2563eb;
+            border-color: #2563eb;
+        }
+        
+        .flowchart-action-btn.danger {
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+        
+        .flowchart-action-btn.danger:hover {
+            background: #fef2f2;
+            border-color: #fca5a5;
         }
         
         .drop-zone {
@@ -135,6 +299,297 @@
         .condition-container:hover, .loop-container:hover {
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
+
+        /* Canvas zoom and pan controls */
+        .canvas-controls {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .canvas-control-btn {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            color: #374151;
+        }
+
+        .canvas-control-btn:hover {
+            background: #f3f4f6;
+            border-color: #9ca3af;
+        }
+
+        .canvas-control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .zoom-level {
+            font-size: 12px;
+            text-align: center;
+            color: #6b7280;
+            font-weight: 500;
+            padding: 2px 0;
+        }
+
+        /* Canvas container for zoom and pan */
+        .canvas-viewport {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .canvas-content {
+            position: relative;
+            transform-origin: top left;
+            transition: transform 0.2s ease;
+            width: 100%;
+            min-height: 100%;
+        }
+
+        /* Parallel execution mode styling */
+        .parallel-block-wrapper {
+            position: relative;
+        }
+
+        .parallel-block-wrapper::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 20px;
+            background: #6366f1;
+            opacity: 0.6;
+        }
+
+        .parallel-block-wrapper:first-child::before {
+            display: none;
+        }
+
+        .parallel-execution-indicator {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #6366f1;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .workflow-mode-indicator {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            z-index: 5;
+        }
+
+        /* Enhanced grid positioning system */
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            padding: 20px;
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        .workflow-grid.sequential {
+            grid-template-columns: 1fr;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .workflow-grid.parallel {
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            justify-items: center;
+        }
+
+        .grid-block {
+            position: relative;
+            transition: all 0.3s ease;
+            transform-origin: center;
+        }
+
+        .grid-block:hover {
+            transform: scale(1.02);
+            z-index: 2;
+        }
+
+        .grid-block.dragging {
+            transform: rotate(5deg) scale(1.05);
+            z-index: 10;
+            opacity: 0.8;
+        }
+
+        .grid-position-indicator {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 24px;
+            height: 24px;
+            background: #6366f1;
+            border: 2px solid white;
+            border-radius: 50%;
+            font-size: 12px;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .workflow-connection-line {
+            position: absolute;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .workflow-connection-line svg {
+            overflow: visible;
+        }
+
+        /* Red connection handles for drag-and-drop */
+        .connection-handle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: #ef4444;
+            border: 2px solid white;
+            border-radius: 50%;
+            cursor: grab;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .connection-handle:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5);
+            background: #dc2626;
+        }
+
+        .connection-handle.active {
+            background: #dc2626;
+            transform: scale(1.3);
+            animation: pulse-handle 1s infinite;
+        }
+
+        .connection-handle::before {
+            content: '+';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            line-height: 1;
+        }
+
+        @keyframes pulse-handle {
+            0%, 100% { box-shadow: 0 4px 16px rgba(239, 68, 68, 0.5); }
+            50% { box-shadow: 0 4px 20px rgba(239, 68, 68, 0.8); }
+        }
+
+        /* Drop zone styling - make it very obvious */
+        .workflow-canvas.drop-zone-active {
+            background: rgba(34, 197, 94, 0.2) !important;
+            border: 4px dashed #22c55e !important;
+            border-radius: 16px !important;
+            animation: drop-zone-pulse 1s infinite;
+            position: relative;
+            box-shadow: inset 0 0 50px rgba(34, 197, 94, 0.1) !important;
+        }
+
+        .workflow-canvas.drop-zone-active::before {
+            content: '📁 DROP BLOCK HERE 📁';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #22c55e;
+            color: white;
+            padding: 20px 40px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 10px 40px rgba(34, 197, 94, 0.4);
+            border: 3px solid white;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            animation: message-bounce 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes drop-zone-pulse {
+            0%, 100% { 
+                border-color: #22c55e;
+                background: rgba(34, 197, 94, 0.2);
+                box-shadow: inset 0 0 50px rgba(34, 197, 94, 0.1);
+            }
+            50% { 
+                border-color: #16a34a;
+                background: rgba(34, 197, 94, 0.3);
+                box-shadow: inset 0 0 50px rgba(34, 197, 94, 0.2);
+            }
+        }
+
+        @keyframes message-bounce {
+            0% { transform: translate(-50%, -50%) scale(1); }
+            100% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        /* Draggable block states */
+        .block-dragging {
+            opacity: 0.8;
+            transform: rotate(3deg) scale(1.05);
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .block-drop-target {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 2px #ef4444;
+        }
+
+        /* Connection preview line */
+        .connection-preview {
+            position: absolute;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .connection-preview svg {
+            overflow: visible;
+        }
         
         /* Workflow type styling */
         .workflow-type-card.selected {
@@ -150,6 +605,65 @@
         .workflow-type-badge-practice {
             background-color: rgba(34, 197, 94, 0.1);
             color: #166534;
+        }
+        
+        /* Fancy AI Toggle Switch */
+        .ai-toggle input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+        }
+        
+        .ai-toggle-slider {
+            position: relative;
+            display: inline-block;
+            width: 56px;
+            height: 32px;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .ai-toggle-slider:before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 28px;
+            height: 28px;
+            background-color: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ai-toggle input[type="checkbox"]:checked + .ai-toggle-slider {
+            background-color: #8b5cf6;
+        }
+        
+        .ai-toggle input[type="checkbox"]:checked + .ai-toggle-slider:before {
+            transform: translateX(24px);
+        }
+        
+        .ai-toggle input[type="checkbox"]:focus + .ai-toggle-slider {
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
+        }
+        
+        /* AI Corner Tag */
+        .ai-corner-tag {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            z-index: 10;
         }
     </style>
 </head>
@@ -170,6 +684,19 @@
                         <div id="workflowTypeBadge" class="ml-4 px-3 py-1 rounded-full text-sm font-medium hidden">
                             <i class="mr-1"></i>
                             <span></span>
+                        </div>
+                        
+                        <!-- Execution Mode Selector -->
+                        <div class="ml-6 flex items-center space-x-2">
+                            <label class="text-sm text-gray-600 font-medium">Flow Type:</label>
+                            <div class="flex bg-gray-100 rounded-lg p-1">
+                                <button id="sequentialMode" class="px-3 py-1 text-sm font-medium rounded-md transition-colors bg-white shadow-sm text-gray-900" onclick="setExecutionMode('sequential')">
+                                    <i class="ri-arrow-down-line mr-1"></i>Sequential
+                                </button>
+                                <button id="parallelMode" class="px-3 py-1 text-sm font-medium rounded-md transition-colors text-gray-600 hover:text-gray-900" onclick="setExecutionMode('parallel')">
+                                    <i class="ri-git-branch-line mr-1"></i>Parallel
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -204,17 +731,37 @@
         </div>
         
         <!-- Block Editor -->
-        <div class="block-editor bg-white flex-1 overflow-auto">
-            <div id="blockEditor" class="max-w-4xl mx-auto p-8">
-                <div id="workflowBlocks" class="space-y-3">
+        <div class="block-editor bg-gray-50 flex-1 overflow-auto" style="background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px); background-size: 20px 20px;">
+            <!-- Canvas Controls -->
+            <div class="canvas-controls">
+                <button class="canvas-control-btn" onclick="zoomIn()" title="Zoom In">
+                    <i class="ri-add-line"></i>
+                </button>
+                <div class="zoom-level" id="zoomLevel">100%</div>
+                <button class="canvas-control-btn" onclick="zoomOut()" title="Zoom Out">
+                    <i class="ri-subtract-line"></i>
+                </button>
+                <button class="canvas-control-btn" onclick="resetZoom()" title="Reset Zoom">
+                    <i class="ri-fullscreen-line"></i>
+                </button>
+                <button class="canvas-control-btn" onclick="fitToWindow()" title="Fit to Window">
+                    <i class="ri-aspect-ratio-line"></i>
+                </button>
+            </div>
+            
+            <div class="canvas-viewport">
+                <div id="blockEditor" class="canvas-content w-full p-8">
+                    <div id="workflowBlocks" class="flex flex-col items-stretch space-y-4 min-h-full w-full px-4">
                     <!-- Empty state -->
-                    <div id="emptyState" class="text-center py-16 text-gray-400">
-                        <i class="ri-file-text-line text-4xl mb-4"></i>
+                    <div id="emptyState" class="text-center py-16 text-gray-400 bg-white rounded-lg border-2 border-dashed border-gray-300 max-w-md">
+                        <i class="ri-workflow-line text-4xl mb-4"></i>
                         <h3 class="text-lg font-medium mb-2">Start building your workflow</h3>
-                        <p>Press <span class="bg-gray-100 px-2 py-1 rounded font-mono text-sm">⌘K</span> to open the command palette and add blocks</p>
+                        <p>Click blocks from the library on the left to add them to your workflow</p>
+                        <p class="text-sm mt-2">Press <span class="bg-gray-100 px-2 py-1 rounded font-mono text-sm">⌘K</span> for quick search</p>
                     </div>
                 </div>
-                
+            </div>
+            <!-- End canvas-viewport -->
             </div>
             
             
@@ -343,6 +890,30 @@
         </div>
     </div>
 
+    <!-- Trigger Restriction Modal -->
+    <div id="triggerRestrictionModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 max-w-md mx-4 shadow-xl border border-red-200">
+            <div class="flex items-center mb-4">
+                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                    <i class="ri-error-warning-line text-red-600 text-xl"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900">One Trigger Per Workflow</h3>
+            </div>
+            <p class="text-gray-700 mb-4">
+                Each workflow can only have <strong>one trigger</strong>. You already have a trigger block in this workflow.
+            </p>
+            <p class="text-sm text-gray-600 mb-4">
+                To add a different trigger, please delete the existing trigger block first.
+            </p>
+            <div class="flex justify-end">
+                <button onclick="document.getElementById('triggerRestrictionModal').classList.add('hidden')" 
+                        class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                    Got it
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Command Palette Modal -->
     <div id="commandPalette" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-200">
         <!-- Backdrop -->
@@ -383,6 +954,417 @@
         let selectedBlock = null;
         let currentInput = null;
         let currentWorkflowType = null;
+        let currentExecutionMode = 'sequential'; // 'sequential' or 'parallel'
+
+        // Canvas zoom and pan variables
+        let currentZoom = 1;
+        let isPanning = false;
+        let panStartX = 0;
+        let panStartY = 0;
+        let panX = 0;
+        let panY = 0;
+
+        // Zoom functions
+        function zoomIn() {
+            currentZoom = Math.min(currentZoom * 1.2, 3);
+            updateCanvasTransform();
+        }
+
+        function zoomOut() {
+            currentZoom = Math.max(currentZoom / 1.2, 0.25);
+            updateCanvasTransform();
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            panX = 0;
+            panY = 0;
+            updateCanvasTransform();
+        }
+
+        function fitToWindow() {
+            const canvas = document.getElementById('blockEditor');
+            const viewport = canvas.parentElement;
+            const canvasRect = canvas.getBoundingClientRect();
+            const viewportRect = viewport.getBoundingClientRect();
+            
+            const scaleX = viewportRect.width / canvasRect.width;
+            const scaleY = viewportRect.height / canvasRect.height;
+            currentZoom = Math.min(scaleX, scaleY, 1) * 0.9;
+            
+            panX = 0;
+            panY = 0;
+            updateCanvasTransform();
+        }
+
+        function updateCanvasTransform() {
+            const canvas = document.getElementById('blockEditor');
+            canvas.style.transform = `scale(${currentZoom}) translate(${panX}px, ${panY}px)`;
+            
+            const zoomLevel = document.getElementById('zoomLevel');
+            zoomLevel.textContent = Math.round(currentZoom * 100) + '%';
+            
+            // Redraw connection lines after transform to maintain proper positioning
+            requestAnimationFrame(() => {
+                drawHierarchicalConnections();
+            });
+        }
+
+        // Execution mode functions
+        function setExecutionMode(mode) {
+            currentExecutionMode = mode;
+            
+            // Update button states
+            const sequentialBtn = document.getElementById('sequentialMode');
+            const parallelBtn = document.getElementById('parallelMode');
+            
+            if (mode === 'sequential') {
+                sequentialBtn.className = 'px-3 py-1 text-sm font-medium rounded-md transition-colors bg-white shadow-sm text-gray-900';
+                parallelBtn.className = 'px-3 py-1 text-sm font-medium rounded-md transition-colors text-gray-600 hover:text-gray-900';
+            } else {
+                sequentialBtn.className = 'px-3 py-1 text-sm font-medium rounded-md transition-colors text-gray-600 hover:text-gray-900';
+                parallelBtn.className = 'px-3 py-1 text-sm font-medium rounded-md transition-colors bg-white shadow-sm text-gray-900';
+            }
+            
+            // Re-render workflow with new mode
+            renderWorkflow();
+        }
+
+        // Trigger restriction modal
+        function showTriggerRestrictionModal() {
+            const modal = document.getElementById('triggerRestrictionModal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                
+                // Auto-hide after 3 seconds
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        // FollowUp relationship management functions
+        function addFollowUpRelationship(parentBlockId, childBlockId) {
+            const parentBlock = findBlockById(parentBlockId);
+            const childBlock = findBlockById(childBlockId);
+            
+            if (parentBlock && childBlock) {
+                // Add child to parent's followUp list if not already there
+                if (!parentBlock.followUpBlocks.some(block => block.id === childBlockId)) {
+                    parentBlock.followUpBlocks.push(childBlock);
+                    childBlock.parentId = parentBlockId;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function removeFollowUpRelationship(parentBlockId, childBlockId) {
+            const parentBlock = findBlockById(parentBlockId);
+            const childBlock = findBlockById(childBlockId);
+            
+            if (parentBlock && childBlock) {
+                parentBlock.followUpBlocks = parentBlock.followUpBlocks.filter(block => block.id !== childBlockId);
+                childBlock.parentId = null;
+                return true;
+            }
+            return false;
+        }
+
+        function getRootBlocks() {
+            // Return blocks that have no parent (root level blocks)
+            return workflowBlocks.filter(block => !block.parentId);
+        }
+
+        function getChildBlocks(parentBlockId) {
+            const parentBlock = findBlockById(parentBlockId);
+            return parentBlock ? parentBlock.followUpBlocks : [];
+        }
+
+        function hasCircularDependency(parentBlockId, childBlockId) {
+            // Check if adding this relationship would create a circular dependency
+            function checkPath(currentBlockId, targetBlockId, visited = new Set()) {
+                if (currentBlockId === targetBlockId) return true;
+                if (visited.has(currentBlockId)) return false;
+                
+                visited.add(currentBlockId);
+                const currentBlock = findBlockById(currentBlockId);
+                if (currentBlock) {
+                    return currentBlock.followUpBlocks.some(child => 
+                        checkPath(child.id, targetBlockId, visited)
+                    );
+                }
+                return false;
+            }
+            
+            return checkPath(childBlockId, parentBlockId);
+        }
+
+        // Drag and drop variables
+        let draggedBlock = null;
+        let dragPreviewLine = null;
+        let isDraggingFromLibrary = false;
+
+        // Setup drop zone listeners for connection handles
+        function setupDropZoneListeners(handle, parentBlock) {
+            handle.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'link';
+                handle.classList.add('active');
+            });
+
+            handle.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                handle.classList.remove('active');
+            });
+
+            handle.addEventListener('drop', (e) => {
+                e.preventDefault();
+                handle.classList.remove('active');
+                
+                if (draggedBlock) {
+                    // Check for circular dependency
+                    if (!hasCircularDependency(parentBlock.id, draggedBlock.id)) {
+                        // Create followUp relationship
+                        if (addFollowUpRelationship(parentBlock.id, draggedBlock.id)) {
+                            // Remove from root level if it was there
+                            workflowBlocks = workflowBlocks.filter(block => block.id !== draggedBlock.id);
+                            
+                            // Re-render workflow
+                            renderWorkflow();
+                        }
+                    } else {
+                        showCircularDependencyError();
+                    }
+                }
+                
+                clearDragState();
+            });
+        }
+
+        // Make blocks draggable
+        function makeBlockDraggable(blockElement, block) {
+            blockElement.draggable = true;
+            blockElement.dataset.blockId = block.id;
+            
+            blockElement.addEventListener('dragstart', (e) => {
+                draggedBlock = block;
+                blockElement.classList.add('block-dragging');
+                
+                // Set drag effect
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', block.id);
+                
+                // Highlight all potential drop zones
+                document.querySelectorAll('.connection-handle').forEach(handle => {
+                    const parentBlockId = handle.dataset.blockId;
+                    if (parentBlockId !== block.id && !hasCircularDependency(parentBlockId, block.id)) {
+                        handle.classList.add('active');
+                    }
+                });
+            });
+
+            blockElement.addEventListener('dragend', (e) => {
+                clearDragState();
+            });
+        }
+
+        function clearDragState() {
+            if (draggedBlock) {
+                document.querySelector(`[data-block-id="${draggedBlock.id}"]`)?.classList.remove('block-dragging');
+                draggedBlock = null;
+            }
+            
+            // Remove all drop zone highlights
+            document.querySelectorAll('.connection-handle').forEach(handle => {
+                handle.classList.remove('active');
+            });
+            
+            // Remove preview line
+            if (dragPreviewLine) {
+                dragPreviewLine.remove();
+                dragPreviewLine = null;
+            }
+        }
+
+        function showCircularDependencyError() {
+            // Simple alert for now - could be replaced with a nicer modal
+            alert('Cannot create this connection: it would create a circular dependency in your workflow.');
+        }
+
+        // Setup canvas as drop zone for new blocks from library
+        function setupCanvasDropZone(canvasContainer) {
+            canvasContainer.addEventListener('dragover', (e) => {
+                // Accept all drags from library - simplified approach
+                e.preventDefault();
+                e.stopPropagation();
+                e.dataTransfer.dropEffect = 'copy';
+                canvasContainer.classList.add('drop-zone-active');
+                console.log('Dragover - added drop-zone-active'); // Debug log
+            });
+
+            canvasContainer.addEventListener('dragenter', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                canvasContainer.classList.add('drop-zone-active');
+                console.log('Dragenter - added drop-zone-active'); // Debug log
+            });
+
+            canvasContainer.addEventListener('dragleave', (e) => {
+                // Only remove highlight if we're actually leaving the canvas
+                const rect = canvasContainer.getBoundingClientRect();
+                const x = e.clientX;
+                const y = e.clientY;
+                
+                if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
+                    canvasContainer.classList.remove('drop-zone-active');
+                    console.log('Dragleave - removed drop-zone-active'); // Debug log
+                }
+            });
+
+            canvasContainer.addEventListener('drop', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                canvasContainer.classList.remove('drop-zone-active');
+                
+                const blockType = e.dataTransfer.getData('text/plain');
+                console.log('Drop event received, blockType:', blockType); // Debug log
+                
+                if (blockType) {
+                    // Calculate drop position relative to canvas
+                    const rect = canvasContainer.getBoundingClientRect();
+                    const dropX = e.clientX - rect.left;
+                    const dropY = e.clientY - rect.top;
+                    
+                    console.log('Drop position:', dropX, dropY); // Debug log
+                    
+                    // Create block at drop position
+                    createBlockAtPosition(blockType, dropX, dropY);
+                }
+            });
+        }
+
+        // Create a new block at specific canvas position
+        function createBlockAtPosition(type, x, y) {
+            // Check trigger restriction first
+            if (type.startsWith('trigger-')) {
+                const existingTriggers = workflowBlocks.filter(block => block.type.startsWith('trigger-'));
+                if (existingTriggers.length > 0) {
+                    showTriggerRestrictionModal();
+                    return;
+                }
+            }
+            
+            blockCounter++;
+            const config = blockConfigs[type];
+            
+            const block = {
+                id: `block-${blockCounter}`,
+                type: type,
+                config: { ...config },
+                data: {},
+                parentId: null,
+                followUpBlocks: [],
+                position: { x: x - 160, y: y - 40 }, // Offset to center block on cursor
+                connectionPoints: {
+                    bottom: { x: 0, y: 0 }
+                },
+                children: type === 'condition' ? { true: [], false: [] } : 
+                         type === 'loop' ? { items: [] } : null
+            };
+
+            workflowBlocks.push(block);
+            
+            renderWorkflow();
+            hideEmptyState();
+            
+            // Refresh block library to update trigger restrictions
+            initializeBlockLibrary();
+
+            // Show configuration for the new block
+            setTimeout(() => {
+                showBlockConfiguration(block);
+            }, 100);
+        }
+
+        // Draw hierarchical connection lines between parent and child blocks
+        function drawHierarchicalConnections() {
+            // Remove existing connection lines
+            document.querySelectorAll('.workflow-connection-line').forEach(line => line.remove());
+            
+            const canvas = document.querySelector('.workflow-canvas');
+            if (!canvas) return;
+            
+            // Create SVG overlay for connections
+            const svgOverlay = document.createElement('div');
+            svgOverlay.className = 'workflow-connection-line';
+            svgOverlay.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 1;
+            `;
+            
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.style.cssText = 'width: 100%; height: 100%; position: absolute; top: 0; left: 0;';
+            
+            // Add marker definitions for arrowheads
+            const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+            const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker.setAttribute('id', 'arrowhead');
+            marker.setAttribute('markerWidth', '10');
+            marker.setAttribute('markerHeight', '7');
+            marker.setAttribute('refX', '9');
+            marker.setAttribute('refY', '3.5');
+            marker.setAttribute('orient', 'auto');
+            
+            const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+            polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
+            polygon.setAttribute('fill', '#ef4444');
+            
+            marker.appendChild(polygon);
+            defs.appendChild(marker);
+            svg.appendChild(defs);
+            
+            // Draw connections for each block with followUp relationships
+            function drawConnectionsForBlock(block) {
+                if (block.followUpBlocks && block.followUpBlocks.length > 0) {
+                    block.followUpBlocks.forEach(childBlock => {
+                        // Calculate connection points
+                        const parentX = block.position.x;
+                        const parentY = block.position.y + 80; // Bottom of parent block
+                        const childX = childBlock.position.x;
+                        const childY = childBlock.position.y - 10; // Top of child block
+                        
+                        // Create curved path
+                        const midY = parentY + (childY - parentY) / 2;
+                        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                        path.setAttribute('d', `M ${parentX} ${parentY} Q ${parentX} ${midY} ${childX} ${childY}`);
+                        path.setAttribute('stroke', '#ef4444');
+                        path.setAttribute('stroke-width', '2');
+                        path.setAttribute('fill', 'none');
+                        path.setAttribute('marker-end', 'url(#arrowhead)');
+                        path.setAttribute('opacity', '0.8');
+                        
+                        svg.appendChild(path);
+                        
+                        // Recursively draw connections for child blocks
+                        drawConnectionsForBlock(childBlock);
+                    });
+                }
+            }
+            
+            // Draw connections starting from root blocks
+            getRootBlocks().forEach(rootBlock => {
+                drawConnectionsForBlock(rootBlock);
+            });
+            
+            svgOverlay.appendChild(svg);
+            canvas.appendChild(svgOverlay);
+        }
 
         // Block type configurations
         const blockConfigs = {
@@ -447,10 +1429,10 @@
                 description: 'Repeat actions'
             },
             'approval': { 
-                title: 'Smart Review', 
-                icon: 'ri-brain-line', 
+                title: 'Review & Approval', 
+                icon: 'ri-shield-check-line', 
                 color: 'red',
-                description: 'AI analysis + human review for approval decisions'
+                description: 'Human review with optional AI pre-screening for approval decisions'
             },
             'ai-touch': {
                 title: 'AI Touch',
@@ -563,6 +1545,7 @@
 
         function initializeEditor() {
             // Block editor is now initialized without the input field
+            renderWorkflow();
         }
 
         function showWorkflowTypeSelection() {
@@ -681,11 +1664,33 @@
 
             blockCategories.innerHTML = html;
 
-            // Add click handlers to all block items
+            // Make block library items draggable instead of clickable
             blockCategories.querySelectorAll('.block-library-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const blockType = item.dataset.type;
-                    addBlock(blockType);
+                const blockType = item.dataset.type;
+                
+                // Skip disabled items (like triggers when one already exists)
+                if (item.classList.contains('cursor-not-allowed')) {
+                    return;
+                }
+                
+                // Make the item draggable
+                item.draggable = true;
+                item.style.cursor = 'grab';
+                
+                item.addEventListener('dragstart', (e) => {
+                    console.log('Drag start for blockType:', blockType); // Debug log
+                    isDraggingFromLibrary = true;
+                    e.dataTransfer.setData('text/plain', blockType);
+                    e.dataTransfer.setData('application/x-block-library', 'true');
+                    e.dataTransfer.effectAllowed = 'copy';
+                    item.style.cursor = 'grabbing';
+                    item.classList.add('opacity-50');
+                });
+                
+                item.addEventListener('dragend', (e) => {
+                    isDraggingFromLibrary = false;
+                    item.style.cursor = 'grab';
+                    item.classList.remove('opacity-50');
                 });
             });
         }
@@ -700,8 +1705,20 @@
             blocks.forEach(([type, config]) => {
                 const colorClass = getColorClasses(config.color);
                 const shortTitle = shortenBlockTitle(config.title);
+                const aiTag = type === 'approval' ? '<div class="ai-corner-tag">AI</div>' : '';
+                
+                // Check if this is a trigger and if triggers are disabled
+                const isTrigger = type.startsWith('trigger-');
+                const hasTrigger = workflowBlocks.some(block => block.type.startsWith('trigger-'));
+                const isDisabled = isTrigger && hasTrigger;
+                
+                const disabledClass = isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50 hover:border-gray-300';
+                const disabledTitle = isDisabled ? 'Only one trigger allowed per workflow' : `${config.title} - ${config.description}`;
+                
                 html += `
-                    <div class="block-library-item flex flex-col items-center p-2 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50 hover:border-gray-300 transition-colors" data-type="${type}" title="${config.title} - ${config.description}">
+                    <div class="block-library-item relative flex flex-col items-center p-2 rounded-lg border border-gray-200 ${disabledClass} transition-colors" data-type="${type}" title="${disabledTitle}">
+                        ${aiTag}
+                        ${isDisabled ? '<div class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg"><i class="ri-lock-line text-gray-400"></i></div>' : ''}
                         <div class="w-6 h-6 ${colorClass.bg} ${colorClass.text} rounded-full flex items-center justify-center mb-1 flex-shrink-0">
                             <i class="${config.icon} text-sm"></i>
                         </div>
@@ -733,7 +1750,7 @@
                 'Wait': 'Wait',
                 'Condition': 'Condition',
                 'Loop': 'Loop',
-                'Smart Review': 'Smart Review',
+                'Review & Approval': 'Review & Approval',
                 'AI Touch': 'AI Touch',
                 // Patient triggers
                 'Trigger: Appointment Booked': 'Appt Booked',
@@ -778,6 +1795,58 @@
             // Save and Preview
             document.getElementById('saveBtn').addEventListener('click', saveWorkflow);
             document.getElementById('previewBtn').addEventListener('click', previewWorkflow);
+
+            // Canvas pan functionality
+            const viewport = document.querySelector('.canvas-viewport');
+            const canvas = document.getElementById('blockEditor');
+            
+            viewport.addEventListener('mousedown', (e) => {
+                if (e.button === 1 || (e.button === 0 && e.altKey)) { // Middle mouse or Alt+left click
+                    isPanning = true;
+                    panStartX = e.clientX - panX;
+                    panStartY = e.clientY - panY;
+                    viewport.style.cursor = 'grabbing';
+                    e.preventDefault();
+                }
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isPanning) {
+                    panX = e.clientX - panStartX;
+                    panY = e.clientY - panStartY;
+                    updateCanvasTransform();
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isPanning) {
+                    isPanning = false;
+                    viewport.style.cursor = '';
+                }
+            });
+
+            // Mouse wheel zoom
+            viewport.addEventListener('wheel', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    const rect = viewport.getBoundingClientRect();
+                    const mouseX = e.clientX - rect.left;
+                    const mouseY = e.clientY - rect.top;
+                    
+                    const prevZoom = currentZoom;
+                    if (e.deltaY < 0) {
+                        zoomIn();
+                    } else {
+                        zoomOut();
+                    }
+                    
+                    // Adjust pan to zoom toward mouse position
+                    const zoomDelta = currentZoom / prevZoom;
+                    panX = mouseX - (mouseX - panX) * zoomDelta;
+                    panY = mouseY - (mouseY - panY) * zoomDelta;
+                    updateCanvasTransform();
+                }
+            });
 
             
             // Command palette search
@@ -837,6 +1906,15 @@
 
 
         function addBlock(type, parentId = null) {
+            // Check trigger restriction: only one trigger per workflow
+            if (type.startsWith('trigger-')) {
+                const existingTriggers = workflowBlocks.filter(block => block.type.startsWith('trigger-'));
+                if (existingTriggers.length > 0) {
+                    showTriggerRestrictionModal();
+                    return;
+                }
+            }
+            
             blockCounter++;
             const config = blockConfigs[type];
             
@@ -846,6 +1924,11 @@
                 config: { ...config },
                 data: {},
                 parentId: parentId,
+                followUpBlocks: [], // New: array of blocks that follow this one
+                position: { x: 0, y: 0 }, // New: canvas position for drag-and-drop
+                connectionPoints: { // New: positions for connection handles
+                    bottom: { x: 0, y: 0 }
+                },
                 children: type === 'condition' ? { true: [], false: [] } : 
                          type === 'loop' ? { items: [] } : null
             };
@@ -862,6 +1945,9 @@
             
             renderWorkflow();
             hideEmptyState();
+            
+            // Refresh block library to update trigger restrictions
+            initializeBlockLibrary();
 
             // Show configuration for the new block
             setTimeout(() => {
@@ -920,71 +2006,212 @@
             const workflowBlocksContainer = document.getElementById('workflowBlocks');
             workflowBlocksContainer.innerHTML = '';
             
-            workflowBlocks.forEach(block => {
-                renderBlock(block, workflowBlocksContainer);
+            // Add workflow mode indicator
+            const modeIndicator = document.createElement('div');
+            modeIndicator.className = 'workflow-mode-indicator';
+            modeIndicator.innerHTML = '<i class="ri-share-forward-line mr-1"></i>Hierarchical Workflow';
+            workflowBlocksContainer.appendChild(modeIndicator);
+            
+            // Create canvas container for hierarchical layout
+            const canvasContainer = document.createElement('div');
+            canvasContainer.className = 'workflow-canvas';
+            canvasContainer.style.cssText = `
+                position: relative;
+                width: 100%;
+                min-height: 600px;
+                padding: 40px;
+                background: linear-gradient(
+                    rgba(99, 102, 241, 0.05) 1px, 
+                    transparent 1px
+                ), 
+                linear-gradient(
+                    90deg, 
+                    rgba(99, 102, 241, 0.05) 1px, 
+                    transparent 1px
+                );
+                background-size: 20px 20px;
+            `;
+            
+            // Make canvas a drop zone for new blocks
+            setupCanvasDropZone(canvasContainer);
+            
+            // Get root blocks (blocks with no parent)
+            const rootBlocks = getRootBlocks();
+            
+            if (rootBlocks.length === 0) {
+                // Show empty state
+                const emptyState = document.createElement('div');
+                emptyState.className = 'text-center py-16 text-gray-400';
+                emptyState.style.pointerEvents = 'none'; // Allow drop events to pass through
+                emptyState.innerHTML = `
+                    <i class="ri-workflow-line text-4xl mb-4"></i>
+                    <h3 class="text-lg font-medium mb-2">Start building your workflow</h3>
+                    <p>Drag blocks from the left panel to this canvas</p>
+                    <p class="text-xs mt-2 text-gray-500">Then use the red handles to connect blocks together</p>
+                `;
+                canvasContainer.appendChild(emptyState);
+            } else {
+                // Render hierarchical structure starting from center
+                const canvasCenter = { x: 600, y: 100 }; // Start from center-top of canvas
+                renderHierarchicalBlocks(rootBlocks, canvasContainer, 0, canvasCenter);
+            }
+            
+            workflowBlocksContainer.appendChild(canvasContainer);
+            
+            // Draw connection lines after rendering
+            requestAnimationFrame(() => {
+                drawHierarchicalConnections();
             });
         }
 
-        function renderBlock(block, container, nestingLevel = 0) {
-            const blockElement = document.createElement('div');
-            const indentClass = nestingLevel > 0 ? `ml-${nestingLevel * 4} border-l-2 border-gray-200 pl-4` : '';
+        function renderHierarchicalBlocks(blocks, container, level = 0, parentPosition = { x: 0, y: 0 }) {
+            const blockSpacing = { x: 320, y: 160 };
+            const levelOffset = level * blockSpacing.y;
             
+            blocks.forEach((block, index) => {
+                // Use stored position if manually placed, otherwise calculate auto position
+                let position;
+                if (block.position && (block.position.x !== 0 || block.position.y !== 0) && level === 0) {
+                    // Use manually set position for root blocks
+                    position = block.position;
+                } else {
+                    // Calculate automatic hierarchical position
+                    position = {
+                        x: parentPosition.x + (index - (blocks.length - 1) / 2) * blockSpacing.x,
+                        y: parentPosition.y + levelOffset
+                    };
+                    // Update block position data
+                    block.position = position;
+                }
+                
+                // Create block wrapper
+                const blockWrapper = document.createElement('div');
+                blockWrapper.className = 'workflow-block-wrapper';
+                blockWrapper.style.cssText = `
+                    position: absolute;
+                    left: ${position.x}px;
+                    top: ${position.y}px;
+                    transform: translateX(-50%);
+                    z-index: 10;
+                `;
+                
+                // Add position indicator
+                const positionIndicator = document.createElement('div');
+                positionIndicator.className = 'grid-position-indicator';
+                
+                // Special styling for trigger blocks
+                if (block.type.startsWith('trigger-')) {
+                    positionIndicator.className += ' bg-green-500';
+                    positionIndicator.innerHTML = '<i class="ri-play-line text-xs"></i>';
+                    positionIndicator.title = 'Workflow Trigger';
+                } else {
+                    positionIndicator.textContent = (level + 1) + '.' + (index + 1);
+                }
+                
+                renderBlock(block, blockWrapper, 0, false);
+                blockWrapper.appendChild(positionIndicator);
+                container.appendChild(blockWrapper);
+                
+                // Recursively render follow-up blocks
+                if (block.followUpBlocks && block.followUpBlocks.length > 0) {
+                    renderHierarchicalBlocks(block.followUpBlocks, container, level + 1, position);
+                }
+            });
+        }
+
+        function renderBlock(block, container, nestingLevel = 0, isLast = false) {
             // Check if this is a container block
             if (block.type === 'condition') {
-                renderConditionBlock(block, container, nestingLevel);
+                renderConditionBlock(block, container, nestingLevel, isLast);
                 return;
             } else if (block.type === 'loop') {
-                renderLoopBlock(block, container, nestingLevel);
+                renderLoopBlock(block, container, nestingLevel, isLast);
                 return;
             }
             
-            // Render regular block
-            blockElement.className = `workflow-block p-4 rounded-lg border border-gray-200 cursor-pointer mb-3 ${indentClass}`;
+            const blockElement = document.createElement('div');
+            const indentClass = nestingLevel > 0 ? `ml-${nestingLevel * 4}` : '';
+            
+            // Determine configuration status
+            const isConfigured = Object.keys(block.data).length > 0 && block.data.configured !== false;
+            const needsConfig = !isConfigured && !['trigger-manual'].includes(block.type);
+            
+            const statusClass = isConfigured ? 'configured' : needsConfig ? 'needs-config' : '';
+            
+            blockElement.className = `flowchart-block ${statusClass} ${indentClass}`;
             blockElement.dataset.blockId = block.id;
             
             const colorClass = getColorClasses(block.config.color);
             
+            // Create status indicator
+            const statusIndicator = isConfigured ? 
+                '<div class="flowchart-block-status configured"><i class="ri-check-line mr-1"></i>Configured</div>' :
+                needsConfig ? 
+                '<div class="flowchart-block-status needs-config"><i class="ri-settings-line mr-1"></i>Needs Setup</div>' :
+                '<div class="flowchart-block-status configured"><i class="ri-check-line mr-1"></i>Ready</div>';
+            
             blockElement.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <div class="block-handle mr-3 text-gray-400 hover:text-gray-600">
-                            <i class="ri-drag-move-line"></i>
-                        </div>
-                        <div class="w-8 h-8 ${colorClass.bg} ${colorClass.text} rounded-full flex items-center justify-center mr-3">
-                            <i class="${block.config.icon}"></i>
-                        </div>
-                        <div class="flex-1">
-                            <div class="text-sm font-medium text-gray-900">${block.config.title}</div>
-                            <div class="text-xs text-gray-500">${block.config.description}</div>
-                            ${renderBlockContent(block)}
-                        </div>
+                <div class="flowchart-block-header">
+                    <div class="flowchart-block-icon ${colorClass.bg} ${colorClass.text}">
+                        <i class="${block.config.icon}"></i>
                     </div>
-                    <div class="flex items-center space-x-2">
-                        <button class="configure-block p-1 text-gray-400 hover:text-gray-600">
-                            <i class="ri-settings-line"></i>
-                        </button>
-                        <button class="delete-block p-1 text-gray-400 hover:text-red-500">
-                            <i class="ri-delete-bin-line"></i>
-                        </button>
+                    <div class="flowchart-block-content">
+                        <div class="flowchart-block-title">${block.config.title}</div>
+                        <div class="flowchart-block-description">${block.config.description}</div>
+                        ${statusIndicator}
                     </div>
                 </div>
+                
+                ${renderBlockContent(block)}
+                
+                <div class="flowchart-block-actions">
+                    ${needsConfig ? 
+                        '<button class="flowchart-action-btn primary configure-block"><i class="ri-settings-line mr-1"></i>Configure</button>' :
+                        '<button class="flowchart-action-btn configure-block"><i class="ri-settings-line mr-1"></i>Edit</button>'
+                    }
+                    <button class="flowchart-action-btn danger delete-block"><i class="ri-delete-bin-line mr-1"></i>Delete</button>
+                </div>
+                
+                ${!isLast && currentExecutionMode === 'sequential' ? '<div class="flowchart-connector"></div>' : ''}
             `;
             
             // Add event listeners
-            blockElement.addEventListener('click', () => selectBlock(block));
             blockElement.querySelector('.configure-block').addEventListener('click', (e) => {
                 e.stopPropagation();
                 showBlockConfiguration(block);
             });
+            
             blockElement.querySelector('.delete-block').addEventListener('click', (e) => {
                 e.stopPropagation();
                 showDeleteConfirmation(block.id, block.config.title);
             });
             
+            // Add red connection handle for trigger and action blocks (not logic blocks)
+            if (!['condition', 'loop'].includes(block.type)) {
+                const connectionHandle = document.createElement('div');
+                connectionHandle.className = 'connection-handle';
+                connectionHandle.dataset.blockId = block.id;
+                connectionHandle.title = 'Drag blocks here to create follow-up steps';
+                
+                // Position handle at bottom center of block
+                connectionHandle.style.bottom = '-10px';
+                connectionHandle.style.left = '50%';
+                connectionHandle.style.transform = 'translateX(-50%)';
+                
+                blockElement.style.position = 'relative';
+                blockElement.appendChild(connectionHandle);
+                
+                // Add drop zone event listeners
+                setupDropZoneListeners(connectionHandle, block);
+            }
+            
+            // Make the block draggable
+            makeBlockDraggable(blockElement, block);
+            
             container.appendChild(blockElement);
         }
 
-        function renderConditionBlock(block, container, nestingLevel = 0) {
+        function renderConditionBlock(block, container, nestingLevel = 0, isLast = false) {
             const containerElement = document.createElement('div');
             const indentClass = nestingLevel > 0 ? `ml-${nestingLevel * 4} border-l-2 border-gray-200 pl-4` : '';
             
@@ -996,7 +2223,7 @@
             const isExpanded = block.data.expanded !== false; // Default to expanded
             
             containerElement.innerHTML = `
-                <div class="condition-container border-2 border-yellow-200 rounded-lg bg-yellow-50">
+                <div class="condition-container border-2 border-yellow-200 rounded-lg bg-yellow-50" style="position: relative;">
                     <!-- Container Header -->
                     <div class="condition-header p-4 border-b border-yellow-200 cursor-pointer" onclick="toggleContainer('${block.id}')">
                         <div class="flex items-center justify-between">
@@ -1055,6 +2282,8 @@
                             </div>
                         </div>
                     </div>
+                    
+                    ${!isLast ? '<div class="flowchart-connector"></div>' : ''}
                 </div>
             `;
             
@@ -1081,7 +2310,7 @@
             }
         }
 
-        function renderLoopBlock(block, container, nestingLevel = 0) {
+        function renderLoopBlock(block, container, nestingLevel = 0, isLast = false) {
             const containerElement = document.createElement('div');
             const indentClass = nestingLevel > 0 ? `ml-${nestingLevel * 4} border-l-2 border-gray-200 pl-4` : '';
             
@@ -1136,6 +2365,8 @@
                             </div>
                         </div>
                     </div>
+                    
+                    ${!isLast ? '<div class="flowchart-connector"></div>' : ''}
                 </div>
             `;
             
@@ -1196,17 +2427,40 @@
             
             if (block.type === 'approval' && block.data.configured) {
                 const aiStatus = block.data.aiEnabled ? '🤖 AI Analysis + Human' : '👤 Human Only';
-                const reviewer = block.data.defaultReviewer || 'Not set';
-                const reviewerLabel = reviewer === 'practice-manager' ? 'Practice Manager' : 
-                                   reviewer === 'clinical-director' ? 'Clinical Director' :
-                                   reviewer === 'admin-staff' ? 'Admin Staff' :
-                                   reviewer === 'custom' ? 'Custom User' : 'Not set';
+                const primaryReviewer = block.data.primaryReviewer || 'current-user';
+                
+                // Map user IDs to display names
+                const userLabels = {
+                    'current-user': 'Me',
+                    'sarah-johnson': 'Dr. Sarah Johnson',
+                    'michael-chen': 'Dr. Michael Chen', 
+                    'lisa-martinez': 'Lisa Martinez, RN',
+                    'david-thompson': 'David Thompson, PA',
+                    'jennifer-davis': 'Jennifer Davis, NP',
+                    'robert-williams': 'Dr. Robert Williams',
+                    'emily-brown': 'Dr. Emily Brown',
+                    'james-wilson': 'James Wilson',
+                    'maria-garcia': 'Maria Garcia',
+                    'thomas-anderson': 'Dr. Thomas Anderson'
+                };
+                
+                const primaryReviewerLabel = userLabels[primaryReviewer] || 'Me';
+                
+                const escalationEnabled = block.data.enableEscalation;
+                const escalationReviewer = block.data.escalationReviewer;
+                const escalationLabel = userLabels[escalationReviewer] || 'Not set';
+                
+                const timeoutDuration = block.data.timeoutDuration || '24';
+                const timeoutUnit = block.data.timeoutUnit || 'days';
+                const timeoutDisplay = `${timeoutDuration} ${timeoutUnit === 'hours' ? 'hr' : 'day'}${timeoutDuration != '1' ? 's' : ''}`;
                 
                 return `
                     <div class="mt-2 space-y-1">
                         <div class="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">${aiStatus}</div>
                         ${block.data.aiEnabled ? `<div class="text-xs text-gray-600">AI decisions: ✅ Approve • ❌ Reject • 🔄 Escalate</div>` : ''}
-                        <div class="text-xs text-gray-600">👤 Reviewer: ${reviewerLabel}</div>
+                        <div class="text-xs text-gray-600">👤 Primary: ${primaryReviewerLabel}</div>
+                        ${escalationEnabled ? `<div class="text-xs text-gray-600">🔺 Escalation: ${escalationLabel}</div>` : ''}
+                        <div class="text-xs text-gray-500">⏱️ Timeout: ${timeoutDisplay}</div>
                     </div>
                 `;
             }
@@ -1355,8 +2609,16 @@
             });
             
             modal.querySelector('.confirm-delete').addEventListener('click', () => {
-                deleteBlock(blockId);
-                modal.remove();
+                try {
+                    deleteBlock(blockId);
+                    // Small delay to ensure the operation completes
+                    setTimeout(() => {
+                        modal.remove();
+                    }, 50);
+                } catch (error) {
+                    console.error('Error deleting block:', error);
+                    modal.remove();
+                }
             });
             
             // Close on backdrop click
@@ -1368,34 +2630,60 @@
         }
 
         function deleteBlock(blockId) {
-            // Remove from main workflow blocks
+            const blockToDelete = findBlockById(blockId);
+            if (!blockToDelete) return;
+            
+            // Remove from main workflow blocks if it's a root block
             workflowBlocks = workflowBlocks.filter(block => block.id !== blockId);
             
-            // Also remove from any parent containers
-            function removeFromChildren(blocks) {
-                blocks.forEach(block => {
-                    if (block.children) {
-                        if (block.children.true) {
-                            block.children.true = block.children.true.filter(child => child.id !== blockId);
-                            removeFromChildren(block.children.true);
-                        }
-                        if (block.children.false) {
-                            block.children.false = block.children.false.filter(child => child.id !== blockId);
-                            removeFromChildren(block.children.false);
-                        }
-                        if (block.children.items) {
-                            block.children.items = block.children.items.filter(child => child.id !== blockId);
-                            removeFromChildren(block.children.items);
-                        }
-                    }
+            // Remove from any parent's followUp blocks
+            workflowBlocks.forEach(block => {
+                removeFromFollowUps(block, blockId);
+            });
+            
+            // If the deleted block had followUp blocks, move them back to root level
+            if (blockToDelete.followUpBlocks && blockToDelete.followUpBlocks.length > 0) {
+                blockToDelete.followUpBlocks.forEach(childBlock => {
+                    childBlock.parentId = null;
+                    workflowBlocks.push(childBlock);
                 });
             }
             
-            removeFromChildren(workflowBlocks);
             renderWorkflow();
+            
+            // Refresh block library to update trigger restrictions
+            initializeBlockLibrary();
             
             if (workflowBlocks.length === 0) {
                 showEmptyState();
+            }
+        }
+
+        function removeFromFollowUps(block, blockIdToRemove) {
+            // Remove from followUp blocks
+            if (block.followUpBlocks) {
+                block.followUpBlocks = block.followUpBlocks.filter(child => child.id !== blockIdToRemove);
+                
+                // Recursively check child blocks
+                block.followUpBlocks.forEach(childBlock => {
+                    removeFromFollowUps(childBlock, blockIdToRemove);
+                });
+            }
+            
+            // Also handle legacy children structure for condition/loop blocks
+            if (block.children) {
+                if (block.children.true) {
+                    block.children.true = block.children.true.filter(child => child.id !== blockIdToRemove);
+                    block.children.true.forEach(child => removeFromFollowUps(child, blockIdToRemove));
+                }
+                if (block.children.false) {
+                    block.children.false = block.children.false.filter(child => child.id !== blockIdToRemove);
+                    block.children.false.forEach(child => removeFromFollowUps(child, blockIdToRemove));
+                }
+                if (block.children.items) {
+                    block.children.items = block.children.items.filter(child => child.id !== blockIdToRemove);
+                    block.children.items.forEach(child => removeFromFollowUps(child, blockIdToRemove));
+                }
             }
         }
 
@@ -1632,116 +2920,147 @@
         function createApprovalConfigModal(block) {
             return `
                 <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Smart Review</h3>
-                    <div class="space-y-4">
-                        <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-                            <div class="flex items-start">
-                                <i class="ri-brain-line text-red-600 mr-2 mt-1"></i>
-                                <div class="text-sm text-red-800">
-                                    <strong>Smart Review</strong> combines AI analysis with human oversight for intelligent approval decisions. Configure AI pre-screening or route directly to human review.
-                                </div>
+                    <!-- Header Section -->
+                    <div class="border-b border-gray-200 pb-4 mb-6">
+                        <div class="flex items-center mb-2">
+                            <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="ri-shield-check-line text-red-600 text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">Review & Approval</h3>
+                                <p class="text-sm text-gray-600">Configure approval workflow with optional AI pre-screening</p>
                             </div>
                         </div>
-                        
-                        <div class="border-b border-gray-200 pb-4">
-                            <label class="flex items-center">
-                                <input type="checkbox" class="config-input mr-3" data-field="aiEnabled">
-                                <div>
-                                    <div class="text-sm font-medium text-gray-900">Enable AI Analysis</div>
-                                    <div class="text-xs text-gray-500">AI will analyze input and make initial decisions before human review if needed</div>
-                                </div>
-                            </label>
-                        </div>
-                        
-                        <div id="ai-analysis-section" class="space-y-4" style="display: none;">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">AI Analysis Prompt</label>
-                                <textarea class="config-input w-full p-3 border border-gray-300 rounded-lg text-sm" rows="3" 
-                                          data-field="aiPrompt" placeholder="Describe what AI should analyze from previous workflow steps...&#10;&#10;Example: 'Analyze patient response time and message content to determine if approval is needed for appointment rescheduling'"></textarea>
+                    </div>
+                    
+                    <div class="space-y-6">
+                        <!-- Human Review Section -->
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <i class="ri-user-line text-gray-600 mr-2"></i>
+                                <h4 class="text-lg font-medium text-gray-900">Human Review Settings</h4>
                             </div>
                             
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Context from Previous Steps</label>
-                                <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="contextSteps">
-                                    <option value="previous-1">Previous 1 step</option>
-                                    <option value="previous-2">Previous 2 steps</option>
-                                    <option value="previous-3">Previous 3 steps</option>
-                                    <option value="previous-all">All previous steps</option>
-                                </select>
+                                <label class="flex items-center mb-3">
+                                    <input type="checkbox" class="config-input mr-3" data-field="enableEscalation">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900">Enable Escalated Approval</div>
+                                        <div class="text-xs text-gray-500">Set up a two-tier approval process with escalation</div>
+                                    </div>
+                                </label>
                             </div>
                             
-                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                                <h4 class="text-sm font-medium text-gray-900 mb-3">AI Decision Instructions</h4>
-                                <div class="space-y-3">
-                                    <div>
-                                        <label class="block text-sm font-medium text-green-700 mb-1">✅ Approval Instructions</label>
-                                        <textarea class="config-input w-full p-2 border border-gray-300 rounded-lg text-sm" rows="2" 
-                                                  data-field="approvalInstructions" placeholder="When should AI approve and continue workflow? &#10;Example: 'If patient confirmed appointment within 24 hours'"></textarea>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-red-700 mb-1">❌ Rejection Instructions</label>
-                                        <textarea class="config-input w-full p-2 border border-gray-300 rounded-lg text-sm" rows="2" 
-                                                  data-field="rejectionInstructions" placeholder="When should AI reject and stop workflow? &#10;Example: 'If patient requested cancellation or no response after 48 hours'"></textarea>
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-orange-700 mb-1">🔄 Escalation Instructions</label>
-                                        <textarea class="config-input w-full p-2 border border-gray-300 rounded-lg text-sm" rows="2" 
-                                                  data-field="escalationInstructions" placeholder="When should AI escalate to human review? &#10;Example: 'If patient response is unclear or requests special accommodation'"></textarea>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="border-t border-gray-200 pt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-3">Human Review Configuration</label>
-                            <div class="space-y-3">
+                            <div class="grid grid-cols-1 gap-3">
                                 <div>
-                                    <label class="block text-sm text-gray-600 mb-1">Default Reviewer</label>
-                                    <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="defaultReviewer">
-                                        <option value="">Select reviewer...</option>
-                                        <option value="practice-manager">Practice Manager</option>
-                                        <option value="clinical-director">Clinical Director</option>
-                                        <option value="admin-staff">Administrative Staff</option>
-                                        <option value="custom">Custom User</option>
+                                    <label class="block text-sm text-gray-600 mb-1">Primary Reviewer</label>
+                                    <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="primaryReviewer">
+                                        <option value="current-user" selected>Me (Current User)</option>
+                                        <option value="sarah-johnson">Dr. Sarah Johnson</option>
+                                        <option value="michael-chen">Dr. Michael Chen</option>
+                                        <option value="lisa-martinez">Lisa Martinez, RN</option>
+                                        <option value="david-thompson">David Thompson, PA</option>
+                                        <option value="jennifer-davis">Jennifer Davis, NP</option>
                                     </select>
                                 </div>
                                 
-                                <div class="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <label class="block text-sm text-gray-600 mb-1">Review Timeout</label>
-                                        <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="reviewTimeout">
-                                            <option value="1h">1 Hour</option>
-                                            <option value="4h">4 Hours</option>
-                                            <option value="1d" selected>1 Day</option>
-                                            <option value="3d">3 Days</option>
-                                            <option value="none">No Timeout</option>
+                                <div id="escalation-reviewer-section" class="hidden">
+                                    <label class="block text-sm text-gray-600 mb-1">Escalation Reviewer</label>
+                                    <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="escalationReviewer">
+                                        <option value="">Select escalation reviewer...</option>
+                                        <option value="robert-williams">Dr. Robert Williams (Chief Medical Officer)</option>
+                                        <option value="emily-brown">Dr. Emily Brown (Medical Director)</option>
+                                        <option value="james-wilson">James Wilson (Practice Manager)</option>
+                                        <option value="maria-garcia">Maria Garcia (Clinical Supervisor)</option>
+                                        <option value="thomas-anderson">Dr. Thomas Anderson (Department Head)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm text-gray-600 mb-2">Review Response Time</label>
+                                    <div class="flex space-x-2">
+                                        <input type="number" min="1" max="999" class="config-input w-16 p-2 border border-gray-300 rounded-lg text-center" 
+                                               data-field="timeoutDuration" placeholder="24" value="24">
+                                        <select class="config-input flex-1 p-2 border border-gray-300 rounded-lg" data-field="timeoutUnit">
+                                            <option value="hours">Hours</option>
+                                            <option value="days" selected>Days</option>
                                         </select>
                                     </div>
-                                    <div>
-                                        <label class="block text-sm text-gray-600 mb-1">Timeout Action</label>
-                                        <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="timeoutAction">
-                                            <option value="escalate">Escalate to Manager</option>
-                                            <option value="auto-approve">Auto Approve</option>
-                                            <option value="auto-reject" selected>Auto Reject</option>
-                                        </select>
-                                    </div>
+                                    <div class="text-xs text-gray-500 mt-1">How long to wait for response</div>
                                 </div>
                                 
                                 <div>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" class="config-input mr-2" data-field="allowForwarding">
-                                        <span class="text-sm text-gray-700">Allow reviewers to forward to other users</span>
-                                    </label>
+                                    <label class="block text-sm text-gray-600 mb-2">If No Response After Timeout</label>
+                                    <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="timeoutAction">
+                                        <option value="auto-reject" selected>Auto Reject - Stop workflow</option>
+                                        <option value="auto-approve">Auto Approve - Continue workflow</option>
+                                        <option value="remind-again">Send Reminder & Extend deadline</option>
+                                        <option value="escalate" class="escalation-only hidden">Escalate to Higher Authority</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Demo Section -->
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <div class="flex items-start">
+                                    <i class="ri-information-line text-blue-600 mr-2 mt-1 cursor-pointer" onclick="showReviewDemo()"></i>
+                                    <div class="text-sm text-blue-800">
+                                        <span class="underline cursor-pointer" onclick="showReviewDemo()">Preview human review interface</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         
-                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                            <div class="flex items-start">
-                                <i class="ri-information-line text-blue-600 mr-2 mt-1 cursor-pointer" onclick="showReviewDemo()"></i>
-                                <div class="text-sm text-blue-800">
-                                    <strong>Human Review Interface:</strong> When triggered, reviewers can approve, reject, check event source, or forward to another reviewer. 
-                                    <span class="underline cursor-pointer" onclick="showReviewDemo()">Click icon to see demo</span>
+                        <!-- AI Analysis Section -->
+                        <div class="border-t border-gray-200 pt-6">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center">
+                                    <i class="ri-robot-line text-purple-600 mr-2"></i>
+                                    <h4 class="text-lg font-medium text-gray-900">AI Pre-Screening</h4>
+                                </div>
+                                
+                                <!-- Fancy AI Toggle -->
+                                <div class="flex items-center">
+                                    <label class="ai-toggle flex items-center cursor-pointer">
+                                        <input type="checkbox" class="config-input" data-field="aiEnabled">
+                                        <div class="ai-toggle-slider"></div>
+                                        <span class="ml-3 text-sm font-medium text-gray-700">Enable AI Analysis</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="text-sm text-gray-600 mb-4">
+                                AI can analyze workflow data and make initial approval decisions before routing to human reviewers
+                            </div>
+                            
+                            <div id="ai-analysis-section" class="space-y-4" style="display: none;">
+                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                                    <h5 class="text-sm font-medium text-gray-900 mb-3">AI Decision Instructions</h5>
+                                    <div class="space-y-3">
+                                        <div>
+                                            <label class="block text-sm font-medium text-green-700 mb-1">
+                                                <i class="ri-check-line mr-1"></i>Approval Instructions
+                                            </label>
+                                            <textarea class="config-input w-full p-2 border border-gray-300 rounded-lg text-sm" rows="2" 
+                                                      data-field="approvalInstructions" placeholder="When should AI approve and continue workflow? &#10;Example: 'If patient confirmed appointment within 24 hours'"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-red-700 mb-1">
+                                                <i class="ri-close-line mr-1"></i>Rejection Instructions
+                                            </label>
+                                            <textarea class="config-input w-full p-2 border border-gray-300 rounded-lg text-sm" rows="2" 
+                                                      data-field="rejectionInstructions" placeholder="When should AI reject and stop workflow? &#10;Example: 'If patient requested cancellation or no response after 48 hours'"></textarea>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-medium text-orange-700 mb-1">
+                                                <i class="ri-arrow-up-line mr-1"></i>Escalation Instructions
+                                            </label>
+                                            <textarea class="config-input w-full p-2 border border-gray-300 rounded-lg text-sm" rows="2" 
+                                                      data-field="escalationInstructions" placeholder="When should AI escalate to human review? &#10;Example: 'If patient response is unclear or requests special accommodation'"></textarea>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -2142,25 +3461,52 @@
             const demoModal = document.createElement('div');
             demoModal.className = 'modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
             demoModal.innerHTML = `
-                <div class="bg-white rounded-lg p-6 max-w-md mx-4">
+                <div class="bg-white rounded-lg p-6 max-w-lg mx-4">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Human Review Interface Demo</h3>
-                    <div class="space-y-4">
+                    <div class="space-y-6">
+                        <!-- Source Event Details -->
+                        <div class="border border-gray-200 rounded-lg p-4 bg-blue-50">
+                            <div class="flex items-center mb-3">
+                                <i class="ri-calendar-event-line text-blue-600 mr-2"></i>
+                                <div class="text-sm font-medium text-gray-900">Source Event Details</div>
+                            </div>
+                            <div class="space-y-2 text-sm text-gray-700">
+                                <div><strong>Patient:</strong> Sarah Martinez</div>
+                                <div><strong>Event Type:</strong> Appointment Rescheduling Request</div>
+                                <div><strong>Original Date:</strong> March 15, 2024 at 2:00 PM</div>
+                                <div><strong>Requested Date:</strong> March 18, 2024 at 10:30 AM</div>
+                                <div><strong>Reason:</strong> Scheduling conflict with work</div>
+                                <div><strong>Requested:</strong> 2 hours ago</div>
+                            </div>
+                            <div class="mt-3 pt-3 border-t border-blue-200">
+                                <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-medium inline-flex items-center">
+                                    <i class="ri-external-link-line mr-1"></i>
+                                    View Original Appointment
+                                </a>
+                                <span class="mx-2 text-gray-400">•</span>
+                                <a href="#" class="text-blue-600 hover:text-blue-800 text-sm font-medium inline-flex items-center">
+                                    <i class="ri-user-line mr-1"></i>
+                                    View Patient Profile
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Review Actions -->
                         <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
-                            <div class="text-sm font-medium text-gray-900 mb-2">📧 Review Request</div>
-                            <div class="text-xs text-gray-600 mb-3">Patient appointment rescheduling requires your approval</div>
+                            <div class="text-sm font-medium text-gray-900 mb-3">Review Decision Required</div>
                             
-                            <div class="space-y-2">
-                                <button class="w-full p-2 bg-green-100 border border-green-300 rounded text-sm text-green-800 hover:bg-green-200">
-                                    ✅ Approve & Continue Workflow
+                            <div class="space-y-3">
+                                <button class="w-full flex items-center justify-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                    <i class="ri-check-line mr-2"></i>
+                                    Approve & Continue Workflow
                                 </button>
-                                <button class="w-full p-2 bg-red-100 border border-red-300 rounded text-sm text-red-800 hover:bg-red-200">
-                                    ❌ Reject & Stop Workflow
+                                <button class="w-full flex items-center justify-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                                    <i class="ri-close-line mr-2"></i>
+                                    Reject & Stop Workflow
                                 </button>
-                                <button class="w-full p-2 bg-blue-100 border border-blue-300 rounded text-sm text-blue-800 hover:bg-blue-200">
-                                    📄 Check Event Source
-                                </button>
-                                <button class="w-full p-2 bg-yellow-100 border border-yellow-300 rounded text-sm text-yellow-800 hover:bg-yellow-200">
-                                    🔄 Forward to Another Reviewer
+                                <button class="w-full flex items-center justify-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
+                                    <i class="ri-share-forward-line mr-2"></i>
+                                    Forward to Another Reviewer
                                 </button>
                             </div>
                         </div>
@@ -2226,6 +3572,41 @@
                         aiAnalysisSection.style.display = 'block';
                     } else {
                         aiAnalysisSection.style.display = 'none';
+                    }
+                });
+            }
+            
+            // Escalation toggle for approval blocks
+            const escalationToggle = modal.querySelector('input[data-field="enableEscalation"]');
+            if (escalationToggle && block.type === 'approval') {
+                const escalationReviewerSection = modal.querySelector('#escalation-reviewer-section');
+                const escalationTimeoutOption = modal.querySelector('option[value="escalate"]');
+                
+                // Set initial state
+                if (block.data.enableEscalation) {
+                    escalationToggle.checked = true;
+                    escalationReviewerSection.classList.remove('hidden');
+                    if (escalationTimeoutOption) {
+                        escalationTimeoutOption.classList.remove('hidden');
+                    }
+                }
+                
+                escalationToggle.addEventListener('change', (e) => {
+                    if (e.target.checked) {
+                        escalationReviewerSection.classList.remove('hidden');
+                        if (escalationTimeoutOption) {
+                            escalationTimeoutOption.classList.remove('hidden');
+                        }
+                    } else {
+                        escalationReviewerSection.classList.add('hidden');
+                        if (escalationTimeoutOption) {
+                            escalationTimeoutOption.classList.add('hidden');
+                            // Reset timeout action if it was set to escalate
+                            const timeoutActionSelect = modal.querySelector('select[data-field="timeoutAction"]');
+                            if (timeoutActionSelect && timeoutActionSelect.value === 'escalate') {
+                                timeoutActionSelect.value = 'auto-reject';
+                            }
+                        }
                     }
                 });
             }
@@ -2518,7 +3899,9 @@
             });
 
             // Group by category with type filtering
-            const triggers = filteredItems.filter(([type]) => availableTriggers.includes(type));
+            // Filter out triggers if one already exists
+            const hasTrigger = workflowBlocks.some(block => block.type.startsWith('trigger-'));
+            const triggers = hasTrigger ? [] : filteredItems.filter(([type]) => availableTriggers.includes(type));
             const actions = filteredItems.filter(([type]) => availableActions.includes(type));
             const logic = filteredItems.filter(([type]) => ['wait', 'condition', 'loop', 'approval'].includes(type));
 
@@ -2594,7 +3977,8 @@
             document.querySelectorAll('.command-item').forEach((item, index) => {
                 item.addEventListener('click', () => {
                     const blockType = item.dataset.type;
-                    addBlock(blockType);
+                    // Add block at center of canvas for command palette
+                    createBlockAtPosition(blockType, 600, 300);
                     hideCommandPalette();
                 });
             });
