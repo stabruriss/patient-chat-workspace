@@ -300,52 +300,6 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        /* Canvas zoom and pan controls */
-        .canvas-controls {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background: white;
-            padding: 8px;
-            border-radius: 8px;
-            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
-        }
-
-        .canvas-control-btn {
-            width: 36px;
-            height: 36px;
-            border: 1px solid #d1d5db;
-            background: white;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 16px;
-            color: #374151;
-        }
-
-        .canvas-control-btn:hover {
-            background: #f3f4f6;
-            border-color: #9ca3af;
-        }
-
-        .canvas-control-btn:active {
-            transform: scale(0.95);
-        }
-
-        .zoom-level {
-            font-size: 12px;
-            text-align: center;
-            color: #6b7280;
-            font-weight: 500;
-            padding: 2px 0;
-        }
 
         /* Canvas container for zoom and pan */
         .canvas-viewport {
@@ -363,53 +317,7 @@
             min-height: 100%;
         }
 
-        /* Parallel execution mode styling */
-        .parallel-block-wrapper {
-            position: relative;
-        }
 
-        .parallel-block-wrapper::before {
-            content: '';
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 2px;
-            height: 20px;
-            background: #6366f1;
-            opacity: 0.6;
-        }
-
-        .parallel-block-wrapper:first-child::before {
-            display: none;
-        }
-
-        .parallel-execution-indicator {
-            position: absolute;
-            top: -40px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #6366f1;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-            white-space: nowrap;
-        }
-
-        .workflow-mode-indicator {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(255, 255, 255, 0.9);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            z-index: 5;
-        }
 
         /* Enhanced grid positioning system */
         .workflow-grid {
@@ -422,16 +330,6 @@
             position: relative;
         }
 
-        .workflow-grid.sequential {
-            grid-template-columns: 1fr;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .workflow-grid.parallel {
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            justify-items: center;
-        }
 
         .grid-block {
             position: relative;
@@ -450,22 +348,6 @@
             opacity: 0.8;
         }
 
-        .grid-position-indicator {
-            position: absolute;
-            top: -8px;
-            right: -8px;
-            width: 24px;
-            height: 24px;
-            background: #6366f1;
-            border: 2px solid white;
-            border-radius: 50%;
-            font-size: 12px;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-        }
 
         .workflow-connection-line {
             position: absolute;
@@ -676,38 +558,30 @@
                     <button id="backBtn" class="mr-4 p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
                         <i class="ri-arrow-left-line text-xl"></i>
                     </button>
-                    <div class="flex items-center">
+                    <div class="flex flex-col">
+                        <div id="workflowTypeBadge" class="mb-1 px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wide hidden self-start">
+                            <i class="mr-1"></i>
+                            <span></span>
+                        </div>
                         <div class="flex flex-col">
                             <input id="workflowName" type="text" placeholder="My New Workflow" class="text-xl font-semibold text-gray-900 bg-transparent border-none outline-none focus:bg-white focus:px-2 focus:py-1 focus:rounded focus:border focus:border-gray-200" style="min-width: 200px;">
                             <input id="workflowDescription" type="text" placeholder="Workflow description..." class="text-sm text-gray-600 bg-transparent border-none outline-none focus:bg-white focus:px-2 focus:py-1 focus:rounded focus:border focus:border-gray-200 mt-1" style="min-width: 300px;">
                         </div>
-                        <div id="workflowTypeBadge" class="ml-4 px-3 py-1 rounded-full text-sm font-medium hidden">
-                            <i class="mr-1"></i>
-                            <span></span>
-                        </div>
                         
-                        <!-- Execution Mode Selector -->
-                        <div class="ml-6 flex items-center space-x-2">
-                            <label class="text-sm text-gray-600 font-medium">Flow Type:</label>
-                            <div class="flex bg-gray-100 rounded-lg p-1">
-                                <button id="sequentialMode" class="px-3 py-1 text-sm font-medium rounded-md transition-colors bg-white shadow-sm text-gray-900" onclick="setExecutionMode('sequential')">
-                                    <i class="ri-arrow-down-line mr-1"></i>Sequential
-                                </button>
-                                <button id="parallelMode" class="px-3 py-1 text-sm font-medium rounded-md transition-colors text-gray-600 hover:text-gray-900" onclick="setExecutionMode('parallel')">
-                                    <i class="ri-git-branch-line mr-1"></i>Parallel
-                                </button>
-                            </div>
-                        </div>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3">
+                <div class="flex items-center space-x-2">
+                    <button id="manageUsageBtn" class="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 border border-gray-200 rounded-button hover:bg-gray-200">
+                        <i class="ri-settings-3-line mr-1.5"></i>
+                        Manage Usage
+                    </button>
+                    <button id="copyWorkflowBtn" class="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 border border-gray-200 rounded-button hover:bg-gray-200">
+                        <i class="ri-file-copy-line mr-1.5"></i>
+                        Copy to New
+                    </button>
                     <button id="saveBtn" class="px-4 py-2 bg-primary text-white rounded-button hover:bg-primary/90">
                         <i class="ri-save-line mr-2"></i>
                         Save Workflow
-                    </button>
-                    <button id="previewBtn" class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button hover:bg-primary/10">
-                        <i class="ri-eye-line mr-2"></i>
-                        Preview
                     </button>
                 </div>
             </div>
@@ -732,22 +606,6 @@
         
         <!-- Block Editor -->
         <div class="block-editor bg-gray-50 flex-1 overflow-auto" style="background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px); background-size: 20px 20px;">
-            <!-- Canvas Controls -->
-            <div class="canvas-controls">
-                <button class="canvas-control-btn" onclick="zoomIn()" title="Zoom In">
-                    <i class="ri-add-line"></i>
-                </button>
-                <div class="zoom-level" id="zoomLevel">100%</div>
-                <button class="canvas-control-btn" onclick="zoomOut()" title="Zoom Out">
-                    <i class="ri-subtract-line"></i>
-                </button>
-                <button class="canvas-control-btn" onclick="resetZoom()" title="Reset Zoom">
-                    <i class="ri-fullscreen-line"></i>
-                </button>
-                <button class="canvas-control-btn" onclick="fitToWindow()" title="Fit to Window">
-                    <i class="ri-aspect-ratio-line"></i>
-                </button>
-            </div>
             
             <div class="canvas-viewport">
                 <div id="blockEditor" class="canvas-content w-full p-8">
@@ -954,81 +812,6 @@
         let selectedBlock = null;
         let currentInput = null;
         let currentWorkflowType = null;
-        let currentExecutionMode = 'sequential'; // 'sequential' or 'parallel'
-
-        // Canvas zoom and pan variables
-        let currentZoom = 1;
-        let isPanning = false;
-        let panStartX = 0;
-        let panStartY = 0;
-        let panX = 0;
-        let panY = 0;
-
-        // Zoom functions
-        function zoomIn() {
-            currentZoom = Math.min(currentZoom * 1.2, 3);
-            updateCanvasTransform();
-        }
-
-        function zoomOut() {
-            currentZoom = Math.max(currentZoom / 1.2, 0.25);
-            updateCanvasTransform();
-        }
-
-        function resetZoom() {
-            currentZoom = 1;
-            panX = 0;
-            panY = 0;
-            updateCanvasTransform();
-        }
-
-        function fitToWindow() {
-            const canvas = document.getElementById('blockEditor');
-            const viewport = canvas.parentElement;
-            const canvasRect = canvas.getBoundingClientRect();
-            const viewportRect = viewport.getBoundingClientRect();
-            
-            const scaleX = viewportRect.width / canvasRect.width;
-            const scaleY = viewportRect.height / canvasRect.height;
-            currentZoom = Math.min(scaleX, scaleY, 1) * 0.9;
-            
-            panX = 0;
-            panY = 0;
-            updateCanvasTransform();
-        }
-
-        function updateCanvasTransform() {
-            const canvas = document.getElementById('blockEditor');
-            canvas.style.transform = `scale(${currentZoom}) translate(${panX}px, ${panY}px)`;
-            
-            const zoomLevel = document.getElementById('zoomLevel');
-            zoomLevel.textContent = Math.round(currentZoom * 100) + '%';
-            
-            // Redraw connection lines after transform to maintain proper positioning
-            requestAnimationFrame(() => {
-                drawHierarchicalConnections();
-            });
-        }
-
-        // Execution mode functions
-        function setExecutionMode(mode) {
-            currentExecutionMode = mode;
-            
-            // Update button states
-            const sequentialBtn = document.getElementById('sequentialMode');
-            const parallelBtn = document.getElementById('parallelMode');
-            
-            if (mode === 'sequential') {
-                sequentialBtn.className = 'px-3 py-1 text-sm font-medium rounded-md transition-colors bg-white shadow-sm text-gray-900';
-                parallelBtn.className = 'px-3 py-1 text-sm font-medium rounded-md transition-colors text-gray-600 hover:text-gray-900';
-            } else {
-                sequentialBtn.className = 'px-3 py-1 text-sm font-medium rounded-md transition-colors text-gray-600 hover:text-gray-900';
-                parallelBtn.className = 'px-3 py-1 text-sm font-medium rounded-md transition-colors bg-white shadow-sm text-gray-900';
-            }
-            
-            // Re-render workflow with new mode
-            renderWorkflow();
-        }
 
         // Trigger restriction modal
         function showTriggerRestrictionModal() {
@@ -1366,6 +1149,50 @@
             canvas.appendChild(svgOverlay);
         }
 
+        // Enable free dragging of blocks
+        function makeBlockMovable(wrapper, block) {
+            // Disable default HTML5 drag behavior
+            wrapper.addEventListener('dragstart', (e) => e.preventDefault());
+            let isDragging = false;
+            let offsetX = 0;
+            let offsetY = 0;
+            wrapper.style.cursor = 'grab';
+            wrapper.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return;
+                isDragging = true;
+                const rect = wrapper.getBoundingClientRect();
+                offsetX = e.clientX - rect.left;
+                offsetY = e.clientY - rect.top;
+                document.body.style.userSelect = 'none';
+                wrapper.style.cursor = 'grabbing';
+                // Hide connectors while dragging
+                document.querySelectorAll('.workflow-connection-line').forEach(line => line.style.display = 'none');
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const canvasRect = wrapper.parentElement.getBoundingClientRect();
+                const x = e.clientX - canvasRect.left - offsetX;
+                const y = e.clientY - canvasRect.top - offsetY;
+                block.position.x = x;
+                block.position.y = y;
+                wrapper.style.left = `${x}px`;
+                wrapper.style.top = `${y}px`;
+            });
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    document.body.style.userSelect = '';
+                    wrapper.style.cursor = 'grab';
+                    // Redraw connectors after drop
+                    drawHierarchicalConnections();
+                }
+            });
+        }
+
+
+
         // Block type configurations
         const blockConfigs = {
             'send-message': { 
@@ -1480,7 +1307,7 @@
                 title: 'Trigger: Manual Start',
                 icon: 'ri-play-circle-line',
                 color: 'gray',
-                description: 'Manually triggered workflow'
+                description: 'Manually triggered workflow (patient assignment or button click)'
             },
             'trigger-scheduled': {
                 title: 'Trigger: Scheduled',
@@ -1590,11 +1417,11 @@
             const text = badge.querySelector('span');
             
             if (type === 'patient') {
-                badge.className = 'ml-4 px-3 py-1 rounded-full text-sm font-medium workflow-type-badge-patient';
+                badge.className = 'mb-1 px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wide self-start workflow-type-badge-patient';
                 icon.className = 'ri-user-heart-line mr-1';
                 text.textContent = 'Patient Workflow';
             } else if (type === 'practice') {
-                badge.className = 'ml-4 px-3 py-1 rounded-full text-sm font-medium workflow-type-badge-practice';
+                badge.className = 'mb-1 px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wide self-start workflow-type-badge-practice';
                 icon.className = 'ri-building-line mr-1';
                 text.textContent = 'Practice Workflow';
             }
@@ -1618,8 +1445,8 @@
             const blockCategories = document.getElementById('blockCategories');
             
             // Define workflow type specific blocks
-            const patientTriggers = ['trigger-order-events', 'trigger-appointment-events', 'trigger-document-events', 'trigger-report-events', 'trigger-task-events', 'trigger-profile-events'];
-            const practiceTriggers = ['trigger-scheduled', 'trigger-threshold', 'trigger-system-event'];
+            const patientTriggers = ['trigger-manual', 'trigger-order-events', 'trigger-appointment-events', 'trigger-document-events', 'trigger-report-events', 'trigger-task-events', 'trigger-profile-events'];
+            const practiceTriggers = ['trigger-manual', 'trigger-scheduled', 'trigger-threshold', 'trigger-system-event'];
             const patientActions = ['send-message', 'appointment', 'task', 'document', 'order', 'note'];
             const practiceActions = ['bulk-communication', 'generate-report', 'system-maintenance'];
             
@@ -1669,7 +1496,7 @@
                 const blockType = item.dataset.type;
                 
                 // Skip disabled items (like triggers when one already exists)
-                if (item.classList.contains('cursor-not-allowed')) {
+                if (item.classList.contains('cursor-not-allowed') || item.classList.contains('pointer-events-none')) {
                     return;
                 }
                 
@@ -1712,7 +1539,7 @@
                 const hasTrigger = workflowBlocks.some(block => block.type.startsWith('trigger-'));
                 const isDisabled = isTrigger && hasTrigger;
                 
-                const disabledClass = isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-gray-50 hover:border-gray-300';
+                const disabledClass = isDisabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer hover:bg-gray-50 hover:border-gray-300';
                 const disabledTitle = isDisabled ? 'Only one trigger allowed per workflow' : `${config.title} - ${config.description}`;
                 
                 html += `
@@ -1794,59 +1621,12 @@
 
             // Save and Preview
             document.getElementById('saveBtn').addEventListener('click', saveWorkflow);
-            document.getElementById('previewBtn').addEventListener('click', previewWorkflow);
-
-            // Canvas pan functionality
-            const viewport = document.querySelector('.canvas-viewport');
-            const canvas = document.getElementById('blockEditor');
             
-            viewport.addEventListener('mousedown', (e) => {
-                if (e.button === 1 || (e.button === 0 && e.altKey)) { // Middle mouse or Alt+left click
-                    isPanning = true;
-                    panStartX = e.clientX - panX;
-                    panStartY = e.clientY - panY;
-                    viewport.style.cursor = 'grabbing';
-                    e.preventDefault();
-                }
-            });
+            // New action buttons
+            document.getElementById('manageUsageBtn').addEventListener('click', manageWorkflowUsage);
+            document.getElementById('copyWorkflowBtn').addEventListener('click', copyWorkflow);
 
-            document.addEventListener('mousemove', (e) => {
-                if (isPanning) {
-                    panX = e.clientX - panStartX;
-                    panY = e.clientY - panStartY;
-                    updateCanvasTransform();
-                }
-            });
-
-            document.addEventListener('mouseup', () => {
-                if (isPanning) {
-                    isPanning = false;
-                    viewport.style.cursor = '';
-                }
-            });
-
-            // Mouse wheel zoom
-            viewport.addEventListener('wheel', (e) => {
-                if (e.ctrlKey || e.metaKey) {
-                    e.preventDefault();
-                    const rect = viewport.getBoundingClientRect();
-                    const mouseX = e.clientX - rect.left;
-                    const mouseY = e.clientY - rect.top;
-                    
-                    const prevZoom = currentZoom;
-                    if (e.deltaY < 0) {
-                        zoomIn();
-                    } else {
-                        zoomOut();
-                    }
-                    
-                    // Adjust pan to zoom toward mouse position
-                    const zoomDelta = currentZoom / prevZoom;
-                    panX = mouseX - (mouseX - panX) * zoomDelta;
-                    panY = mouseY - (mouseY - panY) * zoomDelta;
-                    updateCanvasTransform();
-                }
-            });
+            
 
             
             // Command palette search
@@ -1894,12 +1674,16 @@
 
         function showEmptyState() {
             const emptyState = document.getElementById('emptyState');
-            emptyState.style.display = 'block';
+            if (emptyState) {
+                emptyState.style.display = 'block';
+            }
         }
 
         function hideEmptyState() {
             const emptyState = document.getElementById('emptyState');
-            emptyState.style.display = 'none';
+            if (emptyState) {
+                emptyState.style.display = 'none';
+            }
         }
 
 
@@ -1974,6 +1758,9 @@
             workflowBlocks.push(block);
             renderWorkflow();
             hideEmptyState();
+            
+            // Refresh block library to update trigger restrictions
+            initializeBlockLibrary();
         }
 
         function findBlockById(blockId) {
@@ -2006,11 +1793,6 @@
             const workflowBlocksContainer = document.getElementById('workflowBlocks');
             workflowBlocksContainer.innerHTML = '';
             
-            // Add workflow mode indicator
-            const modeIndicator = document.createElement('div');
-            modeIndicator.className = 'workflow-mode-indicator';
-            modeIndicator.innerHTML = '<i class="ri-share-forward-line mr-1"></i>Hierarchical Workflow';
-            workflowBlocksContainer.appendChild(modeIndicator);
             
             // Create canvas container for hierarchical layout
             const canvasContainer = document.createElement('div');
@@ -2071,7 +1853,7 @@
             blocks.forEach((block, index) => {
                 // Use stored position if manually placed, otherwise calculate auto position
                 let position;
-                if (block.position && (block.position.x !== 0 || block.position.y !== 0) && level === 0) {
+                if (block.position && (block.position.x !== 0 || block.position.y !== 0)) {
                     // Use manually set position for root blocks
                     position = block.position;
                 } else {
@@ -2091,26 +1873,12 @@
                     position: absolute;
                     left: ${position.x}px;
                     top: ${position.y}px;
-                    transform: translateX(-50%);
                     z-index: 10;
                 `;
                 
-                // Add position indicator
-                const positionIndicator = document.createElement('div');
-                positionIndicator.className = 'grid-position-indicator';
-                
-                // Special styling for trigger blocks
-                if (block.type.startsWith('trigger-')) {
-                    positionIndicator.className += ' bg-green-500';
-                    positionIndicator.innerHTML = '<i class="ri-play-line text-xs"></i>';
-                    positionIndicator.title = 'Workflow Trigger';
-                } else {
-                    positionIndicator.textContent = (level + 1) + '.' + (index + 1);
-                }
-                
                 renderBlock(block, blockWrapper, 0, false);
-                blockWrapper.appendChild(positionIndicator);
                 container.appendChild(blockWrapper);
+                    makeBlockMovable(blockWrapper, block);
                 
                 // Recursively render follow-up blocks
                 if (block.followUpBlocks && block.followUpBlocks.length > 0) {
@@ -2172,7 +1940,7 @@
                     <button class="flowchart-action-btn danger delete-block"><i class="ri-delete-bin-line mr-1"></i>Delete</button>
                 </div>
                 
-                ${!isLast && currentExecutionMode === 'sequential' ? '<div class="flowchart-connector"></div>' : ''}
+                ${!isLast ? '<div class="flowchart-connector"></div>' : ''}
             `;
             
             // Add event listeners
@@ -2495,6 +2263,54 @@
                         </div>
                     </div>
                 `;
+            }
+            
+            // Handle manual trigger blocks
+            if (block.type === 'trigger-manual') {
+                if (currentWorkflowType === 'patient') {
+                    return `
+                        <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="text-sm text-blue-700 font-medium mb-1">
+                                <i class="ri-user-add-line mr-1"></i>
+                                Patient Assignment Trigger
+                            </div>
+                            <div class="text-xs text-blue-600">
+                                This workflow will trigger when assigned to a patient
+                            </div>
+                        </div>
+                    `;
+                } else if (currentWorkflowType === 'practice') {
+                    return `
+                        <div class="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <div class="text-sm text-green-700 font-medium mb-2">
+                                <i class="ri-play-circle-line mr-1"></i>
+                                Manual Start Trigger
+                            </div>
+                            <div class="text-xs text-green-600 mb-3">
+                                This workflow will trigger when the manual start button is clicked
+                            </div>
+                            <button 
+                                onclick="startManualWorkflow('${block.id}')" 
+                                class="px-3 py-1.5 text-sm bg-green-600 text-white rounded-button hover:bg-green-700 flex items-center"
+                            >
+                                <i class="ri-play-line mr-1"></i>
+                                Start Workflow
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="mt-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                            <div class="text-sm text-gray-700 font-medium mb-1">
+                                <i class="ri-play-circle-line mr-1"></i>
+                                Manual Trigger
+                            </div>
+                            <div class="text-xs text-gray-600">
+                                Select a workflow type to see specific trigger behavior
+                            </div>
+                        </div>
+                    `;
+                }
             }
             
             // Handle grouped trigger blocks
@@ -3812,9 +3628,200 @@
             console.log('Saved workflow:', workflowData);
         }
 
-        function previewWorkflow() {
-            showNotification('Preview feature coming soon!', 'info');
+        function manageWorkflowUsage() {
+            if (!currentWorkflowType) {
+                showNotification('Please select a workflow type first', 'warning');
+                return;
+            }
+
+            if (currentWorkflowType === 'patient') {
+                showPatientUsageModal();
+            } else if (currentWorkflowType === 'practice') {
+                showPracticeUsageModal();
+            }
         }
+
+        function copyWorkflow() {
+            const currentName = document.getElementById('workflowName').value || 'Untitled Workflow';
+            const newName = `Copy of ${currentName}`;
+            
+            // Create new workflow data
+            const triggerBlocks = workflowBlocks.filter(block => block.type.startsWith('trigger-'));
+            const triggerInfo = triggerBlocks.map(block => ({
+                type: block.type.replace('trigger-', ''),
+                blockId: block.id
+            }));
+
+            const copiedWorkflowData = {
+                name: newName,
+                description: document.getElementById('workflowDescription').value || '',
+                triggers: triggerInfo,
+                blocks: workflowBlocks.map(block => ({
+                    ...block,
+                    id: 'block-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9) // Generate new IDs
+                }))
+            };
+            
+            // Update the current form with the copied data
+            document.getElementById('workflowName').value = newName;
+            
+            showNotification('Workflow copied successfully! You can now modify and save the copy.', 'success');
+            console.log('Copied workflow:', copiedWorkflowData);
+        }
+
+        function showPatientUsageModal() {
+            // Create and show modal for patient workflow usage
+            const modal = document.createElement('div');
+            modal.id = 'patientUsageModal';
+            modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl p-6 w-full max-w-2xl mx-4">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Patient Workflow Usage</h3>
+                        <button onclick="closePatientUsageModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="ri-close-line text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm text-gray-600">Assigned Patients</span>
+                            <div class="flex space-x-2">
+                                <button onclick="batchAssignPatients()" class="px-3 py-1 text-xs bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                                    Batch Assign
+                                </button>
+                                <button onclick="batchDeassignPatients()" class="px-3 py-1 text-xs bg-red-100 text-red-700 rounded hover:bg-red-200">
+                                    Batch De-assign
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="border rounded-lg max-h-64 overflow-y-auto">
+                            <div class="p-3 text-sm text-gray-500 text-center">
+                                No patients currently assigned to this workflow.<br>
+                                <span class="text-xs">Use "Batch Assign" to add patients.</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="closePatientUsageModal()" class="px-4 py-2 text-gray-600 border border-gray-200 rounded-button hover:bg-gray-50">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        function showPracticeUsageModal() {
+            // Create and show modal for practice workflow usage
+            const modal = document.createElement('div');
+            modal.id = 'practiceUsageModal';
+            modal.className = 'fixed inset-0 bg-black/50 flex items-center justify-center z-50';
+            modal.innerHTML = `
+                <div class="bg-white rounded-xl p-6 w-full max-w-md mx-4">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900">Practice Workflow Status</h3>
+                        <button onclick="closePracticeUsageModal()" class="text-gray-400 hover:text-gray-600">
+                            <i class="ri-close-line text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                            <div>
+                                <div class="font-medium text-gray-900">Workflow Status</div>
+                                <div class="text-sm text-gray-600" id="workflowStatusText">Active</div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" id="workflowToggle" class="sr-only peer" checked>
+                                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                        
+                        <div class="mt-3 text-xs text-gray-500">
+                            When active, this workflow will automatically execute for all practice-wide events that match its triggers.
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3">
+                        <button onclick="closePracticeUsageModal()" class="px-4 py-2 text-gray-600 border border-gray-200 rounded-button hover:bg-gray-50">
+                            Close
+                        </button>
+                        <button onclick="savePracticeWorkflowStatus()" class="px-4 py-2 bg-primary text-white rounded-button hover:bg-primary/90">
+                            Save Changes
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // Add toggle event listener
+            document.getElementById('workflowToggle').addEventListener('change', function() {
+                const statusText = document.getElementById('workflowStatusText');
+                statusText.textContent = this.checked ? 'Active' : 'Inactive';
+            });
+        }
+
+        function closePatientUsageModal() {
+            const modal = document.getElementById('patientUsageModal');
+            if (modal) modal.remove();
+        }
+
+        function closePracticeUsageModal() {
+            const modal = document.getElementById('practiceUsageModal');
+            if (modal) modal.remove();
+        }
+
+        function batchAssignPatients() {
+            showNotification('Batch assign feature coming soon!', 'info');
+        }
+
+        function batchDeassignPatients() {
+            showNotification('Batch de-assign feature coming soon!', 'info');
+        }
+
+        function savePracticeWorkflowStatus() {
+            const isActive = document.getElementById('workflowToggle').checked;
+            showNotification(`Workflow ${isActive ? 'activated' : 'deactivated'} successfully!`, 'success');
+            closePracticeUsageModal();
+        }
+
+        function startManualWorkflow(blockId) {
+            const workflowName = document.getElementById('workflowName').value || 'Untitled Workflow';
+            
+            // Find the manual trigger block
+            const triggerBlock = workflowBlocks.find(block => block.id === blockId);
+            if (!triggerBlock) {
+                showNotification('Manual trigger block not found', 'error');
+                return;
+            }
+
+            // Simulate workflow execution
+            const executionData = {
+                workflowName: workflowName,
+                triggerType: 'manual',
+                triggeredBy: 'user-action',
+                blockId: blockId,
+                timestamp: new Date().toISOString(),
+                totalBlocks: workflowBlocks.length
+            };
+
+            // Show success notification with workflow details
+            showNotification(
+                `🚀 Manual workflow "${workflowName}" started successfully! (${workflowBlocks.length} blocks to execute)`, 
+                'success'
+            );
+            
+            console.log('Manual workflow execution:', executionData);
+            
+            // Optional: Could trigger actual workflow execution here
+            // executeWorkflow(executionData);
+        }
+
 
         // Command Palette functionality
         let commandPaletteVisible = false;
@@ -3868,8 +3875,8 @@
             const resultsContainer = document.getElementById('commandResults');
             
             // Get workflow type specific blocks (same logic as block library)
-            const patientTriggers = ['trigger-order-events', 'trigger-appointment-events', 'trigger-document-events', 'trigger-report-events', 'trigger-task-events', 'trigger-profile-events'];
-            const practiceTriggers = ['trigger-scheduled', 'trigger-threshold', 'trigger-system-event'];
+            const patientTriggers = ['trigger-manual', 'trigger-order-events', 'trigger-appointment-events', 'trigger-document-events', 'trigger-report-events', 'trigger-task-events', 'trigger-profile-events'];
+            const practiceTriggers = ['trigger-manual', 'trigger-scheduled', 'trigger-threshold', 'trigger-system-event'];
             const patientActions = ['send-message', 'appointment', 'task', 'document', 'order', 'note'];
             const practiceActions = ['bulk-communication', 'generate-report', 'system-maintenance'];
             
