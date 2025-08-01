@@ -154,27 +154,6 @@
             50% { border-color: #fbbf24; }
         }
         
-        .flowchart-connector {
-            position: absolute;
-            left: 50%;
-            bottom: -12px;
-            transform: translateX(-50%);
-            width: 2px;
-            height: 8px;
-            background: #6b7280;
-        }
-        
-        .flowchart-connector::after {
-            content: '';
-            position: absolute;
-            bottom: -6px;
-            left: -3px;
-            width: 0;
-            height: 0;
-            border-left: 4px solid transparent;
-            border-right: 4px solid transparent;
-            border-top: 6px solid #6b7280;
-        }
         
         .flowchart-block-header {
             display: flex;
@@ -447,6 +426,82 @@
         @keyframes message-bounce {
             0% { transform: translate(-50%, -50%) scale(1); }
             100% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        /* Orphaned/disconnected block styling */
+        .workflow-block.orphaned {
+            opacity: 0.7;
+            position: relative;
+        }
+
+        .workflow-block.orphaned::after {
+            content: 'DISCONNECTED';
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #f59e0b;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            z-index: 20;
+        }
+
+        /* Connection line with arrows */
+        .workflow-connection-line.connected {
+            pointer-events: auto;
+            cursor: pointer;
+        }
+
+        .workflow-connection-line.connected:hover {
+            filter: drop-shadow(0 2px 8px rgba(79, 70, 229, 0.4));
+        }
+
+        .workflow-connection-line path {
+            stroke: #4f46e5;
+            stroke-width: 2;
+            fill: none;
+            transition: all 0.2s ease;
+        }
+
+        .workflow-connection-line.connected path:hover {
+            stroke: #3730a3;
+            stroke-width: 3;
+        }
+
+        /* Arrow marker for connection lines */
+        .workflow-connection-line marker path {
+            fill: #4f46e5;
+            stroke: none;
+        }
+
+        /* Proximity indicator for snap-to-connect */
+        .connection-handle.proximity-active {
+            transform: scale(1.5);
+            background: #22c55e;
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.6);
+            animation: proximity-pulse 0.5s infinite alternate;
+        }
+
+        @keyframes proximity-pulse {
+            0% { box-shadow: 0 4px 20px rgba(34, 197, 94, 0.6); }
+            100% { box-shadow: 0 6px 30px rgba(34, 197, 94, 0.8); }
+        }
+
+        /* Connection target highlighting */
+        .workflow-block.connection-target {
+            transform: scale(1.05);
+            box-shadow: 0 8px 32px rgba(34, 197, 94, 0.4);
+            border: 2px solid #22c55e;
+            background: rgba(34, 197, 94, 0.1);
+            z-index: 15;
+        }
+
+        /* Block position relative for handles */
+        .flowchart-block {
+            position: relative;
         }
 
         /* Draggable block states */
@@ -833,8 +888,8 @@
             
             if (parentBlock && childBlock) {
                 // Add child to parent's followUp list if not already there
-                if (!parentBlock.followUpBlocks.some(block => block.id === childBlockId)) {
-                    parentBlock.followUpBlocks.push(childBlock);
+                if (!parentBlock.nextBlocks.some(block => block.id === childBlockId)) {
+                    parentBlock.nextBlocks.push(childBlock);
                     childBlock.parentId = parentBlockId;
                     return true;
                 }
@@ -847,7 +902,7 @@
             const childBlock = findBlockById(childBlockId);
             
             if (parentBlock && childBlock) {
-                parentBlock.followUpBlocks = parentBlock.followUpBlocks.filter(block => block.id !== childBlockId);
+                parentBlock.nextBlocks = parentBlock.nextBlocks.filter(block => block.id !== childBlockId);
                 childBlock.parentId = null;
                 return true;
             }
@@ -855,13 +910,19 @@
         }
 
         function getRootBlocks() {
-            // Return blocks that have no parent (root level blocks)
-            return workflowBlocks.filter(block => !block.parentId);
+            // Return blocks that are not referenced as nextBlocks by any other block
+            return workflowBlocks.filter(block => {
+                // Check if this block is referenced as a nextBlock by any other block
+                const isReferencedAsNext = workflowBlocks.some(otherBlock => 
+                    otherBlock.nextBlocks && otherBlock.nextBlocks.some(nextBlock => nextBlock.id === block.id)
+                );
+                return !isReferencedAsNext;
+            });
         }
 
         function getChildBlocks(parentBlockId) {
             const parentBlock = findBlockById(parentBlockId);
-            return parentBlock ? parentBlock.followUpBlocks : [];
+            return parentBlock ? parentBlock.nextBlocks : [];
         }
 
         function hasCircularDependency(parentBlockId, childBlockId) {
@@ -873,7 +934,7 @@
                 visited.add(currentBlockId);
                 const currentBlock = findBlockById(currentBlockId);
                 if (currentBlock) {
-                    return currentBlock.followUpBlocks.some(child => 
+                    return currentBlock.nextBlocks.some(child => 
                         checkPath(child.id, targetBlockId, visited)
                     );
                 }
@@ -1011,18 +1072,23 @@
                 canvasContainer.classList.remove('drop-zone-active');
                 
                 const blockType = e.dataTransfer.getData('text/plain');
-                console.log('Drop event received, blockType:', blockType); // Debug log
+                const isFromLibrary = e.dataTransfer.getData('application/x-block-library') === 'true';
                 
-                if (blockType) {
+                console.log('Drop event received, blockType:', blockType, 'isFromLibrary:', isFromLibrary); // Debug log
+                
+                // Only create new blocks if dragging from library, not when moving existing blocks
+                if (blockType && isFromLibrary) {
                     // Calculate drop position relative to canvas
                     const rect = canvasContainer.getBoundingClientRect();
                     const dropX = e.clientX - rect.left;
                     const dropY = e.clientY - rect.top;
                     
-                    console.log('Drop position:', dropX, dropY); // Debug log
+                    console.log('Creating new block at position:', dropX, dropY); // Debug log
                     
                     // Create block at drop position
                     createBlockAtPosition(blockType, dropX, dropY);
+                } else if (blockType && !isFromLibrary) {
+                    console.log('Ignoring drop - existing block being moved:', blockType); // Debug log
                 }
             });
         }
@@ -1047,7 +1113,7 @@
                 config: { ...config },
                 data: {},
                 parentId: null,
-                followUpBlocks: [],
+                nextBlocks: [],
                 position: { x: x - 160, y: y - 40 }, // Offset to center block on cursor
                 connectionPoints: {
                     bottom: { x: 0, y: 0 }
@@ -1106,7 +1172,7 @@
             
             const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
             polygon.setAttribute('points', '0 0, 10 3.5, 0 7');
-            polygon.setAttribute('fill', '#ef4444');
+            polygon.setAttribute('fill', '#4f46e5');
             
             marker.appendChild(polygon);
             defs.appendChild(marker);
@@ -1114,19 +1180,22 @@
             
             // Draw connections for each block with followUp relationships
             function drawConnectionsForBlock(block) {
-                if (block.followUpBlocks && block.followUpBlocks.length > 0) {
-                    block.followUpBlocks.forEach(childBlock => {
-                        // Calculate connection points
-                        const parentX = block.position.x;
-                        const parentY = block.position.y + 80; // Bottom of parent block
-                        const childX = childBlock.position.x;
-                        const childY = childBlock.position.y - 10; // Top of child block
+                if (block.nextBlocks && block.nextBlocks.length > 0) {
+                    block.nextBlocks.forEach(childBlock => {
+                        // Calculate connection points - center the blocks
+                        const blockWidth = 320; // Standard block width
+                        const blockHeight = 80; // Standard block height
+                        
+                        const parentX = block.position.x + blockWidth / 2;
+                        const parentY = block.position.y + blockHeight; // Bottom of parent block
+                        const childX = childBlock.position.x + blockWidth / 2;
+                        const childY = childBlock.position.y; // Top of child block
                         
                         // Create curved path
                         const midY = parentY + (childY - parentY) / 2;
                         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                         path.setAttribute('d', `M ${parentX} ${parentY} Q ${parentX} ${midY} ${childX} ${childY}`);
-                        path.setAttribute('stroke', '#ef4444');
+                        path.setAttribute('stroke', '#4f46e5');
                         path.setAttribute('stroke-width', '2');
                         path.setAttribute('fill', 'none');
                         path.setAttribute('marker-end', 'url(#arrowhead)');
@@ -1159,6 +1228,12 @@
             wrapper.style.cursor = 'grab';
             wrapper.addEventListener('mousedown', (e) => {
                 if (e.button !== 0) return;
+                
+                // Don't start block dragging if clicking on a red handle
+                if (e.target.classList.contains('connection-handle') || e.target.closest('.connection-handle')) {
+                    return;
+                }
+                
                 isDragging = true;
                 const rect = wrapper.getBoundingClientRect();
                 offsetX = e.clientX - rect.left;
@@ -1708,7 +1783,7 @@
                 config: { ...config },
                 data: {},
                 parentId: parentId,
-                followUpBlocks: [], // New: array of blocks that follow this one
+                nextBlocks: [], // New: array of blocks that follow this one
                 position: { x: 0, y: 0 }, // New: canvas position for drag-and-drop
                 connectionPoints: { // New: positions for connection handles
                     bottom: { x: 0, y: 0 }
@@ -1843,6 +1918,43 @@
             // Draw connection lines after rendering
             requestAnimationFrame(() => {
                 drawHierarchicalConnections();
+                markOrphanedBlocks();
+            });
+        }
+
+        // Mark blocks as orphaned if they're not connected to any trigger block
+        function markOrphanedBlocks() {
+            // Get all trigger blocks (workflow entry points)
+            const triggerBlocks = workflowBlocks.filter(block => block.type.startsWith('trigger-'));
+            const connectedBlocks = new Set();
+            
+            // Traverse all paths from trigger blocks to find connected blocks
+            function markConnectedBlocks(block) {
+                if (connectedBlocks.has(block.id)) return;
+                connectedBlocks.add(block.id);
+                
+                if (block.nextBlocks) {
+                    block.nextBlocks.forEach(nextBlock => {
+                        markConnectedBlocks(nextBlock);
+                    });
+                }
+            }
+            
+            // Start traversal from each trigger block
+            triggerBlocks.forEach(triggerBlock => {
+                markConnectedBlocks(triggerBlock);
+            });
+            
+            // Mark all blocks as orphaned or connected
+            workflowBlocks.forEach(block => {
+                const blockElement = document.querySelector(`[data-block-id="${block.id}"]`);
+                if (blockElement) {
+                    if (connectedBlocks.has(block.id)) {
+                        blockElement.classList.remove('orphaned');
+                    } else {
+                        blockElement.classList.add('orphaned');
+                    }
+                }
             });
         }
 
@@ -1881,8 +1993,8 @@
                     makeBlockMovable(blockWrapper, block);
                 
                 // Recursively render follow-up blocks
-                if (block.followUpBlocks && block.followUpBlocks.length > 0) {
-                    renderHierarchicalBlocks(block.followUpBlocks, container, level + 1, position);
+                if (block.nextBlocks && block.nextBlocks.length > 0) {
+                    renderHierarchicalBlocks(block.nextBlocks, container, level + 1, position);
                 }
             });
         }
@@ -1939,8 +2051,6 @@
                     }
                     <button class="flowchart-action-btn danger delete-block"><i class="ri-delete-bin-line mr-1"></i>Delete</button>
                 </div>
-                
-                ${!isLast ? '<div class="flowchart-connector"></div>' : ''}
             `;
             
             // Add event listeners
@@ -1973,10 +2083,329 @@
                 setupDropZoneListeners(connectionHandle, block);
             }
             
-            // Make the block draggable
-            makeBlockDraggable(blockElement, block);
+            // For blocks on canvas, completely disable HTML5 drag system
+            blockElement.draggable = false;
+            blockElement.style.pointerEvents = 'auto'; // Ensure mouse events work
             
             container.appendChild(blockElement);
+            
+            // Add red handle for next block connections (if not at max capacity)
+            if (shouldShowRedHandle(block)) {
+                createRedHandle(blockElement, block);
+            }
+        }
+
+        // Helper function to determine if red handle should be shown
+        function shouldShowRedHandle(block) {
+            // Don't show handle if block already has max connections (5)
+            if (block.nextBlocks && block.nextBlocks.length >= 5) {
+                return false;
+            }
+            
+            // Always show handle for blocks that can have next steps
+            return true;
+        }
+
+        // Create red handle for connecting next blocks
+        function createRedHandle(blockElement, block) {
+            // Remove any existing handles first to prevent duplicates
+            const existingHandles = blockElement.querySelectorAll('.connection-handle');
+            existingHandles.forEach(handle => handle.remove());
+            
+            const handle = document.createElement('div');
+            handle.className = 'connection-handle';
+            handle.dataset.blockId = block.id;
+            
+            // Position handle: bottom-center if no connections, bottom-right if has connections
+            const hasConnections = block.nextBlocks && block.nextBlocks.length > 0;
+            if (hasConnections) {
+                // Bottom-right position for blocks with existing connections
+                handle.style.right = '-10px';
+                handle.style.bottom = '10px';
+                handle.style.left = 'auto';
+                handle.style.transform = 'none';
+            } else {
+                // Bottom-center position for blocks with no connections
+                handle.style.left = '50%';
+                handle.style.bottom = '-10px';
+                handle.style.right = 'auto';
+                handle.style.transform = 'translateX(-50%)';
+            }
+            
+            // Add event listeners for handle interactions
+            setupRedHandleListeners(handle, block);
+            
+            blockElement.appendChild(handle);
+        }
+
+        // Setup event listeners for red handle interactions
+        function setupRedHandleListeners(handle, parentBlock) {
+            let isDraggingHandle = false;
+            let connectionLine = null;
+            
+            // Handle dragging to create connections
+            handle.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return; // Only left click
+                
+                isDraggingHandle = true;
+                handle.classList.add('active');
+                
+                // Create temporary connection line
+                connectionLine = createTemporaryConnectionLine(handle);
+                
+                // Prevent block dragging
+                e.stopPropagation();
+                e.preventDefault();
+            });
+            
+            // Handle clicking to disconnect (if connected)
+            handle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!isDraggingHandle) {
+                    // Show connection options or disconnect menu
+                    showConnectionMenu(handle, parentBlock);
+                }
+            });
+            
+            // Global mouse move for handle dragging
+            document.addEventListener('mousemove', (e) => {
+                if (!isDraggingHandle) return;
+                
+                updateTemporaryConnectionLine(connectionLine, e);
+                
+                // Check for proximity to other blocks
+                checkConnectionProximity(e, handle, parentBlock);
+            });
+            
+            // Global mouse up for handle dragging
+            document.addEventListener('mouseup', (e) => {
+                if (!isDraggingHandle) return;
+                
+                isDraggingHandle = false;
+                handle.classList.remove('active');
+                
+                // Try to create connection
+                const targetBlock = findTargetBlockAtPosition(e.clientX, e.clientY);
+                if (targetBlock && canConnect(parentBlock, targetBlock)) {
+                    createConnection(parentBlock, targetBlock);
+                    triggerAutoLayout();
+                }
+                
+                // Cleanup temporary connection line
+                if (connectionLine) {
+                    connectionLine.remove();
+                    connectionLine = null;
+                }
+                
+                // Clear proximity indicators
+                clearProximityIndicators();
+            });
+        }
+
+        // Supporting functions for red handle functionality
+        function createTemporaryConnectionLine(handle) {
+            const canvas = document.getElementById('blockEditor');
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.className = 'workflow-connection-line temporary';
+            svg.style.cssText = 'position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 5;';
+            
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('stroke', '#ef4444');
+            path.setAttribute('stroke-width', '2');
+            path.setAttribute('stroke-dasharray', '5,5');
+            path.setAttribute('fill', 'none');
+            
+            svg.appendChild(path);
+            canvas.appendChild(svg);
+            
+            return svg;
+        }
+
+        function updateTemporaryConnectionLine(connectionLine, mouseEvent) {
+            if (!connectionLine) return;
+            
+            const canvas = document.getElementById('blockEditor');
+            const canvasRect = canvas.getBoundingClientRect();
+            const handle = document.querySelector('.connection-handle.active');
+            if (!handle) return;
+            
+            const handleRect = handle.getBoundingClientRect();
+            const startX = handleRect.left + handleRect.width / 2 - canvasRect.left;
+            const startY = handleRect.top + handleRect.height / 2 - canvasRect.top;
+            const endX = mouseEvent.clientX - canvasRect.left;
+            const endY = mouseEvent.clientY - canvasRect.top;
+            
+            const path = connectionLine.querySelector('path');
+            path.setAttribute('d', `M ${startX} ${startY} Q ${(startX + endX) / 2} ${startY + 50} ${endX} ${endY}`);
+        }
+
+        function checkConnectionProximity(mouseEvent, handle, parentBlock) {
+            const targetBlock = findTargetBlockAtPosition(mouseEvent.clientX, mouseEvent.clientY);
+            
+            // Clear all proximity indicators first
+            clearProximityIndicators();
+            
+            if (targetBlock && canConnect(parentBlock, targetBlock)) {
+                // Add proximity indicator to target block
+                const targetElement = document.querySelector(`[data-block-id="${targetBlock.id}"]`);
+                if (targetElement) {
+                    targetElement.classList.add('connection-target');
+                }
+                
+                // Update handle appearance
+                handle.classList.add('proximity-active');
+            }
+        }
+
+        function findTargetBlockAtPosition(clientX, clientY) {
+            const elements = document.elementsFromPoint(clientX, clientY);
+            for (const element of elements) {
+                const blockId = element.dataset.blockId || element.closest('[data-block-id]')?.dataset.blockId;
+                if (blockId) {
+                    return workflowBlocks.find(block => block.id === blockId);
+                }
+            }
+            return null;
+        }
+
+        function canConnect(sourceBlock, targetBlock) {
+            // Can't connect to self
+            if (sourceBlock.id === targetBlock.id) return false;
+            
+            // Check if connection already exists
+            if (sourceBlock.nextBlocks && sourceBlock.nextBlocks.some(block => block.id === targetBlock.id)) {
+                return false;
+            }
+            
+            // Prevent circular connections
+            if (wouldCreateCircularConnection(sourceBlock, targetBlock)) return false;
+            
+            // Check max connections limit (5)
+            if (sourceBlock.nextBlocks && sourceBlock.nextBlocks.length >= 5) return false;
+            
+            // Trigger blocks can't have incoming connections
+            if (targetBlock.type.startsWith('trigger-')) return false;
+            
+            return true;
+        }
+
+        function wouldCreateCircularConnection(sourceBlock, targetBlock) {
+            // Simple circular detection - check if targetBlock leads back to sourceBlock
+            const visited = new Set();
+            
+            function hasPathTo(fromBlock, toBlockId) {
+                if (visited.has(fromBlock.id)) return false;
+                visited.add(fromBlock.id);
+                
+                if (!fromBlock.nextBlocks) return false;
+                
+                for (const nextBlock of fromBlock.nextBlocks) {
+                    if (nextBlock.id === toBlockId) return true;
+                    if (hasPathTo(nextBlock, toBlockId)) return true;
+                }
+                return false;
+            }
+            
+            return hasPathTo(targetBlock, sourceBlock.id);
+        }
+
+        function createConnection(sourceBlock, targetBlock) {
+            // Add connection
+            if (!sourceBlock.nextBlocks) {
+                sourceBlock.nextBlocks = [];
+            }
+            sourceBlock.nextBlocks.push(targetBlock);
+            
+            // Re-render workflow to update red handles and connections
+            renderWorkflow();
+            
+            showNotification(`Connected ${getBlockTitle(sourceBlock)} → ${getBlockTitle(targetBlock)}`, 'success');
+        }
+
+        function clearProximityIndicators() {
+            document.querySelectorAll('.connection-target').forEach(el => {
+                el.classList.remove('connection-target');
+            });
+            document.querySelectorAll('.proximity-active').forEach(el => {
+                el.classList.remove('proximity-active');
+            });
+        }
+
+        function showConnectionMenu(handle, parentBlock) {
+            // Simple implementation - show disconnect options if has connections
+            if (parentBlock.nextBlocks && parentBlock.nextBlocks.length > 0) {
+                const menu = document.createElement('div');
+                menu.className = 'connection-menu absolute bg-white border rounded-lg shadow-lg p-2 z-50';
+                menu.style.cssText = 'top: 30px; left: 0;';
+                
+                parentBlock.nextBlocks.forEach((nextBlock, index) => {
+                    const option = document.createElement('button');
+                    option.className = 'block w-full text-left px-3 py-1 text-sm hover:bg-gray-100 rounded';
+                    option.textContent = `Disconnect from ${getBlockTitle(nextBlock)}`;
+                    option.onclick = () => {
+                        disconnectBlocks(parentBlock, nextBlock);
+                        menu.remove();
+                    };
+                    menu.appendChild(option);
+                });
+                
+                handle.appendChild(menu);
+                
+                // Remove menu when clicking outside
+                setTimeout(() => {
+                    document.addEventListener('click', function removeMenu(e) {
+                        if (!menu.contains(e.target)) {
+                            menu.remove();
+                            document.removeEventListener('click', removeMenu);
+                        }
+                    });
+                }, 0);
+            }
+        }
+
+        function disconnectBlocks(sourceBlock, targetBlock) {
+            if (sourceBlock.nextBlocks) {
+                sourceBlock.nextBlocks = sourceBlock.nextBlocks.filter(block => block.id !== targetBlock.id);
+                renderWorkflow();
+                showNotification(`Disconnected ${getBlockTitle(sourceBlock)} from ${getBlockTitle(targetBlock)}`, 'info');
+            }
+        }
+
+        function getBlockTitle(block) {
+            return block.config?.title || block.type || 'Block';
+        }
+
+        function triggerAutoLayout() {
+            // Simple auto-layout: position blocks in a top-to-bottom flow
+            const rootBlocks = workflowBlocks.filter(block => 
+                !workflowBlocks.some(otherBlock => 
+                    otherBlock.nextBlocks && otherBlock.nextBlocks.some(nextBlock => nextBlock.id === block.id)
+                )
+            );
+            
+            layoutBlocksHierarchically(rootBlocks, { x: 400, y: 100 }, 0);
+            renderWorkflow();
+        }
+
+        function layoutBlocksHierarchically(blocks, startPosition, level) {
+            const blockSpacing = { x: 320, y: 160 };
+            
+            blocks.forEach((block, index) => {
+                // Position block
+                block.position = {
+                    x: startPosition.x + (index - (blocks.length - 1) / 2) * blockSpacing.x,
+                    y: startPosition.y + level * blockSpacing.y
+                };
+                
+                // Layout next blocks
+                if (block.nextBlocks && block.nextBlocks.length > 0) {
+                    layoutBlocksHierarchically(
+                        block.nextBlocks, 
+                        { x: block.position.x, y: block.position.y + blockSpacing.y }, 
+                        level + 1
+                    );
+                }
+            });
         }
 
         function renderConditionBlock(block, container, nestingLevel = 0, isLast = false) {
@@ -2050,8 +2479,6 @@
                             </div>
                         </div>
                     </div>
-                    
-                    ${!isLast ? '<div class="flowchart-connector"></div>' : ''}
                 </div>
             `;
             
@@ -2133,8 +2560,6 @@
                             </div>
                         </div>
                     </div>
-                    
-                    ${!isLast ? '<div class="flowchart-connector"></div>' : ''}
                 </div>
             `;
             
@@ -2458,8 +2883,8 @@
             });
             
             // If the deleted block had followUp blocks, move them back to root level
-            if (blockToDelete.followUpBlocks && blockToDelete.followUpBlocks.length > 0) {
-                blockToDelete.followUpBlocks.forEach(childBlock => {
+            if (blockToDelete.nextBlocks && blockToDelete.nextBlocks.length > 0) {
+                blockToDelete.nextBlocks.forEach(childBlock => {
                     childBlock.parentId = null;
                     workflowBlocks.push(childBlock);
                 });
@@ -2477,11 +2902,11 @@
 
         function removeFromFollowUps(block, blockIdToRemove) {
             // Remove from followUp blocks
-            if (block.followUpBlocks) {
-                block.followUpBlocks = block.followUpBlocks.filter(child => child.id !== blockIdToRemove);
+            if (block.nextBlocks) {
+                block.nextBlocks = block.nextBlocks.filter(child => child.id !== blockIdToRemove);
                 
                 // Recursively check child blocks
-                block.followUpBlocks.forEach(childBlock => {
+                block.nextBlocks.forEach(childBlock => {
                     removeFromFollowUps(childBlock, blockIdToRemove);
                 });
             }
