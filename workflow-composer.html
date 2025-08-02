@@ -149,6 +149,36 @@
             animation: pulse-warning 2s infinite;
         }
         
+        /* Condition block special styling */
+        .flowchart-block.condition-block {
+            border-radius: 0px;
+            transform: rotate(45deg);
+            width: 180px;
+            height: 180px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .flowchart-block.condition-block .flowchart-block-header {
+            transform: rotate(-45deg);
+            flex-direction: column;
+            text-align: center;
+            margin-bottom: 0;
+        }
+        
+        .flowchart-block.condition-block .flowchart-block-content {
+            transform: rotate(-45deg);
+            text-align: center;
+        }
+        
+        .flowchart-block.condition-block .flowchart-block-actions {
+            transform: rotate(-45deg);
+            justify-content: center;
+            margin-top: 8px;
+        }
+        
         @keyframes pulse-warning {
             0%, 100% { border-color: #f59e0b; }
             50% { border-color: #fbbf24; }
@@ -382,44 +412,13 @@
 
         /* Drop zone styling - make it very obvious */
         .workflow-canvas.drop-zone-active {
-            background: rgba(34, 197, 94, 0.2) !important;
-            border: 4px dashed #22c55e !important;
-            border-radius: 16px !important;
-            animation: drop-zone-pulse 1s infinite;
             position: relative;
-            box-shadow: inset 0 0 50px rgba(34, 197, 94, 0.1) !important;
-        }
-
-        .workflow-canvas.drop-zone-active::before {
-            content: '📁 DROP BLOCK HERE 📁';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #22c55e;
-            color: white;
-            padding: 20px 40px;
-            border-radius: 16px;
-            font-size: 18px;
-            font-weight: 700;
-            pointer-events: none;
-            z-index: 1000;
-            box-shadow: 0 10px 40px rgba(34, 197, 94, 0.4);
-            border: 3px solid white;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            animation: message-bounce 0.5s ease-in-out infinite alternate;
+            background-color: rgba(79, 70, 229, 0.05);
         }
 
         @keyframes drop-zone-pulse {
             0%, 100% { 
-                border-color: #22c55e;
-                background: rgba(34, 197, 94, 0.2);
-                box-shadow: inset 0 0 50px rgba(34, 197, 94, 0.1);
-            }
-            50% { 
-                border-color: #16a34a;
-                background: rgba(34, 197, 94, 0.3);
-                box-shadow: inset 0 0 50px rgba(34, 197, 94, 0.2);
+                opacity: 1;
             }
         }
 
@@ -626,6 +625,19 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
+                    <!-- Zoom Controls -->
+                    <div class="flex items-center bg-gray-100 border border-gray-200 rounded-button">
+                        <button id="zoomOutBtn" class="px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-200 rounded-l-button">
+                            <i class="ri-subtract-line"></i>
+                        </button>
+                        <div id="zoomDisplay" class="px-3 py-1.5 text-sm text-gray-700 border-x border-gray-200 min-w-[60px] text-center">
+                            100%
+                        </div>
+                        <button id="zoomInBtn" class="px-2 py-1.5 text-sm text-gray-700 hover:bg-gray-200 rounded-r-button">
+                            <i class="ri-add-line"></i>
+                        </button>
+                    </div>
+                    
                     <button id="manageUsageBtn" class="px-3 py-1.5 text-sm bg-gray-100 text-gray-700 border border-gray-200 rounded-button hover:bg-gray-200">
                         <i class="ri-settings-3-line mr-1.5"></i>
                         Manage Usage
@@ -666,7 +678,7 @@
                 <div id="blockEditor" class="canvas-content w-full p-8">
                     <div id="workflowBlocks" class="flex flex-col items-stretch space-y-4 min-h-full w-full px-4">
                     <!-- Empty state -->
-                    <div id="emptyState" class="text-center py-16 text-gray-400 bg-white rounded-lg border-2 border-dashed border-gray-300 max-w-md">
+                    <div id="emptyState" class="text-center py-16 text-gray-400 bg-white rounded-lg max-w-md">
                         <i class="ri-workflow-line text-4xl mb-4"></i>
                         <h3 class="text-lg font-medium mb-2">Start building your workflow</h3>
                         <p>Click blocks from the library on the left to add them to your workflow</p>
@@ -950,6 +962,103 @@
         let isDraggingFromLibrary = false;
 
         // Setup drop zone listeners for connection handles
+        function showConditionPathPromptModal(conditionBlock, nextBlock) {
+            const modal = document.getElementById('blockConfigurationModal');
+            const modalContent = document.getElementById('modalContent');
+            
+            modalContent.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure AI Path</h3>
+                    <div class="space-y-4">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
+                                    <i class="ri-git-branch-line text-white"></i>
+                                </div>
+                                <span class="font-medium">Condition Block</span>
+                            </div>
+                            <div class="text-sm text-gray-600">AI will evaluate context and choose whether to continue to:</div>
+                            <div class="mt-2 p-2 bg-white rounded border">
+                                <div class="flex items-center">
+                                    <div class="w-6 h-6 ${getColorClasses(nextBlock.config.color).bg} ${getColorClasses(nextBlock.config.color).text} rounded mr-2 flex items-center justify-center text-sm">
+                                        <i class="${nextBlock.config.icon}"></i>
+                                    </div>
+                                    <span class="font-medium">${nextBlock.config.title}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">AI Decision Prompt</label>
+                            <textarea id="pathPromptInput" class="w-full p-3 border border-gray-300 rounded-lg" rows="4" 
+                                      placeholder="Describe when AI should continue to this step...&#10;Example: Continue to this step if the patient's symptoms are severe or require immediate attention"></textarea>
+                            <div class="text-xs text-gray-500 mt-1">The AI will have context from all previous workflow steps to make this decision.</div>
+                        </div>
+                    </div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button onclick="cancelConditionPathModal()" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+                        <button onclick="saveConditionPath('${conditionBlock.id}', '${nextBlock.id}')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save Path</button>
+                    </div>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            
+            // Focus on textarea
+            setTimeout(() => {
+                document.getElementById('pathPromptInput').focus();
+            }, 100);
+        }
+        
+        function cancelConditionPathModal() {
+            const modal = document.getElementById('blockConfigurationModal');
+            modal.classList.add('hidden');
+            clearDragState();
+        }
+        
+        function saveConditionPath(conditionBlockId, nextBlockId) {
+            const promptInput = document.getElementById('pathPromptInput');
+            const prompt = promptInput.value.trim();
+            
+            if (!prompt) {
+                alert('Please enter an AI decision prompt');
+                return;
+            }
+            
+            const conditionBlock = findBlockById(conditionBlockId);
+            const nextBlock = findBlockById(nextBlockId);
+            
+            if (!conditionBlock || !nextBlock) {
+                alert('Error: Could not find blocks');
+                return;
+            }
+            
+            // Initialize paths array if not exists
+            if (!conditionBlock.data.paths) {
+                conditionBlock.data.paths = [];
+            }
+            
+            // Add the path
+            conditionBlock.data.paths.push({
+                prompt: prompt,
+                nextBlockId: nextBlockId
+            });
+            
+            // Create follow-up relationship
+            if (addFollowUpRelationship(conditionBlockId, nextBlockId)) {
+                // Remove from root level if it was there
+                workflowBlocks = workflowBlocks.filter(block => block.id !== nextBlockId);
+                
+                // Close modal
+                const modal = document.getElementById('blockConfigurationModal');
+                modal.classList.add('hidden');
+                
+                // Re-render workflow
+                renderWorkflow();
+            }
+            
+            clearDragState();
+        }
+
         function setupDropZoneListeners(handle, parentBlock) {
             handle.addEventListener('dragover', (e) => {
                 e.preventDefault();
@@ -969,13 +1078,18 @@
                 if (draggedBlock) {
                     // Check for circular dependency
                     if (!hasCircularDependency(parentBlock.id, draggedBlock.id)) {
-                        // Create followUp relationship
-                        if (addFollowUpRelationship(parentBlock.id, draggedBlock.id)) {
-                            // Remove from root level if it was there
-                            workflowBlocks = workflowBlocks.filter(block => block.id !== draggedBlock.id);
-                            
-                            // Re-render workflow
-                            renderWorkflow();
+                        // Special handling for condition blocks - show prompt input modal
+                        if (parentBlock.type === 'condition') {
+                            showConditionPathPromptModal(parentBlock, draggedBlock);
+                        } else {
+                            // Create followUp relationship for regular blocks
+                            if (addFollowUpRelationship(parentBlock.id, draggedBlock.id)) {
+                                // Remove from root level if it was there
+                                workflowBlocks = workflowBlocks.filter(block => block.id !== draggedBlock.id);
+                                
+                                // Re-render workflow
+                                renderWorkflow();
+                            }
                         }
                     } else {
                         showCircularDependencyError();
@@ -1074,7 +1188,6 @@
                 const blockType = e.dataTransfer.getData('text/plain');
                 const isFromLibrary = e.dataTransfer.getData('application/x-block-library') === 'true';
                 
-                console.log('Drop event received, blockType:', blockType, 'isFromLibrary:', isFromLibrary); // Debug log
                 
                 // Only create new blocks if dragging from library, not when moving existing blocks
                 if (blockType && isFromLibrary) {
@@ -1118,7 +1231,7 @@
                 connectionPoints: {
                     bottom: { x: 0, y: 0 }
                 },
-                children: type === 'condition' ? { true: [], false: [] } : 
+                children: type === 'condition' ? { paths: [] } : 
                          type === 'loop' ? { items: [] } : null
             };
 
@@ -1240,8 +1353,6 @@
                 offsetY = e.clientY - rect.top;
                 document.body.style.userSelect = 'none';
                 wrapper.style.cursor = 'grabbing';
-                // Hide connectors while dragging
-                document.querySelectorAll('.workflow-connection-line').forEach(line => line.style.display = 'none');
                 e.preventDefault();
                 e.stopPropagation();
             });
@@ -1254,6 +1365,11 @@
                 block.position.y = y;
                 wrapper.style.left = `${x}px`;
                 wrapper.style.top = `${y}px`;
+                
+                // Redraw connection lines in real-time during drag
+                requestAnimationFrame(() => {
+                    drawHierarchicalConnections();
+                });
             });
             document.addEventListener('mouseup', () => {
                 if (isDragging) {
@@ -1443,6 +1559,9 @@
                 initializeEditor();
                 setupEventListeners();
             }
+            
+            // Initialize zoom and pan functionality
+            initializeZoomAndPan();
         });
 
         function initializeEditor() {
@@ -1551,7 +1670,12 @@
 
             // Triggers section
             if (triggers.length > 0) {
-                html += createCategorySection('Triggers', triggers);
+                const hasTrigger = workflowBlocks.some(block => block.type.startsWith('trigger-'));
+                let triggerNote = '';
+                if (hasTrigger) {
+                    triggerNote = '<div class="mb-3 p-2 bg-amber-50 border border-amber-200 rounded-lg"><div class="text-xs text-amber-700"><i class="ri-information-line mr-1"></i>Only one trigger block allowed per workflow. Other triggers are disabled.</div></div>';
+                }
+                html += triggerNote + createCategorySection('Triggers', triggers);
             }
 
             // Actions section
@@ -1567,7 +1691,7 @@
             blockCategories.innerHTML = html;
 
             // Make block library items draggable instead of clickable
-            blockCategories.querySelectorAll('.block-library-item').forEach(item => {
+            blockCategories.querySelectorAll('.block-library-item').forEach((item, index) => {
                 const blockType = item.dataset.type;
                 
                 // Skip disabled items (like triggers when one already exists)
@@ -1580,7 +1704,6 @@
                 item.style.cursor = 'grab';
                 
                 item.addEventListener('dragstart', (e) => {
-                    console.log('Drag start for blockType:', blockType); // Debug log
                     isDraggingFromLibrary = true;
                     e.dataTransfer.setData('text/plain', blockType);
                     e.dataTransfer.setData('application/x-block-library', 'true');
@@ -1604,7 +1727,7 @@
                     <div class="grid grid-cols-2 gap-2">
             `;
 
-            blocks.forEach(([type, config]) => {
+            blocks.forEach(([type, config], blockIndex) => {
                 const colorClass = getColorClasses(config.color);
                 const shortTitle = shortenBlockTitle(config.title);
                 const aiTag = type === 'approval' ? '<div class="ai-corner-tag">AI</div>' : '';
@@ -1617,10 +1740,11 @@
                 const disabledClass = isDisabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer hover:bg-gray-50 hover:border-gray-300';
                 const disabledTitle = isDisabled ? 'Only one trigger allowed per workflow' : `${config.title} - ${config.description}`;
                 
+                
                 html += `
                     <div class="block-library-item relative flex flex-col items-center p-2 rounded-lg border border-gray-200 ${disabledClass} transition-colors" data-type="${type}" title="${disabledTitle}">
                         ${aiTag}
-                        ${isDisabled ? '<div class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-80 rounded-lg"><i class="ri-lock-line text-gray-400"></i></div>' : ''}
+                        ${isDisabled ? '<div class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 rounded-lg z-10"><div class="text-center"><i class="ri-lock-line text-gray-400 text-lg mb-1"></i><div class="text-xs text-gray-500">Only one trigger allowed</div></div></div>' : ''}
                         <div class="w-6 h-6 ${colorClass.bg} ${colorClass.text} rounded-full flex items-center justify-center mb-1 flex-shrink-0">
                             <i class="${config.icon} text-sm"></i>
                         </div>
@@ -1700,6 +1824,11 @@
             // New action buttons
             document.getElementById('manageUsageBtn').addEventListener('click', manageWorkflowUsage);
             document.getElementById('copyWorkflowBtn').addEventListener('click', copyWorkflow);
+            
+            // Zoom control buttons
+            document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
+            document.getElementById('zoomOutBtn').addEventListener('click', zoomOut);
+            document.getElementById('zoomDisplay').addEventListener('click', resetZoom); // Click zoom display to reset
 
             
 
@@ -1788,7 +1917,7 @@
                 connectionPoints: { // New: positions for connection handles
                     bottom: { x: 0, y: 0 }
                 },
-                children: type === 'condition' ? { true: [], false: [] } : 
+                children: type === 'condition' ? { paths: [] } : 
                          type === 'loop' ? { items: [] } : null
             };
 
@@ -1875,8 +2004,9 @@
             canvasContainer.style.cssText = `
                 position: relative;
                 width: 100%;
-                min-height: 600px;
+                min-height: 800px;
                 padding: 40px;
+                box-sizing: border-box;
                 background: linear-gradient(
                     rgba(99, 102, 241, 0.05) 1px, 
                     transparent 1px
@@ -1887,6 +2017,7 @@
                     transparent 1px
                 );
                 background-size: 20px 20px;
+                transform-origin: top left;
             `;
             
             // Make canvas a drop zone for new blocks
@@ -1913,12 +2044,16 @@
                 renderHierarchicalBlocks(rootBlocks, canvasContainer, 0, canvasCenter);
             }
             
+            // Ensure parent container is properly set up
+            workflowBlocksContainer.style.overflow = 'hidden';
             workflowBlocksContainer.appendChild(canvasContainer);
             
-            // Draw connection lines after rendering
+            // Draw connection lines after rendering and reinitialize zoom/pan
             requestAnimationFrame(() => {
                 drawHierarchicalConnections();
                 markOrphanedBlocks();
+                // Reinitialize zoom and pan for the new canvas
+                initializeZoomAndPan();
             });
         }
 
@@ -2000,11 +2135,8 @@
         }
 
         function renderBlock(block, container, nestingLevel = 0, isLast = false) {
-            // Check if this is a container block
-            if (block.type === 'condition') {
-                renderConditionBlock(block, container, nestingLevel, isLast);
-                return;
-            } else if (block.type === 'loop') {
+            // Check if this is a container block (only loop now)
+            if (block.type === 'loop') {
                 renderLoopBlock(block, container, nestingLevel, isLast);
                 return;
             }
@@ -2017,8 +2149,9 @@
             const needsConfig = !isConfigured && !['trigger-manual'].includes(block.type);
             
             const statusClass = isConfigured ? 'configured' : needsConfig ? 'needs-config' : '';
+            const conditionClass = block.type === 'condition' ? 'condition-block' : '';
             
-            blockElement.className = `flowchart-block ${statusClass} ${indentClass}`;
+            blockElement.className = `flowchart-block ${statusClass} ${conditionClass} ${indentClass}`;
             blockElement.dataset.blockId = block.id;
             
             const colorClass = getColorClasses(block.config.color);
@@ -2065,7 +2198,7 @@
             });
             
             // Add red connection handle for trigger and action blocks (not logic blocks)
-            if (!['condition', 'loop'].includes(block.type)) {
+            if (!['loop'].includes(block.type)) {
                 const connectionHandle = document.createElement('div');
                 connectionHandle.className = 'connection-handle';
                 connectionHandle.dataset.blockId = block.id;
@@ -2385,6 +2518,11 @@
             
             layoutBlocksHierarchically(rootBlocks, { x: 400, y: 100 }, 0);
             renderWorkflow();
+            
+            // Center blocks after auto layout
+            setTimeout(() => {
+                centerBlocks();
+            }, 100);
         }
 
         function layoutBlocksHierarchically(blocks, startPosition, level) {
@@ -2408,102 +2546,6 @@
             });
         }
 
-        function renderConditionBlock(block, container, nestingLevel = 0, isLast = false) {
-            const containerElement = document.createElement('div');
-            const indentClass = nestingLevel > 0 ? `ml-${nestingLevel * 4} border-l-2 border-gray-200 pl-4` : '';
-            
-            containerElement.className = `workflow-container mb-4 ${indentClass}`;
-            containerElement.dataset.blockId = block.id;
-            
-            const colorClass = getColorClasses(block.config.color);
-            const conditionText = block.data.condition || 'Set condition...';
-            const isExpanded = block.data.expanded !== false; // Default to expanded
-            
-            containerElement.innerHTML = `
-                <div class="condition-container border-2 border-yellow-200 rounded-lg bg-yellow-50" style="position: relative;">
-                    <!-- Container Header -->
-                    <div class="condition-header p-4 border-b border-yellow-200 cursor-pointer" onclick="toggleContainer('${block.id}')">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 ${colorClass.bg} ${colorClass.text} rounded-full flex items-center justify-center mr-3">
-                                    <i class="${block.config.icon}"></i>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="text-sm font-medium text-gray-900">IF: ${conditionText}</div>
-                                    <div class="text-xs text-gray-500">Click to ${isExpanded ? 'collapse' : 'expand'}</div>
-                                </div>
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <button class="configure-block p-1 text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showBlockConfiguration(findBlockById('${block.id}'))">
-                                    <i class="ri-settings-line"></i>
-                                </button>
-                                <button class="delete-block p-1 text-gray-400 hover:text-red-500" onclick="event.stopPropagation(); showDeleteConfirmation('${block.id}', '${block.config.title}')">
-                                    <i class="ri-delete-bin-line"></i>
-                                </button>
-                                <i class="ri-arrow-${isExpanded ? 'up' : 'down'}-s-line text-gray-400"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Container Content -->
-                    <div class="condition-content ${isExpanded ? '' : 'hidden'}" id="container-${block.id}">
-                        <div class="grid grid-cols-2 gap-4 p-4">
-                            <!-- True Branch -->
-                            <div class="condition-branch true-branch">
-                                <div class="branch-header mb-3">
-                                    <div class="flex items-center">
-                                        <div class="w-4 h-4 bg-green-500 rounded-full mr-2"></div>
-                                        <span class="text-sm font-medium text-green-700">When TRUE</span>
-                                    </div>
-                                </div>
-                                <div class="drop-zone min-h-16 border-2 border-dashed border-green-300 rounded-lg p-2 bg-green-50" 
-                                     data-parent-id="${block.id}" data-branch="true">
-                                    ${block.children.true.length === 0 ? 
-                                        '<div class="text-xs text-green-600 text-center py-2">Drop blocks here for TRUE case</div>' : ''}
-                                </div>
-                            </div>
-                            
-                            <!-- False Branch -->
-                            <div class="condition-branch false-branch">
-                                <div class="branch-header mb-3">
-                                    <div class="flex items-center">
-                                        <div class="w-4 h-4 bg-red-500 rounded-full mr-2"></div>
-                                        <span class="text-sm font-medium text-red-700">When FALSE</span>
-                                    </div>
-                                </div>
-                                <div class="drop-zone min-h-16 border-2 border-dashed border-red-300 rounded-lg p-2 bg-red-50" 
-                                     data-parent-id="${block.id}" data-branch="false">
-                                    ${block.children.false.length === 0 ? 
-                                        '<div class="text-xs text-red-600 text-center py-2">Drop blocks here for FALSE case</div>' : ''}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            container.appendChild(containerElement);
-            
-            // Render nested blocks if expanded
-            if (isExpanded) {
-                const trueDropZone = containerElement.querySelector('[data-branch="true"]');
-                const falseDropZone = containerElement.querySelector('[data-branch="false"]');
-                
-                if (block.children.true.length > 0) {
-                    trueDropZone.innerHTML = '';
-                    block.children.true.forEach(childBlock => {
-                        renderBlock(childBlock, trueDropZone, nestingLevel + 1);
-                    });
-                }
-                
-                if (block.children.false.length > 0) {
-                    falseDropZone.innerHTML = '';
-                    block.children.false.forEach(childBlock => {
-                        renderBlock(childBlock, falseDropZone, nestingLevel + 1);
-                    });
-                }
-            }
-        }
 
         function renderLoopBlock(block, container, nestingLevel = 0, isLast = false) {
             const containerElement = document.createElement('div');
@@ -2552,10 +2594,8 @@
                                         <span class="text-sm font-medium text-blue-700">Repeated Actions</span>
                                     </div>
                                 </div>
-                                <div class="drop-zone min-h-16 border-2 border-dashed border-blue-300 rounded-lg p-2 bg-blue-50" 
+                                <div class="drop-zone min-h-16 rounded-lg p-2" 
                                      data-parent-id="${block.id}" data-branch="items">
-                                    ${block.children.items.length === 0 ? 
-                                        '<div class="text-xs text-blue-600 text-center py-2">Drop blocks here to repeat</div>' : ''}
                                 </div>
                             </div>
                         </div>
@@ -2589,19 +2629,18 @@
             }
             
             if (block.type === 'condition' && block.data.configured) {
+                const pathsCount = block.data.paths?.length || 0;
                 return `
                     <div class="mt-3">
-                        <div class="text-xs text-gray-600 mb-2">When: ${block.data.condition || 'Not set'}</div>
-                        <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div class="condition-branch true-branch p-2 rounded bg-green-50">
-                                <div class="text-green-700 font-medium">✓ True Path</div>
-                                <div class="text-green-600">${block.data.trueBranch?.length || 0} steps</div>
-                            </div>
-                            <div class="condition-branch false-branch p-2 rounded bg-red-50">
-                                <div class="text-red-700 font-medium">✗ False Path</div>
-                                <div class="text-red-600">${block.data.falseBranch?.length || 0} steps</div>
-                            </div>
+                        <div class="text-xs text-gray-600 mb-2">${pathsCount} AI-driven paths configured</div>
+                        <div class="text-xs text-blue-600 bg-blue-50 p-2 rounded">
+                            Default: Cannot Decide → Stop & Notify
                         </div>
+                        ${pathsCount > 0 ? `
+                            <div class="mt-2 text-xs text-gray-600">
+                                Sample: "${block.data.paths[0]?.prompt.substring(0, 30)}..."
+                            </div>
+                        ` : ''}
                     </div>
                 `;
             }
@@ -3072,18 +3111,84 @@
             `;
         }
         
+        function removeConditionPath(pathIndex) {
+            // This will be handled when the modal is saved
+            const pathElement = document.querySelector(`[data-path-index="${pathIndex}"]`).closest('.border');
+            pathElement.style.opacity = '0.5';
+            pathElement.style.pointerEvents = 'none';
+            pathElement.setAttribute('data-marked-for-deletion', 'true');
+        }
+
         function createConditionConfigModal(block) {
-            return `
-                <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Condition</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Condition</label>
-                            <textarea class="config-input w-full p-2 border border-gray-300 rounded-lg" rows="3" 
-                                      data-field="condition" placeholder="Describe the condition to check...\nExample: Patient age > 65"></textarea>
+            const paths = block.data.paths || [];
+            const pathsHtml = paths.map((path, index) => {
+                const nextBlock = findBlockById(path.nextBlockId);
+                const blockName = nextBlock ? nextBlock.config.title : 'Unknown Block';
+                const blockIcon = nextBlock ? nextBlock.config.icon : 'ri-question-line';
+                const blockColor = nextBlock ? getColorClasses(nextBlock.config.color) : { bg: 'bg-gray-500', text: 'text-white' };
+                
+                return `
+                    <div class="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex items-center">
+                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-medium">Path ${index + 1}</span>
+                                <div class="ml-3 flex items-center">
+                                    <div class="w-5 h-5 ${blockColor.bg} ${blockColor.text} rounded mr-2 flex items-center justify-center text-xs">
+                                        <i class="${blockIcon}"></i>
+                                    </div>
+                                    <span class="text-sm font-medium">${blockName}</span>
+                                </div>
+                            </div>
+                            <button onclick="removeConditionPath(${index})" class="text-red-500 hover:text-red-700 text-sm">
+                                <i class="ri-delete-bin-line"></i>
+                            </button>
                         </div>
-                        <div class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                            <strong>Note:</strong> This creates two separate paths in your workflow. Steps following this condition will be organized into True and False branches.
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700 mb-1">AI Decision Prompt:</label>
+                            <textarea class="path-prompt-input w-full p-2 text-sm border border-gray-300 rounded" rows="2" 
+                                      data-path-index="${index}" placeholder="When should AI take this path?">${path.prompt}</textarea>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="bg-white rounded-lg p-6 max-w-3xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure AI-Driven Condition</h3>
+                    <div class="space-y-6">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <div class="flex items-center mb-2">
+                                <i class="ri-brain-line text-blue-600 mr-2"></i>
+                                <span class="font-medium text-blue-900">AI Decision Making</span>
+                            </div>
+                            <p class="text-sm text-blue-800">
+                                This condition block uses AI to analyze workflow context and decide which path to take. 
+                                Connect different blocks using the red handle, and specify when AI should choose each path.
+                            </p>
+                        </div>
+                        
+                        ${paths.length > 0 ? `
+                            <div>
+                                <h4 class="font-medium text-gray-900 mb-3">Configured Paths (${paths.length})</h4>
+                                <div class="space-y-3">
+                                    ${pathsHtml}
+                                </div>
+                            </div>
+                        ` : `
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="ri-links-line text-3xl mb-2"></i>
+                                <p>No paths configured yet</p>
+                                <p class="text-sm">Drag blocks to the red handle to create AI-driven paths</p>
+                            </div>
+                        `}
+                        
+                        <div class="border-t pt-4">
+                            <div class="flex items-center text-sm text-gray-600 bg-orange-50 p-3 rounded-lg">
+                                <i class="ri-alert-line text-orange-600 mr-2"></i>
+                                <div>
+                                    <strong>Default Behavior:</strong> If AI cannot decide which path to take, the workflow will stop and send a notification message: "Cannot decide next step - manual review required."
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="mt-6 flex justify-end space-x-3">
@@ -3890,8 +3995,29 @@
             
             // Special handling for condition blocks
             if (block.type === 'condition') {
-                data.trueBranch = [];
-                data.falseBranch = [];
+                // Preserve existing paths and update prompts
+                const existingPaths = block.data.paths || [];
+                const updatedPaths = [];
+                
+                // Get all path prompt inputs
+                const pathInputs = modal.querySelectorAll('.path-prompt-input');
+                pathInputs.forEach(input => {
+                    const pathIndex = parseInt(input.dataset.pathIndex);
+                    const pathElement = input.closest('[data-marked-for-deletion]');
+                    
+                    // Skip paths marked for deletion
+                    if (!pathElement) {
+                        const existingPath = existingPaths[pathIndex];
+                        if (existingPath) {
+                            updatedPaths.push({
+                                prompt: input.value.trim(),
+                                nextBlockId: existingPath.nextBlockId
+                            });
+                        }
+                    }
+                });
+                
+                data.paths = updatedPaths;
             }
             
             // Update block data
@@ -4428,6 +4554,237 @@
             setTimeout(() => {
                 notification.remove();
             }, 3000);
+        }
+
+        // Zoom and Pan functionality
+        let currentZoom = 1;
+        let currentPanX = 0;
+        let currentPanY = 0;
+        let isPanning = false;
+        let lastPanX = 0;
+        let lastPanY = 0;
+
+        function initializeZoomAndPan() {
+            const canvas = document.querySelector('.workflow-canvas');
+            if (!canvas || canvas.hasZoomPanListeners) return;
+            canvas.hasZoomPanListeners = true;
+            
+            // Mouse wheel zoom with Ctrl key
+            canvas.addEventListener('wheel', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    e.preventDefault();
+                    
+                    const rect = canvas.getBoundingClientRect();
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    const zoomFactor = e.deltaY > 0 ? 0.95 : 1.05; // 5% increments
+                    const newZoom = Math.max(0.1, Math.min(3, currentZoom * zoomFactor));
+                    
+                    if (newZoom !== currentZoom) {
+                        currentZoom = newZoom;
+                        updateCanvasTransform();
+                    }
+                }
+            });
+
+            // Pinch-to-zoom for trackpad
+            let lastTouchDistance = 0;
+            canvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    lastTouchDistance = Math.hypot(
+                        touch2.clientX - touch1.clientX,
+                        touch2.clientY - touch1.clientY
+                    );
+                }
+            });
+
+            canvas.addEventListener('touchmove', (e) => {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    const currentDistance = Math.hypot(
+                        touch2.clientX - touch1.clientX,
+                        touch2.clientY - touch1.clientY
+                    );
+                    
+                    if (lastTouchDistance > 0) {
+                        const zoomFactor = currentDistance / lastTouchDistance;
+                        const newZoom = Math.max(0.1, Math.min(3, currentZoom * zoomFactor));
+                        
+                        if (newZoom !== currentZoom) {
+                            currentZoom = newZoom;
+                            updateCanvasTransform();
+                        }
+                    }
+                    
+                    lastTouchDistance = currentDistance;
+                }
+            });
+
+            canvas.addEventListener('touchend', (e) => {
+                if (e.touches.length < 2) {
+                    lastTouchDistance = 0;
+                }
+            });
+
+            // Add gesturestart/gesturechange for Safari trackpad pinch
+            canvas.addEventListener('gesturestart', (e) => {
+                e.preventDefault();
+            });
+
+            canvas.addEventListener('gesturechange', (e) => {
+                e.preventDefault();
+                const newZoom = Math.max(0.1, Math.min(3, currentZoom * e.scale));
+                if (newZoom !== currentZoom) {
+                    currentZoom = newZoom;
+                    updateCanvasTransform();
+                }
+            });
+
+            canvas.addEventListener('gestureend', (e) => {
+                e.preventDefault();
+            });
+
+            // Pan functionality with direct drag on empty canvas areas
+            canvas.addEventListener('mousedown', (e) => {
+                // Only start panning if clicking directly on the canvas (not on blocks)
+                if (e.button === 0 && e.target === canvas) { // Left click on empty canvas
+                    e.preventDefault();
+                    isPanning = true;
+                    lastPanX = e.clientX;
+                    lastPanY = e.clientY;
+                    canvas.style.cursor = 'grabbing';
+                } else if (e.button === 1) { // Middle mouse button anywhere
+                    e.preventDefault();
+                    isPanning = true;
+                    lastPanX = e.clientX;
+                    lastPanY = e.clientY;
+                    canvas.style.cursor = 'grabbing';
+                }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (isPanning) {
+                    const deltaX = e.clientX - lastPanX;
+                    const deltaY = e.clientY - lastPanY;
+                    
+                    currentPanX += deltaX;
+                    currentPanY += deltaY;
+                    
+                    lastPanX = e.clientX;
+                    lastPanY = e.clientY;
+                    
+                    updateCanvasTransform();
+                }
+            });
+
+            canvas.addEventListener('mouseup', (e) => {
+                if (isPanning) {
+                    isPanning = false;
+                    canvas.style.cursor = '';
+                }
+            });
+
+            canvas.addEventListener('mouseleave', () => {
+                isPanning = false;
+                canvas.style.cursor = '';
+            });
+
+            // Reset zoom with double-click
+            canvas.addEventListener('dblclick', (e) => {
+                if (e.ctrlKey || e.metaKey) {
+                    currentZoom = 1;
+                    currentPanX = 0;
+                    currentPanY = 0;
+                    updateCanvasTransform();
+                }
+            });
+        }
+
+        function updateCanvasTransform() {
+            const canvas = document.querySelector('.workflow-canvas');
+            canvas.style.transform = `translate(${currentPanX}px, ${currentPanY}px) scale(${currentZoom})`;
+            canvas.style.transformOrigin = 'center center';
+            
+            // Update zoom display
+            const zoomDisplay = document.getElementById('zoomDisplay');
+            if (zoomDisplay) {
+                zoomDisplay.textContent = Math.round(currentZoom * 100) + '%';
+            }
+        }
+
+        function zoomIn() {
+            const newZoom = Math.min(3, currentZoom * 1.05); // 5% increment
+            if (newZoom !== currentZoom) {
+                currentZoom = newZoom;
+                updateCanvasTransform();
+            }
+        }
+
+        function zoomOut() {
+            const newZoom = Math.max(0.1, currentZoom * 0.95); // 5% decrement
+            if (newZoom !== currentZoom) {
+                currentZoom = newZoom;
+                updateCanvasTransform();
+            }
+        }
+
+        function resetZoom() {
+            currentZoom = 1;
+            updateCanvasTransform();
+        }
+
+        function centerBlocks() {
+            if (workflowBlocks.length === 0) return;
+            
+            // Calculate bounds of all blocks
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            
+            function calculateBlockBounds(blocks) {
+                blocks.forEach(block => {
+                    if (block.position) {
+                        minX = Math.min(minX, block.position.x);
+                        minY = Math.min(minY, block.position.y);
+                        maxX = Math.max(maxX, block.position.x + 250); // Approximate block width
+                        maxY = Math.max(maxY, block.position.y + 100); // Approximate block height
+                    }
+                    
+                    // Check child blocks
+                    if (block.nextBlocks) {
+                        calculateBlockBounds(block.nextBlocks);
+                    }
+                });
+            }
+            
+            calculateBlockBounds(workflowBlocks);
+            
+            if (minX === Infinity) return;
+            
+            // Calculate center position
+            const boundsWidth = maxX - minX;
+            const boundsHeight = maxY - minY;
+            const boundsCenterX = minX + boundsWidth / 2;
+            const boundsCenterY = minY + boundsHeight / 2;
+            
+            // Get canvas dimensions
+            const canvas = document.querySelector('.workflow-canvas');
+            const canvasRect = canvas.getBoundingClientRect();
+            const canvasCenterX = canvasRect.width / 2;
+            const canvasCenterY = canvasRect.height / 2;
+            
+            // Calculate pan needed to center
+            const panX = canvasCenterX - boundsCenterX * currentZoom;
+            const panY = canvasCenterY - boundsCenterY * currentZoom;
+            
+            currentPanX = panX;
+            currentPanY = panY;
+            
+            updateCanvasTransform();
         }
     </script>
 </body>

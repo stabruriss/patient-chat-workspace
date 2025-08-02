@@ -23,12 +23,15 @@ This is a **healthcare communication platform** built as a multi-page HTML appli
 
 ### Core Application Structure
 
-The platform consists of **four main application pages**:
+The platform consists of **seven main application pages**:
 
 1. **`index.html`** - Patient Chat Workspace (main communication hub)
 2. **`Healthcare-Provider-Workbench.html`** - Task management and active workflows
 3. **`workflow-composer.html`** - Visual workflow builder with drag-and-drop interface
 4. **`My-Practice-Dashboard.html`** - Practice settings and configuration
+5. **`my-calendar.html`** - Calendar and appointment scheduling
+6. **`test-workflow.html`** - Workflow testing interface
+7. **`test-drag-drop.html`** - Drag-and-drop testing interface
 
 Each HTML file is **self-contained** with embedded CSS and JavaScript, using CDN resources for external dependencies.
 
@@ -53,7 +56,7 @@ The workflow composer (`workflow-composer.html`) implements a **Notion-style blo
 #### 2. Healthcare Data Model
 Based on `obj-status.md`, the system tracks these core healthcare objects with status timestamps:
 - **Patient Profile** (Updated)
-- **Orders** (Created, Modified, Redrawn, Payment states, Lab status, Cancellation)
+- **Orders** (Created, Modified, Redrawn, Payment Complete/Failed/Refund, Lab Shipped, Questionnaire Assigned, Missing Information, Test Not Performed, Canceled)
 - **Reports** (Available, Shared)
 - **Encounter Notes** (Shared, Updated)  
 - **Documents/Forms** (Viewed, Submitted)

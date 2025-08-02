@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Drag Drop</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        iframe {
+            width: 100%;
+            height: 80vh;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+        .instructions {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        <h2>Drag Drop Test Instructions</h2>
+        <p><strong>Test Steps:</strong></p>
+        <ol>
+            <li>Open browser developer tools (F12)</li>
+            <li>Go to Console tab</li>
+            <li>Select "Patient Workflow" to start</li>
+            <li>Try dragging the first few blocks from the left panel</li>
+            <li>Check console logs for any errors or debugging info</li>
+            <li>Specifically test the 3rd card in each category</li>
+        </ol>
+        <p><strong>Expected:</strong> All blocks should be draggable unless they are trigger blocks and a trigger already exists.</p>
+    </div>
+    
+    <iframe src="workflow-composer.html?type=patient" title="Workflow Composer"></iframe>
+
+    <script>
+        // Log any errors from the iframe
+        window.addEventListener('message', function(event) {
+            console.log('Message from iframe:', event.data);
+        });
+        
+        // Also listen for errors
+        window.addEventListener('error', function(event) {
+            console.error('Error caught:', event.error);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Workflow Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
+</head>
+<body>
+    <div class="p-8">
+        <h1>Testing New Drag-and-Drop Workflow UX</h1>
+        <div id="test-output"></div>
+        <iframe src="workflow-composer.html" width="100%" height="800px" style="border: 1px solid #ddd; margin-top: 20px;"></iframe>
+    </div>
+    
+    <script>
+        // Test if the page loads without JavaScript errors
+        window.addEventListener('load', function() {
+            const output = document.getElementById('test-output');
+            
+            const iframe = document.querySelector('iframe');
+            iframe.onload = function() {
+                try {
+                    // Check if the iframe loaded successfully
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (iframeDoc.readyState === 'complete') {
+                        output.innerHTML = '<div class="bg-green-100 p-4 rounded">✅ Workflow composer loaded successfully!</div>';
+                    }
+                } catch (e) {
+                    output.innerHTML = '<div class="bg-red-100 p-4 rounded">❌ Error loading workflow composer: ' + e.message + '</div>';
+                }
+            };
+            
+            iframe.onerror = function() {
+                output.innerHTML = '<div class="bg-red-100 p-4 rounded">❌ Failed to load workflow composer</div>';
+            };
+        });
+    </script>
+</body>
+</html>
