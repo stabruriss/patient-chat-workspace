@@ -2323,6 +2323,8 @@
                 markOrphanedBlocks();
                 // Reinitialize zoom and pan for the new canvas
                 initializeZoomAndPan();
+                // Reapply current zoom and pan state to the new canvas
+                updateCanvasTransform();
             });
         }
 
@@ -4942,8 +4944,9 @@
                     const deltaX = e.clientX - lastPanX;
                     const deltaY = e.clientY - lastPanY;
                     
-                    currentPanX += deltaX;
-                    currentPanY += deltaY;
+                    // Convert screen delta to canvas delta by dividing by zoom
+                    currentPanX += deltaX / currentZoom;
+                    currentPanY += deltaY / currentZoom;
                     
                     lastPanX = e.clientX;
                     lastPanY = e.clientY;
@@ -4977,7 +4980,7 @@
 
         function updateCanvasTransform() {
             const canvas = document.querySelector('.workflow-canvas');
-            canvas.style.transform = `translate(${currentPanX}px, ${currentPanY}px) scale(${currentZoom})`;
+            canvas.style.transform = `scale(${currentZoom}) translate(${currentPanX}px, ${currentPanY}px)`;
             canvas.style.transformOrigin = 'center center';
             
             // Update zoom display
@@ -5046,9 +5049,9 @@
             const canvasCenterX = canvasRect.width / 2;
             const canvasCenterY = canvasRect.height / 2;
             
-            // Calculate pan needed to center
-            const panX = canvasCenterX - boundsCenterX * currentZoom;
-            const panY = canvasCenterY - boundsCenterY * currentZoom;
+            // Calculate pan needed to center (account for scale-first transform)
+            const panX = (canvasCenterX - boundsCenterX * currentZoom) / currentZoom;
+            const panY = (canvasCenterY - boundsCenterY * currentZoom) / currentZoom;
             
             currentPanX = panX;
             currentPanY = panY;
