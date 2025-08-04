@@ -1419,40 +1419,40 @@
             alert('Cannot create this connection: it would create a circular dependency in your workflow.');
         }
 
-        // Setup canvas as drop zone for new blocks from library
-        function setupCanvasDropZone(canvasContainer) {
-            canvasContainer.addEventListener('dragover', (e) => {
+        // Setup drop zone for new blocks from library
+        function setupBlockEditorDropZone(container) {
+            container.addEventListener('dragover', (e) => {
                 // Accept all drags from library - simplified approach
                 e.preventDefault();
                 e.stopPropagation();
                 e.dataTransfer.dropEffect = 'copy';
-                canvasContainer.classList.add('drop-zone-active');
+                container.classList.add('drop-zone-active');
                 console.log('Dragover - added drop-zone-active'); // Debug log
             });
 
-            canvasContainer.addEventListener('dragenter', (e) => {
+            container.addEventListener('dragenter', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                canvasContainer.classList.add('drop-zone-active');
+                container.classList.add('drop-zone-active');
                 console.log('Dragenter - added drop-zone-active'); // Debug log
             });
 
-            canvasContainer.addEventListener('dragleave', (e) => {
-                // Only remove highlight if we're actually leaving the canvas
-                const rect = canvasContainer.getBoundingClientRect();
+            container.addEventListener('dragleave', (e) => {
+                // Only remove highlight if we're actually leaving the container
+                const rect = container.getBoundingClientRect();
                 const x = e.clientX;
                 const y = e.clientY;
                 
                 if (x < rect.left || x > rect.right || y < rect.top || y > rect.bottom) {
-                    canvasContainer.classList.remove('drop-zone-active');
+                    container.classList.remove('drop-zone-active');
                     console.log('Dragleave - removed drop-zone-active'); // Debug log
                 }
             });
 
-            canvasContainer.addEventListener('drop', (e) => {
+            container.addEventListener('drop', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                canvasContainer.classList.remove('drop-zone-active');
+                container.classList.remove('drop-zone-active');
                 
                 const blockType = e.dataTransfer.getData('text/plain');
                 const isFromLibrary = e.dataTransfer.getData('application/x-block-library') === 'true';
@@ -1460,15 +1460,18 @@
                 
                 // Only create new blocks if dragging from library, not when moving existing blocks
                 if (blockType && isFromLibrary) {
-                    // Calculate drop position relative to canvas
-                    const rect = canvasContainer.getBoundingClientRect();
-                    const dropX = e.clientX - rect.left;
-                    const dropY = e.clientY - rect.top;
-                    
-                    console.log('Creating new block at position:', dropX, dropY); // Debug log
-                    
-                    // Create block at drop position
-                    createBlockAtPosition(blockType, dropX, dropY);
+                    // Calculate drop position relative to the canvas
+                    const canvas = document.querySelector('.workflow-canvas');
+                    if (canvas) {
+                        const canvasRect = canvas.getBoundingClientRect();
+                        const dropX = e.clientX - canvasRect.left;
+                        const dropY = e.clientY - canvasRect.top;
+                        
+                        console.log('Creating new block at position:', dropX, dropY); // Debug log
+                        
+                        // Create block at drop position
+                        createBlockAtPosition(blockType, dropX, dropY);
+                    }
                 } else if (blockType && !isFromLibrary) {
                     console.log('Ignoring drop - existing block being moved:', blockType); // Debug log
                 }
@@ -2289,8 +2292,12 @@
                 transform-origin: top left;
             `;
             
-            // Make canvas a drop zone for new blocks
-            setupCanvasDropZone(canvasContainer);
+            // Set up drop zone on the block-editor for full area coverage
+            const blockEditor = document.querySelector('.block-editor');
+            if (blockEditor && !blockEditor.hasDropZone) {
+                setupBlockEditorDropZone(blockEditor);
+                blockEditor.hasDropZone = true;
+            }
             
             // Get root blocks (blocks with no parent)
             const rootBlocks = getRootBlocks();
