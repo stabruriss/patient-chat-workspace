@@ -149,34 +149,51 @@
             animation: pulse-warning 2s infinite;
         }
         
-        /* Condition block special styling */
+        /* Condition block special styling - dome shape */
         .flowchart-block.condition-block {
-            border-radius: 0px;
-            transform: rotate(45deg);
-            width: 180px;
-            height: 180px;
+            width: 160px;
+            height: 120px;
+            border-radius: 80px 80px 0 0;
             padding: 20px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            text-align: center;
+            position: relative;
         }
         
         .flowchart-block.condition-block .flowchart-block-header {
-            transform: rotate(-45deg);
+            display: flex;
             flex-direction: column;
-            text-align: center;
-            margin-bottom: 0;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .flowchart-block.condition-block .flowchart-block-icon {
+            width: 24px;
+            height: 24px;
+            margin-bottom: 4px;
+        }
+        
+        .flowchart-block.condition-block .flowchart-block-title {
+            font-size: 14px;
+            font-weight: 600;
+            line-height: 1.2;
         }
         
         .flowchart-block.condition-block .flowchart-block-content {
-            transform: rotate(-45deg);
+            font-size: 12px;
+            line-height: 1.2;
             text-align: center;
+            margin-top: 4px;
         }
         
         .flowchart-block.condition-block .flowchart-block-actions {
-            transform: rotate(-45deg);
+            margin-top: 12px;
+            display: flex;
+            gap: 8px;
             justify-content: center;
-            margin-top: 8px;
         }
         
         @keyframes pulse-warning {
@@ -1108,6 +1125,13 @@
         </div>
     </div>
 
+    <!-- Block Configuration Modal -->
+    <div id="blockConfigurationModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 hidden">
+        <div id="modalContent">
+            <!-- Dynamic content will be inserted here -->
+        </div>
+    </div>
+
     <!-- Command Palette Modal -->
     <div id="commandPalette" class="fixed inset-0 z-50 hidden opacity-0 transition-opacity duration-200">
         <!-- Backdrop -->
@@ -1232,8 +1256,11 @@
 
         // Setup drop zone listeners for connection handles
         function showConditionPathPromptModal(conditionBlock, nextBlock) {
+            console.log('showConditionPathPromptModal called with:', conditionBlock, nextBlock);
             const modal = document.getElementById('blockConfigurationModal');
             const modalContent = document.getElementById('modalContent');
+            console.log('Modal element found:', modal);
+            console.log('Modal content element found:', modalContent);
             
             modalContent.innerHTML = `
                 <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
@@ -1259,8 +1286,8 @@
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">AI Decision Prompt</label>
                             <textarea id="pathPromptInput" class="w-full p-3 border border-gray-300 rounded-lg" rows="4" 
-                                      placeholder="Describe when AI should continue to this step...&#10;Example: Continue to this step if the patient's symptoms are severe or require immediate attention"></textarea>
-                            <div class="text-xs text-gray-500 mt-1">The AI will have context from all previous workflow steps to make this decision.</div>
+                                      placeholder="Describe when AI should continue to this step...&#10;Example: Continue if patient symptoms are severe"></textarea>
+                            <div class="text-xs text-gray-500 mt-1">AI evaluates this condition using previous workflow context.</div>
                         </div>
                     </div>
                     <div class="mt-6 flex justify-end space-x-3">
@@ -1344,13 +1371,21 @@
                 e.preventDefault();
                 handle.classList.remove('active');
                 
+                console.log('Drop event triggered on handle');
+                console.log('draggedBlock:', draggedBlock);
+                console.log('parentBlock:', parentBlock);
+                console.log('parentBlock.type:', parentBlock?.type);
+                
                 if (draggedBlock) {
                     // Check for circular dependency
                     if (!hasCircularDependency(parentBlock.id, draggedBlock.id)) {
+                        console.log('No circular dependency detected');
                         // Special handling for condition blocks - show prompt input modal
                         if (parentBlock.type === 'condition') {
+                            console.log('Condition block detected - showing modal');
                             showConditionPathPromptModal(parentBlock, draggedBlock);
                         } else {
+                            console.log('Regular block - creating follow-up relationship');
                             // Create followUp relationship for regular blocks
                             if (addFollowUpRelationship(parentBlock.id, draggedBlock.id)) {
                                 // Remove from root level if it was there
@@ -1361,8 +1396,11 @@
                             }
                         }
                     } else {
+                        console.log('Circular dependency detected');
                         showCircularDependencyError();
                     }
+                } else {
+                    console.log('No draggedBlock found');
                 }
                 
                 clearDragState();
@@ -1515,10 +1553,12 @@
             // Refresh block library to update trigger restrictions
             initializeBlockLibrary();
 
-            // Show configuration for the new block
-            setTimeout(() => {
-                showBlockConfiguration(block);
-            }, 100);
+            // Show configuration for the new block (skip for condition blocks)
+            if (type !== 'condition') {
+                setTimeout(() => {
+                    showBlockConfiguration(block);
+                }, 100);
+            }
         }
 
         // Draw hierarchical connection lines between parent and child blocks
@@ -2209,10 +2249,12 @@
             // Refresh block library to update trigger restrictions
             initializeBlockLibrary();
 
-            // Show configuration for the new block
-            setTimeout(() => {
-                showBlockConfiguration(block);
-            }, 100);
+            // Show configuration for the new block (skip for condition blocks)
+            if (type !== 'condition') {
+                setTimeout(() => {
+                    showBlockConfiguration(block);
+                }, 100);
+            }
         }
 
         function addTextBlock(text) {
@@ -2277,7 +2319,6 @@
                 position: relative;
                 width: 100%;
                 min-height: 800px;
-                padding: 40px;
                 box-sizing: border-box;
                 background: linear-gradient(
                     rgba(99, 102, 241, 0.05) 1px, 
@@ -2441,28 +2482,52 @@
                 '<div class="flowchart-block-status needs-config"><i class="ri-settings-line mr-1"></i>Needs Setup</div>' :
                 '<div class="flowchart-block-status configured"><i class="ri-check-line mr-1"></i>Ready</div>';
             
-            blockElement.innerHTML = `
-                <div class="flowchart-block-header">
-                    <div class="flowchart-block-icon ${colorClass.bg} ${colorClass.text}">
-                        <i class="${block.config.icon}"></i>
-                    </div>
-                    <div class="flowchart-block-content">
+            // Special handling for condition blocks
+            if (block.type === 'condition') {
+                blockElement.innerHTML = `
+                    <div class="flowchart-block-header">
+                        <div class="flowchart-block-icon ${colorClass.bg} ${colorClass.text}">
+                            <i class="${block.config.icon}"></i>
+                        </div>
                         <div class="flowchart-block-title">${block.config.title}</div>
-                        <div class="flowchart-block-description">${block.config.description}</div>
-                        ${statusIndicator}
                     </div>
-                </div>
-                
-                ${renderBlockContent(block)}
-                
-                <div class="flowchart-block-actions">
-                    ${needsConfig ? 
-                        '<button class="flowchart-action-btn primary configure-block"><i class="ri-settings-line mr-1"></i>Configure</button>' :
-                        '<button class="flowchart-action-btn configure-block"><i class="ri-settings-line mr-1"></i>Edit</button>'
-                    }
-                    <button class="flowchart-action-btn danger delete-block"><i class="ri-delete-bin-line mr-1"></i>Delete</button>
-                </div>
-            `;
+                    
+                    <div class="flowchart-block-content">
+                        ${renderBlockContent(block)}
+                    </div>
+                    
+                    <div class="flowchart-block-actions">
+                        ${needsConfig ? 
+                            '<button class="flowchart-action-btn primary configure-block"><i class="ri-settings-line mr-1"></i>Configure</button>' :
+                            '<button class="flowchart-action-btn configure-block"><i class="ri-settings-line mr-1"></i>Edit</button>'
+                        }
+                        <button class="flowchart-action-btn danger delete-block"><i class="ri-delete-bin-line mr-1"></i>Delete</button>
+                    </div>
+                `;
+            } else {
+                blockElement.innerHTML = `
+                    <div class="flowchart-block-header">
+                        <div class="flowchart-block-icon ${colorClass.bg} ${colorClass.text}">
+                            <i class="${block.config.icon}"></i>
+                        </div>
+                        <div class="flowchart-block-content">
+                            <div class="flowchart-block-title">${block.config.title}</div>
+                            <div class="flowchart-block-description">${block.config.description}</div>
+                            ${statusIndicator}
+                        </div>
+                    </div>
+                    
+                    ${renderBlockContent(block)}
+                    
+                    <div class="flowchart-block-actions">
+                        ${needsConfig ? 
+                            '<button class="flowchart-action-btn primary configure-block"><i class="ri-settings-line mr-1"></i>Configure</button>' :
+                            '<button class="flowchart-action-btn configure-block"><i class="ri-settings-line mr-1"></i>Edit</button>'
+                        }
+                        <button class="flowchart-action-btn danger delete-block"><i class="ri-delete-bin-line mr-1"></i>Delete</button>
+                    </div>
+                `;
+            }
             
             // Add event listeners
             blockElement.querySelector('.configure-block').addEventListener('click', (e) => {
@@ -2721,7 +2786,17 @@
         }
 
         function createConnection(sourceBlock, targetBlock) {
-            // Add connection
+            console.log('createConnection called with:', sourceBlock, targetBlock);
+            console.log('sourceBlock.type:', sourceBlock?.type);
+            
+            // Special handling for condition blocks - show prompt input modal
+            if (sourceBlock.type === 'condition') {
+                console.log('Condition block detected - showing modal');
+                showConditionPathPromptModal(sourceBlock, targetBlock);
+                return; // Don't create direct connection, let modal handle it
+            }
+            
+            // Add connection for regular blocks
             if (!sourceBlock.nextBlocks) {
                 sourceBlock.nextBlocks = [];
             }
@@ -3440,8 +3515,7 @@
                                 <span class="font-medium text-blue-900">AI Decision Making</span>
                             </div>
                             <p class="text-sm text-blue-800">
-                                This condition block uses AI to analyze workflow context and decide which path to take. 
-                                Connect different blocks using the red handle, and specify when AI should choose each path.
+                                AI analyzes workflow context to choose paths. Connect blocks via red handle and specify conditions.
                             </p>
                         </div>
                         
