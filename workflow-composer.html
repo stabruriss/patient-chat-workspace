@@ -6,6 +6,11 @@
     <title>Workflow Composer - Healthcare Provider Workbench</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css" rel="stylesheet">
+    
+    <!-- Magic UI Components Dependencies -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/framer-motion@11/dist/framer-motion.js"></script>
     <style>
         .primary { color: #4F46E5; }
         .bg-primary { background-color: #4F46E5; }
@@ -619,6 +624,19 @@
             z-index: 10;
         }
 
+        /* AI Inline Tag */
+        .ai-inline-tag {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 0.25rem;
+        }
+
         /* Tab Styling */
         .workflow-tab {
             transition: all 0.2s ease;
@@ -673,6 +691,102 @@
         
         .animate-spin {
             animation: spin 1s linear infinite;
+        }
+        
+        /* Rope Loop Magic UI Components */
+        
+        .ripple-effect {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(79, 70, 229, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s ease-out;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        .block-selection-mode .workflow-canvas {
+            cursor: crosshair;
+        }
+        
+        .block-selection-mode .flowchart-block {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .block-selection-mode .flowchart-block::before {
+            content: '+ Click to add to loop';
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4F46E5;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            z-index: 30;
+        }
+        
+        .block-selection-mode .flowchart-block:hover::before {
+            opacity: 1;
+        }
+        
+        .block-selection-mode .flowchart-block:hover {
+            box-shadow: 0 0 0 2px #4F46E5, 0 4px 20px rgba(79, 70, 229, 0.3);
+            background: rgba(79, 70, 229, 0.05);
+        }
+        
+        .block-selected {
+            background: rgba(79, 70, 229, 0.1);
+            box-shadow: 0 0 0 2px #4F46E5, 0 4px 12px rgba(79, 70, 229, 0.3);
+        }
+        
+        .block-selected::before {
+            content: '✓ Selected for loop';
+            background: #10b981 !important;
+            opacity: 1 !important;
+        }
+        
+        .rope-path {
+            fill: none;
+            stroke: #4F46E5;
+            stroke-width: 3;
+            stroke-dasharray: 5,5;
+            animation: rope-dash 1s linear infinite;
+        }
+        
+        @keyframes rope-dash {
+            to {
+                stroke-dashoffset: -10;
+            }
+        }
+        
+        .rope-enclosed {
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+            background: rgba(79, 70, 229, 0.05);
+            transform: scale(1.02);
+            transition: all 0.3s ease;
+        }
+        
+        .rope-svg-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: auto;
+            z-index: 20;
         }
     </style>
 </head>
@@ -1195,11 +1309,95 @@
                 // Add child to parent's followUp list if not already there
                 if (!parentBlock.nextBlocks.some(block => block.id === childBlockId)) {
                     parentBlock.nextBlocks.push(childBlock);
-                    childBlock.parentId = parentBlockId;
+                    
+                    // Handle multi-input support
+                    if (childBlock.supportsMultipleInputs) {
+                        // For multi-input blocks, add to parentIds array
+                        if (!childBlock.parentIds) {
+                            childBlock.parentIds = [];
+                        }
+                        if (!childBlock.parentIds.includes(parentBlockId)) {
+                            childBlock.parentIds.push(parentBlockId);
+                        }
+                    } else {
+                        // For single-input blocks, use traditional parentId
+                        childBlock.parentId = parentBlockId;
+                    }
                     return true;
                 }
             }
             return false;
+        }
+
+        // Handle action block status selection before finalizing connection
+        function saveActionStatus(sourceBlockId, targetBlockId) {
+            const modal = document.getElementById('blockConfigurationModal');
+            const checkedInputs = modal.querySelectorAll('#modalContent input[type="checkbox"]:checked');
+            const selected = Array.from(checkedInputs).map(cb => cb.value);
+            if (selected.length === 0) {
+                alert('Please select at least one status');
+                return;
+            }
+            const sourceBlock = findBlockById(sourceBlockId);
+            const targetBlock = findBlockById(targetBlockId);
+            if (!sourceBlock || !targetBlock) {
+                alert('Error: Could not find blocks');
+                return;
+            }
+            sourceBlock.data = sourceBlock.data || {};
+            sourceBlock.data.statusTriggers = selected;
+            if (addFollowUpRelationship(sourceBlockId, targetBlockId)) {
+                workflowBlocks = workflowBlocks.filter(block => block.id !== targetBlockId);
+                modal.classList.add('hidden');
+                renderWorkflow();
+            }
+            clearDragState();
+        }
+
+        function showActionStatusPromptModal(block, nextBlock) {
+            console.log('Action block detected - showing status modal');
+            const modal = document.getElementById('blockConfigurationModal');
+            const modalContent = document.getElementById('modalContent');
+            let optionsHtml = '';
+            if (block.type === 'appointment') {
+                optionsHtml = `
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="appointment-created"><span class="text-sm text-gray-700">Appointment Created</span></label>
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="appointment-accepted"><span class="text-sm text-gray-700">Appointment Accepted</span></label>
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="appointment-rejected"><span class="text-sm text-gray-700">Appointment Rejected</span></label>
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="appointment-tentative"><span class="text-sm text-gray-700">Appointment Tentative</span></label>
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="appointment-cancelled"><span class="text-sm text-gray-700">Appointment Cancelled</span></label>
+                `;
+            } else if (block.type === 'task') {
+                optionsHtml = `
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="task-open"><span class="text-sm text-gray-700">Task Open</span></label>
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="task-completed"><span class="text-sm text-gray-700">Task Completed</span></label>
+                `;
+            } else if (block.type === 'document') {
+                optionsHtml = `
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="document-viewed"><span class="text-sm text-gray-700">Document/Form Viewed</span></label>
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="form-submitted"><span class="text-sm text-gray-700">Form Submitted</span></label>
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="encounter-shared"><span class="text-sm text-gray-700">Encounter Note Shared</span></label>
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="encounter-updated"><span class="text-sm text-gray-700">Encounter Note Updated</span></label>
+                `;
+            } else if (block.type === 'order') {
+                optionsHtml = `
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="order-created"><span class="text-sm text-gray-700">Order Created</span></label>
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="order-modified"><span class="text-sm text-gray-700">Order Modified</span></label>
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="order-redrawn"><span class="text-sm text-gray-700">Order Redrawn</span></label>
+                    <label class="flex items-center"><input type="checkbox" class="config-input mr-2" value="payment-complete"><span class="text-sm text-gray-700">Payment Complete</span></label>
+                `;
+            }
+            modalContent.innerHTML = `
+                <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure ${block.config.title} Status Trigger</h3>
+                    <div class="space-y-4">${optionsHtml}</div>
+                    <div class="mt-6 flex justify-end space-x-3">
+                        <button onclick="cancelConditionPathModal()" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+                        <button onclick="saveActionStatus('${block.id}','${nextBlock.id}')" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Save</button>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
         }
 
         function removeFollowUpRelationship(parentBlockId, childBlockId) {
@@ -1208,7 +1406,17 @@
             
             if (parentBlock && childBlock) {
                 parentBlock.nextBlocks = parentBlock.nextBlocks.filter(block => block.id !== childBlockId);
-                childBlock.parentId = null;
+                
+                // Handle multi-input support
+                if (childBlock.supportsMultipleInputs && childBlock.parentIds) {
+                    // Remove from parentIds array
+                    childBlock.parentIds = childBlock.parentIds.filter(id => id !== parentBlockId);
+                    if (childBlock.parentIds.length === 0) {
+                        childBlock.parentId = null; // Clear single parentId too
+                    }
+                } else {
+                    childBlock.parentId = null;
+                }
                 return true;
             }
             return false;
@@ -1221,7 +1429,9 @@
                 const isReferencedAsNext = workflowBlocks.some(otherBlock => 
                     otherBlock.nextBlocks && otherBlock.nextBlocks.some(nextBlock => nextBlock.id === block.id)
                 );
-                return !isReferencedAsNext;
+                // Also check if block has parent references (for multi-input blocks)
+                const hasParents = (block.parentIds && block.parentIds.length > 0) || block.parentId;
+                return !isReferencedAsNext && !hasParents;
             });
         }
 
@@ -1262,10 +1472,70 @@
             console.log('Modal element found:', modal);
             console.log('Modal content element found:', modalContent);
             
+            // Check if condition block has multiple inputs
+            const hasMultipleInputs = conditionBlock.parentIds && conditionBlock.parentIds.length > 1;
+            const inputCount = conditionBlock.parentIds ? conditionBlock.parentIds.length : 0;
+            
+            // Build multi-input logic section if applicable
+            let multiInputSection = '';
+            if (hasMultipleInputs) {
+                const parentBlocksList = conditionBlock.parentIds.map(parentId => {
+                    const parent = findBlockById(parentId);
+                    return parent ? `<li class="text-sm text-gray-600">• ${parent.config.title}</li>` : '';
+                }).join('');
+                
+                multiInputSection = `
+                    <div class="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                        <div class="flex items-center mb-2">
+                            <i class="ri-git-merge-line text-amber-600 mr-2"></i>
+                            <span class="font-medium text-amber-900">Multi-Input Logic Configuration</span>
+                        </div>
+                        <div class="text-sm text-gray-700 mb-3">
+                            This condition block has ${inputCount} input connections from:
+                            <ul class="mt-1 ml-4">${parentBlocksList}</ul>
+                        </div>
+                        
+                        <div class="space-y-3 mt-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Logic Operator</label>
+                                <div class="flex space-x-4">
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="logicOperator" value="AND" checked class="mr-2">
+                                        <span class="font-medium">AND</span>
+                                        <span class="text-xs text-gray-500 ml-2">(All conditions must be met)</span>
+                                    </label>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="radio" name="logicOperator" value="OR" class="mr-2">
+                                        <span class="font-medium">OR</span>
+                                        <span class="text-xs text-gray-500 ml-2">(Any condition must be met)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <details class="border-t pt-3">
+                                <summary class="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-700">
+                                    Advanced: Custom Logic Expression
+                                </summary>
+                                <div class="mt-3">
+                                    <textarea id="customLogicInput" class="w-full p-2 border border-gray-300 rounded text-sm font-mono" 
+                                              rows="3" 
+                                              placeholder="Example: (Input1 AND Input2) OR Input3&#10;Use Input1, Input2, etc. to reference connected blocks"></textarea>
+                                    <div class="text-xs text-gray-500 mt-1">
+                                        Use parentheses for grouping. Supports AND, OR, NOT operators.
+                                    </div>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                `;
+            }
+            
             modalContent.innerHTML = `
                 <div class="bg-white rounded-lg p-6 max-w-2xl mx-4 max-h-[80vh] overflow-y-auto">
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure AI Path</h3>
                     <div class="space-y-4">
+                        ${multiInputSection}
+                        
                         <div class="bg-blue-50 p-4 rounded-lg">
                             <div class="flex items-center mb-2">
                                 <div class="w-8 h-8 bg-yellow-500 rounded-full flex items-center justify-center mr-3">
@@ -1320,27 +1590,41 @@
                 return;
             }
             
-            const conditionBlock = findBlockById(conditionBlockId);
+            // Note: We'll resolve the real blocks below when committing changes to avoid stale references
             const nextBlock = findBlockById(nextBlockId);
             
-            if (!conditionBlock || !nextBlock) {
-                alert('Error: Could not find blocks');
-                return;
-            }
-            
-            // Initialize paths array if not exists
-            if (!conditionBlock.data.paths) {
-                conditionBlock.data.paths = [];
-            }
-            
-            // Add the path
-            conditionBlock.data.paths.push({
+            // Create path object (commit after creating the follow-up link)
+            const pathConfig = {
                 prompt: prompt,
                 nextBlockId: nextBlockId
-            });
+            };
             
             // Create follow-up relationship
             if (addFollowUpRelationship(conditionBlockId, nextBlockId)) {
+                // After linking, resolve the REAL condition block and commit data
+                const realCondition = findBlockById(conditionBlockId);
+                if (realCondition) {
+                    if (!realCondition.data) realCondition.data = {};
+                    if (!realCondition.data.paths) realCondition.data.paths = [];
+                    realCondition.data.paths.push(pathConfig);
+                    
+                    // Save multi-input logic if the condition has multiple inputs
+                    const hasMultipleInputsNow = Array.isArray(realCondition.parentIds) && realCondition.parentIds.length > 1;
+                    if (hasMultipleInputsNow) {
+                        const logicOperatorElement = document.querySelector('input[name="logicOperator"]:checked');
+                        const logicOperator = logicOperatorElement ? logicOperatorElement.value : 'AND';
+                        const customLogicElement = document.getElementById('customLogicInput');
+                        const customLogic = customLogicElement ? customLogicElement.value.trim() : '';
+                        if (!realCondition.data.multiInputLogic) realCondition.data.multiInputLogic = {};
+                        realCondition.data.multiInputLogic.operator = logicOperator;
+                        if (customLogic) {
+                            realCondition.data.multiInputLogic.customExpression = customLogic;
+                        } else {
+                            delete realCondition.data.multiInputLogic.customExpression;
+                        }
+                    }
+                }
+                
                 // Remove from root level if it was there
                 workflowBlocks = workflowBlocks.filter(block => block.id !== nextBlockId);
                 
@@ -1368,7 +1652,7 @@
             });
 
             handle.addEventListener('drop', (e) => {
-                e.preventDefault();
+                e.preventDefault(); e.stopPropagation();
                 handle.classList.remove('active');
                 
                 console.log('Drop event triggered on handle');
@@ -1382,8 +1666,16 @@
                         console.log('No circular dependency detected');
                         // Special handling for condition blocks - show prompt input modal
                         if (parentBlock.type === 'condition') {
-                            console.log('Condition block detected - showing modal');
-                            showConditionPathPromptModal(parentBlock, draggedBlock);
+                            const existingPaths = parentBlock.data?.paths || [];
+                            if (existingPaths.length >= 5) {
+                                alert('Maximum of 5 paths allowed for this condition block');
+                            } else {
+                                console.log('Condition block detected - showing modal');
+                                showConditionPathPromptModal(parentBlock, draggedBlock);
+                            }
+                        } else if (['appointment','task','document','order'].includes(parentBlock.type)) {
+                            console.log('Action block detected - showing status modal');
+                            showActionStatusPromptModal(parentBlock, draggedBlock);
                         } else {
                             console.log('Regular block - creating follow-up relationship');
                             // Create followUp relationship for regular blocks
@@ -1419,6 +1711,8 @@
                 // Set drag effect
                 e.dataTransfer.effectAllowed = 'move';
                 e.dataTransfer.setData('text/plain', block.id);
+                // Explicitly mark as NOT from library to prevent duplicate creation
+                e.dataTransfer.setData('application/x-block-library', 'false');
                 
                 // Highlight all potential drop zones
                 document.querySelectorAll('.connection-handle').forEach(handle => {
@@ -1535,14 +1829,16 @@
                 type: type,
                 config: { ...config },
                 data: {},
-                parentId: null,
+                parentId: null, // Keep for backward compatibility
+                parentIds: [], // New: array of parent IDs for multi-input support
                 nextBlocks: [],
                 position: { x: x - 160, y: y - 40 }, // Offset to center block on cursor
                 connectionPoints: {
                     bottom: { x: 0, y: 0 }
                 },
                 children: type === 'condition' ? { paths: [] } : 
-                         type === 'loop' ? { items: [] } : null
+                         type === 'loop' ? { items: [] } : null,
+                supportsMultipleInputs: type === 'condition' // Flag for multi-input support
             };
 
             workflowBlocks.push(block);
@@ -1756,7 +2052,7 @@
                 title: 'Loop', 
                 icon: 'ri-repeat-line', 
                 color: 'blue',
-                description: 'Repeat actions'
+                description: 'AI-driven loop with interactive rope selection'
             },
             'approval': { 
                 title: 'Review & Approval', 
@@ -1951,7 +2247,7 @@
             const blockCategories = document.getElementById('blockCategories');
             
             // Define workflow type specific blocks
-            const patientTriggers = ['trigger-manual', 'trigger-order-events', 'trigger-appointment-events', 'trigger-document-events', 'trigger-report-events', 'trigger-task-events', 'trigger-profile-events'];
+            const patientTriggers = ['trigger-manual', 'trigger-scheduled', 'trigger-order-events', 'trigger-appointment-events', 'trigger-document-events', 'trigger-report-events', 'trigger-task-events', 'trigger-profile-events'];
             const practiceTriggers = ['trigger-manual', 'trigger-scheduled', 'trigger-threshold', 'trigger-system-event'];
             const patientActions = ['send-message', 'appointment', 'task', 'document', 'order', 'note'];
             const practiceActions = ['bulk-communication', 'generate-report', 'system-maintenance'];
@@ -2033,16 +2329,17 @@
         }
 
         function createCategorySection(categoryName, blocks) {
+            const aiIcon = categoryName === 'Logic' ? '<div class="ai-inline-tag">AI</div>' : '';
             let html = `
                 <div class="mb-6">
-                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">${categoryName}</h4>
+                    <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3 flex items-center">${categoryName}${aiIcon}</h4>
                     <div class="grid grid-cols-2 gap-2">
             `;
 
             blocks.forEach(([type, config], blockIndex) => {
                 const colorClass = getColorClasses(config.color);
                 const shortTitle = shortenBlockTitle(config.title);
-                const aiTag = type === 'approval' ? '<div class="ai-corner-tag">AI</div>' : '';
+                const aiTag = ''; // removed AI tag for review card
                 
                 // Check if this is a trigger and if triggers are disabled
                 const isTrigger = type.startsWith('trigger-');
@@ -2055,7 +2352,7 @@
                 
                 html += `
                     <div class="block-library-item relative flex flex-col items-center p-2 rounded-lg border border-gray-200 ${disabledClass} transition-colors" data-type="${type}" title="${disabledTitle}">
-                        ${aiTag}
+                        
                         ${isDisabled ? '<div class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-90 rounded-lg z-10"><div class="text-center"><i class="ri-lock-line text-gray-400 text-lg mb-1"></i><div class="text-xs text-gray-500">Only one trigger allowed</div></div></div>' : ''}
                         <div class="w-6 h-6 ${colorClass.bg} ${colorClass.text} rounded-full flex items-center justify-center mb-1 flex-shrink-0">
                             <i class="${config.icon} text-sm"></i>
@@ -2224,13 +2521,15 @@
                 config: { ...config },
                 data: {},
                 parentId: parentId,
+                parentIds: [], // Initialize for multi-input support
                 nextBlocks: [], // New: array of blocks that follow this one
                 position: { x: 0, y: 0 }, // New: canvas position for drag-and-drop
                 connectionPoints: { // New: positions for connection handles
                     bottom: { x: 0, y: 0 }
                 },
                 children: type === 'condition' ? { paths: [] } : 
-                         type === 'loop' ? { items: [] } : null
+                         type === 'loop' ? { items: [] } : null,
+                supportsMultipleInputs: type === 'condition' // Flag for multi-input support
             };
 
             if (parentId) {
@@ -2287,6 +2586,12 @@
                     if (block.id === blockId) {
                         return block;
                     }
+                    // Also search connected follow-ups
+                    if (block.nextBlocks && block.nextBlocks.length > 0) {
+                        const foundInNext = searchInBlocks(block.nextBlocks);
+                        if (foundInNext) return foundInNext;
+                    }
+                    // Legacy container children support
                     if (block.children) {
                         if (block.children.true) {
                             const found = searchInBlocks(block.children.true);
@@ -2306,6 +2611,606 @@
             }
             return searchInBlocks(workflowBlocks);
         }
+        
+        // Ripple effect for loop block selection feedback
+        function createRippleEffect(element, action) {
+            const rect = element.getBoundingClientRect();
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple-effect';
+            
+            const size = Math.max(rect.width, rect.height);
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = (rect.left + rect.width / 2 - size / 2) + 'px';
+            ripple.style.top = (rect.top + rect.height / 2 - size / 2) + 'px';
+            
+            if (action === 'add') {
+                ripple.style.background = 'rgba(79, 70, 229, 0.3)';
+            } else {
+                ripple.style.background = 'rgba(239, 68, 68, 0.3)';
+            }
+            
+            document.body.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        }
+        
+        // Render simple loop visualization with frame and connection
+        function calculateBoundingBox(blockIds) {
+            if (!blockIds || blockIds.length === 0) return null;
+            
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            
+            blockIds.forEach(blockId => {
+                const blockElement = document.querySelector(`[data-block-id="${blockId}"]`);
+                if (blockElement) {
+                    const rect = blockElement.getBoundingClientRect();
+                    const canvasRect = document.querySelector('.workflow-canvas').getBoundingClientRect();
+                    
+                    // Convert to canvas-relative coordinates
+                    const left = rect.left - canvasRect.left;
+                    const top = rect.top - canvasRect.top;
+                    const right = left + rect.width;
+                    const bottom = top + rect.height;
+                    
+                    minX = Math.min(minX, left);
+                    minY = Math.min(minY, top);
+                    maxX = Math.max(maxX, right);
+                    maxY = Math.max(maxY, bottom);
+                }
+            });
+            
+            if (minX === Infinity) return null;
+            
+            // Add padding around the bounding box
+            const padding = 16;
+            return {
+                x: minX - padding,
+                y: minY - padding,
+                width: maxX - minX + padding * 2,
+                height: maxY - minY + padding * 2
+            };
+        }
+        
+        function createLoopFrame(canvas, boundingBox) {
+            const frameElement = document.createElement('div');
+            frameElement.className = 'loop-frame';
+            frameElement.style.cssText = `
+                position: absolute;
+                left: ${boundingBox.x}px;
+                top: ${boundingBox.y}px;
+                width: ${boundingBox.width}px;
+                height: ${boundingBox.height}px;
+                border: 2px solid #4F46E5;
+                border-radius: 12px;
+                background: rgba(79, 70, 229, 0.05);
+                pointer-events: none;
+                z-index: 5;
+                box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.2);
+            `;
+            
+            canvas.appendChild(frameElement);
+        }
+        
+        function createConnectionToLoopCard(canvas, boundingBox, loopCardElement) {
+            const loopCardRect = loopCardElement.getBoundingClientRect();
+            const canvasRect = canvas.getBoundingClientRect();
+            
+            // Convert loop card position to canvas coordinates
+            const cardX = loopCardRect.left - canvasRect.left + loopCardRect.width / 2;
+            const cardY = loopCardRect.top - canvasRect.top + loopCardRect.height / 2;
+            
+            // Find the closest point on the bounding box to the loop card
+            const frameCenter = {
+                x: boundingBox.x + boundingBox.width / 2,
+                y: boundingBox.y + boundingBox.height / 2
+            };
+            
+            // Create SVG for the connection line
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.className = 'loop-connection';
+            svg.style.cssText = `
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 4;
+            `;
+            
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', cardX);
+            line.setAttribute('y1', cardY);
+            line.setAttribute('x2', frameCenter.x);
+            line.setAttribute('y2', frameCenter.y);
+            line.setAttribute('stroke', '#4F46E5');
+            line.setAttribute('stroke-width', '2');
+            line.setAttribute('stroke-dasharray', '5,5');
+            line.setAttribute('opacity', '0.7');
+            
+            svg.appendChild(line);
+            canvas.appendChild(svg);
+        }
+
+        function renderLoopVisualization(loopBlock) {
+            console.log('Rendering loop visualization for blocks:', loopBlock.data.enclosedBlocks);
+            
+            // Remove existing loop visualizations
+            document.querySelectorAll('.loop-frame, .loop-connection').forEach(element => element.remove());
+            
+            const enclosedBlocks = loopBlock.data.enclosedBlocks || [];
+            if (enclosedBlocks.length === 0) {
+                console.log('No blocks selected for loop visualization');
+                return;
+            }
+            
+            const canvas = document.querySelector('.workflow-canvas');
+            
+            // Create bounding box around selected blocks
+            const boundingBox = calculateBoundingBox(enclosedBlocks);
+            if (boundingBox) {
+                createLoopFrame(canvas, boundingBox);
+                
+                // Create connection line from frame to loop card
+                const loopCardElement = document.querySelector(`[data-block-id="${loopBlock.id}"]`);
+                if (loopCardElement) {
+                    createConnectionToLoopCard(canvas, boundingBox, loopCardElement);
+                }
+            }
+        }
+        
+        
+        // Parse @@ syntax for workflow block references in AI instructions
+        function parseBlockReferences(text) {
+            const blockReferenceRegex = /@@([a-zA-Z0-9-_]+)/g;
+            const references = [];
+            let match;
+            
+            while ((match = blockReferenceRegex.exec(text)) !== null) {
+                const blockReference = match[1];
+                references.push(blockReference);
+            }
+            
+            return references;
+        }
+        
+        // Get available blocks for @@ autocomplete
+        function getAvailableBlocksForReference() {
+            const blocks = [];
+            workflowBlocks.forEach(block => {
+                if (block.type !== 'loop') { // Don't reference loop blocks themselves
+                    blocks.push({
+                        id: block.id,
+                        title: block.config.title,
+                        type: block.type,
+                        icon: block.config.icon
+                    });
+                }
+            });
+            return blocks;
+        }
+        
+        // Add autocomplete functionality to textarea with @@ syntax
+        function addBlockReferenceAutocomplete(textarea) {
+            let autocompleteContainer = null;
+            let selectedIndex = 0;
+            
+            textarea.addEventListener('input', (e) => {
+                const cursorPos = e.target.selectionStart;
+                const text = e.target.value;
+                const beforeCursor = text.substring(0, cursorPos);
+                
+                // Check if we're typing @@ at cursor position
+                const match = beforeCursor.match(/@@([a-zA-Z0-9-_]*)$/);
+                if (match) {
+                    showAutocomplete(e.target, match[1], cursorPos - match[1].length - 2);
+                } else {
+                    hideAutocomplete();
+                }
+            });
+            
+            textarea.addEventListener('keydown', (e) => {
+                if (autocompleteContainer && autocompleteContainer.style.display !== 'none') {
+                    const items = autocompleteContainer.querySelectorAll('.autocomplete-item');
+                    
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+                        updateAutocompleteSelection(items);
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        selectedIndex = Math.max(selectedIndex - 1, 0);
+                        updateAutocompleteSelection(items);
+                    } else if (e.key === 'Tab' || e.key === 'Enter') {
+                        e.preventDefault();
+                        if (items[selectedIndex]) {
+                            selectAutocompleteItem(textarea, items[selectedIndex]);
+                        }
+                    } else if (e.key === 'Escape') {
+                        hideAutocomplete();
+                    }
+                }
+            });
+            
+            function showAutocomplete(textarea, query, startPos) {
+                const availableBlocks = getAvailableBlocksForReference();
+                const filteredBlocks = availableBlocks.filter(block => 
+                    block.title.toLowerCase().includes(query.toLowerCase()) ||
+                    block.type.toLowerCase().includes(query.toLowerCase())
+                );
+                
+                if (filteredBlocks.length === 0) {
+                    hideAutocomplete();
+                    return;
+                }
+                
+                if (!autocompleteContainer) {
+                    autocompleteContainer = document.createElement('div');
+                    autocompleteContainer.className = 'absolute bg-white border border-gray-300 rounded-lg shadow-lg max-h-40 overflow-y-auto z-50';
+                    document.body.appendChild(autocompleteContainer);
+                }
+                
+                const rect = textarea.getBoundingClientRect();
+                autocompleteContainer.style.left = rect.left + 'px';
+                autocompleteContainer.style.top = (rect.bottom + 5) + 'px';
+                autocompleteContainer.style.minWidth = '200px';
+                autocompleteContainer.style.display = 'block';
+                
+                autocompleteContainer.innerHTML = filteredBlocks.map((block, index) => `
+                    <div class="autocomplete-item flex items-center p-2 cursor-pointer hover:bg-gray-100 ${index === 0 ? 'bg-blue-50' : ''}" 
+                         data-block-id="${block.id}" data-block-title="${block.title}">
+                        <i class="${block.icon} mr-2 text-gray-500"></i>
+                        <div class="flex-1">
+                            <div class="text-sm font-medium text-gray-900">${block.title}</div>
+                            <div class="text-xs text-gray-500">${block.type}</div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                selectedIndex = 0;
+                
+                // Add click listeners
+                autocompleteContainer.querySelectorAll('.autocomplete-item').forEach((item, index) => {
+                    item.addEventListener('click', () => {
+                        selectedIndex = index;
+                        selectAutocompleteItem(textarea, item);
+                    });
+                });
+            }
+            
+            function updateAutocompleteSelection(items) {
+                items.forEach((item, index) => {
+                    if (index === selectedIndex) {
+                        item.classList.add('bg-blue-50');
+                        item.classList.remove('bg-gray-100');
+                    } else {
+                        item.classList.remove('bg-blue-50');
+                    }
+                });
+            }
+            
+            function selectAutocompleteItem(textarea, item) {
+                const blockTitle = item.dataset.blockTitle;
+                const cursorPos = textarea.selectionStart;
+                const text = textarea.value;
+                const beforeCursor = text.substring(0, cursorPos);
+                const afterCursor = text.substring(cursorPos);
+                
+                // Find the @@ pattern to replace
+                const match = beforeCursor.match(/@@([a-zA-Z0-9-_]*)$/);
+                if (match) {
+                    const newText = beforeCursor.substring(0, match.index) + 
+                                   `@@${blockTitle.replace(/\s+/g, '-').toLowerCase()}` + 
+                                   afterCursor;
+                    textarea.value = newText;
+                    
+                    const newCursorPos = match.index + blockTitle.replace(/\s+/g, '-').toLowerCase().length + 2;
+                    textarea.setSelectionRange(newCursorPos, newCursorPos);
+                    textarea.focus();
+                }
+                
+                hideAutocomplete();
+            }
+            
+            function hideAutocomplete() {
+                if (autocompleteContainer) {
+                    autocompleteContainer.style.display = 'none';
+                }
+            }
+            
+            // Hide autocomplete when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!textarea.contains(e.target) && 
+                    (!autocompleteContainer || !autocompleteContainer.contains(e.target))) {
+                    hideAutocomplete();
+                }
+            });
+        }
+        
+        // Interactive rope drawing class
+        class RopeDrawing {
+            constructor(svgOverlay, canvas) {
+                this.svgOverlay = svgOverlay;
+                this.canvas = canvas;
+                this.svg = svgOverlay.querySelector('svg');
+                this.path = svgOverlay.querySelector('path');
+                this.isDrawing = false;
+                this.points = [];
+                this.onComplete = null;
+                
+                this.bindEvents();
+            }
+            
+            bindEvents() {
+                // Bind events to the overlay since it's the interactive surface
+                this.svgOverlay.addEventListener('mousedown', (e) => this.startDrawing(e));
+                this.svgOverlay.addEventListener('mousemove', (e) => this.continueDrawing(e));
+                this.svgOverlay.addEventListener('mouseup', (e) => this.endDrawing(e));
+                
+                // Touch events for mobile
+                this.svgOverlay.addEventListener('touchstart', (e) => this.startDrawing(this.getTouchEvent(e)));
+                this.svgOverlay.addEventListener('touchmove', (e) => this.continueDrawing(this.getTouchEvent(e)));
+                this.svgOverlay.addEventListener('touchend', (e) => this.endDrawing(this.getTouchEvent(e)));
+            }
+            
+            getTouchEvent(e) {
+                e.preventDefault();
+                const touch = e.touches[0] || e.changedTouches[0];
+                return {
+                    clientX: touch.clientX,
+                    clientY: touch.clientY
+                };
+            }
+            
+            startDrawing(e) {
+                this.isDrawing = true;
+                this.points = [];
+                
+                const rect = this.svgOverlay.getBoundingClientRect();
+                const point = {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+                
+                this.points.push(point);
+                this.updatePath();
+            }
+            
+            continueDrawing(e) {
+                if (!this.isDrawing) return;
+                
+                const rect = this.svgOverlay.getBoundingClientRect();
+                const point = {
+                    x: e.clientX - rect.left,
+                    y: e.clientY - rect.top
+                };
+                
+                this.points.push(point);
+                this.updatePath();
+            }
+            
+            endDrawing(e) {
+                if (!this.isDrawing) return;
+                
+                this.isDrawing = false;
+                
+                // Auto-close the path if it's not already closed
+                if (this.points.length > 2) {
+                    const firstPoint = this.points[0];
+                    const lastPoint = this.points[this.points.length - 1];
+                    const distance = Math.sqrt(
+                        Math.pow(lastPoint.x - firstPoint.x, 2) + 
+                        Math.pow(lastPoint.y - firstPoint.y, 2)
+                    );
+                    
+                    // If close to starting point, auto-close
+                    if (distance < 50) {
+                        this.points.push(firstPoint);
+                    }
+                    
+                    this.updatePath();
+                    
+                    if (this.onComplete) {
+                        this.onComplete(this.points);
+                    }
+                }
+            }
+            
+            updatePath() {
+                if (this.points.length === 0) return;
+                
+                let pathData = `M ${this.points[0].x} ${this.points[0].y}`;
+                
+                for (let i = 1; i < this.points.length; i++) {
+                    pathData += ` L ${this.points[i].x} ${this.points[i].y}`;
+                }
+                
+                this.path.setAttribute('d', pathData);
+            }
+        }
+        
+        // Point-in-polygon test to check if a block is inside the rope path
+        function isBlockInsidePath(blockElement, ropePath) {
+            if (ropePath.length < 3) return false;
+            
+            const rect = blockElement.getBoundingClientRect();
+            const canvasRect = blockElement.closest('.workflow-canvas').getBoundingClientRect();
+            
+            // Get the center point of the block relative to canvas
+            const blockCenterX = rect.left + rect.width / 2 - canvasRect.left;
+            const blockCenterY = rect.top + rect.height / 2 - canvasRect.top;
+            
+            return isPointInPolygon({ x: blockCenterX, y: blockCenterY }, ropePath);
+        }
+        
+        // Ray casting algorithm for point-in-polygon test
+        function isPointInPolygon(point, polygon) {
+            let inside = false;
+            
+            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+                const xi = polygon[i].x;
+                const yi = polygon[i].y;
+                const xj = polygon[j].x;
+                const yj = polygon[j].y;
+                
+                if (((yi > point.y) !== (yj > point.y)) &&
+                    (point.x < (xj - xi) * (point.y - yi) / (yj - yi) + xi)) {
+                    inside = !inside;
+                }
+            }
+            
+            return inside;
+        }
+        
+        // Global block selection state management
+        let activeSelectionBlockId = null;
+        
+        // Toggle block selection mode for a loop block
+        function toggleBlockSelection(blockId) {
+            const block = findBlockById(blockId);
+            if (!block || block.type !== 'loop') return;
+            
+            if (activeSelectionBlockId === blockId) {
+                // Exit selection mode
+                exitBlockSelectionMode();
+            } else {
+                // Exit any existing selection and start new one
+                if (activeSelectionBlockId) exitBlockSelectionMode();
+                enterBlockSelectionMode(blockId);
+            }
+        }
+        
+        function enterBlockSelectionMode(blockId) {
+            const canvas = document.querySelector('.workflow-canvas');
+            const block = findBlockById(blockId);
+            
+            canvas.classList.add('block-selection-mode');
+            activeSelectionBlockId = blockId;
+            
+            // Update button appearance
+            const selectBtn = document.querySelector(`button[onclick*="toggleBlockSelection('${blockId}')"]`);
+            if (selectBtn) {
+                selectBtn.innerHTML = '<i class="ri-close-line mr-1"></i>Finish Selection';
+                selectBtn.title = 'Finish selecting blocks';
+                selectBtn.classList.remove('bg-blue-100', 'text-blue-700', 'hover:bg-blue-200', 'border-blue-200');
+                selectBtn.classList.add('bg-red-100', 'text-red-700', 'hover:bg-red-200', 'border-red-200');
+            }
+            
+            // Add click listeners to all workflow blocks
+            const workflowBlocks = canvas.querySelectorAll('.flowchart-block');
+            workflowBlocks.forEach(blockEl => {
+                const targetBlockId = blockEl.dataset.blockId;
+                if (targetBlockId !== blockId) { // Don't allow selecting the loop block itself
+                    blockEl.addEventListener('click', handleBlockClick);
+                    
+                    // Show existing selections
+                    if (block.data.enclosedBlocks && block.data.enclosedBlocks.includes(targetBlockId)) {
+                        blockEl.classList.add('block-selected');
+                    }
+                }
+            });
+        }
+        
+        function exitBlockSelectionMode() {
+            const canvas = document.querySelector('.workflow-canvas');
+            canvas.classList.remove('block-selection-mode');
+            
+            // Update button appearance
+            if (activeSelectionBlockId) {
+                const selectBtn = document.querySelector(`button[onclick*="toggleBlockSelection('${activeSelectionBlockId}')"]`);
+                if (selectBtn) {
+                    selectBtn.innerHTML = '<i class="ri-edit-2-line mr-1"></i>Select Blocks';
+                    selectBtn.title = 'Click blocks to include in loop';
+                    selectBtn.classList.remove('bg-red-100', 'text-red-700', 'hover:bg-red-200', 'border-red-200');
+                    selectBtn.classList.add('bg-blue-100', 'text-blue-700', 'hover:bg-blue-200', 'border-blue-200');
+                }
+            }
+            
+            // Remove click listeners and clear selection highlighting
+            const workflowBlocks = canvas.querySelectorAll('.flowchart-block');
+            workflowBlocks.forEach(blockEl => {
+                blockEl.removeEventListener('click', handleBlockClick);
+                // Keep block-selected class for actually selected blocks, just remove hover states
+            });
+            
+            // Get the loop block before clearing activeSelectionBlockId
+            const loopBlock = findBlockById(activeSelectionBlockId);
+            activeSelectionBlockId = null;
+            
+            // Re-render workflow to show updated visualization
+            renderWorkflow();
+            
+            // Force rope visualization after a brief delay to ensure DOM is ready
+            if (loopBlock && loopBlock.data.enclosedBlocks && loopBlock.data.enclosedBlocks.length > 1) {
+                setTimeout(() => {
+                    // Re-apply selected styling to maintain visual consistency
+                    const canvas = document.querySelector('.workflow-canvas');
+                    loopBlock.data.enclosedBlocks.forEach(blockId => {
+                        const blockEl = canvas.querySelector(`[data-block-id="${blockId}"]`);
+                        if (blockEl) {
+                            blockEl.classList.add('block-selected');
+                        }
+                    });
+                    
+                    // Render the rope visualization
+                    renderRopeVisualization(loopBlock);
+                }, 100);
+            }
+        }
+        
+        function handleBlockClick(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            
+            const blockEl = e.currentTarget;
+            const targetBlockId = blockEl.dataset.blockId;
+            const loopBlock = findBlockById(activeSelectionBlockId);
+            
+            if (!loopBlock.data.enclosedBlocks) {
+                loopBlock.data.enclosedBlocks = [];
+            }
+            
+            if (loopBlock.data.enclosedBlocks.includes(targetBlockId)) {
+                // Deselect
+                loopBlock.data.enclosedBlocks = loopBlock.data.enclosedBlocks.filter(id => id !== targetBlockId);
+                blockEl.classList.remove('block-selected');
+                createRippleEffect(blockEl, 'remove');
+            } else {
+                // Select
+                loopBlock.data.enclosedBlocks.push(targetBlockId);
+                blockEl.classList.add('block-selected');
+                createRippleEffect(blockEl, 'add');
+            }
+        }
+        
+        // Global function to remove enclosed blocks (called from modal)
+        window.removeEnclosedBlock = function(blockId) {
+            // This function is called from the configuration modal
+            // We need to find which loop block this belongs to
+            const currentModal = document.querySelector('#blockConfigurationModal');
+            if (currentModal) {
+                // The modal should have a reference to the block being configured
+                // For now, we'll search through all loop blocks to find the one with this enclosed block
+                workflowBlocks.forEach(loopBlock => {
+                    if (loopBlock.type === 'loop' && loopBlock.data.enclosedBlocks) {
+                        const index = loopBlock.data.enclosedBlocks.indexOf(blockId);
+                        if (index > -1) {
+                            loopBlock.data.enclosedBlocks.splice(index, 1);
+                            // Refresh the modal display
+                            const enclosedBlocksContainer = currentModal.querySelector('#enclosedBlocks');
+                            if (enclosedBlocksContainer) {
+                                // Re-trigger the display update
+                                const event = new Event('input');
+                                currentModal.dispatchEvent(event);
+                            }
+                            renderWorkflow();
+                        }
+                    }
+                });
+            }
+        };
 
         function renderWorkflow() {
             const workflowBlocksContainer = document.getElementById('workflowBlocks');
@@ -2356,9 +3261,11 @@
                 `;
                 canvasContainer.appendChild(emptyState);
             } else {
+                // Track which blocks have been rendered to prevent duplicates
+                const renderedBlocks = new Set();
                 // Render hierarchical structure starting from center
                 const canvasCenter = { x: 600, y: 100 }; // Start from center-top of canvas
-                renderHierarchicalBlocks(rootBlocks, canvasContainer, 0, canvasCenter);
+                renderHierarchicalBlocks(rootBlocks, canvasContainer, 0, canvasCenter, renderedBlocks);
             }
             
             // Ensure parent container is properly set up
@@ -2369,6 +3276,14 @@
             requestAnimationFrame(() => {
                 drawHierarchicalConnections();
                 markOrphanedBlocks();
+                
+                // Render rope visualizations for loop blocks with enclosed blocks
+                workflowBlocks.forEach(block => {
+                    if (block.type === 'loop' && block.data.enclosedBlocks && block.data.enclosedBlocks.length > 1) {
+                        renderRopeVisualization(block);
+                    }
+                });
+                
                 // Reinitialize zoom and pan for the new canvas
                 initializeZoomAndPan();
                 // Reapply current zoom and pan state to the new canvas
@@ -2412,11 +3327,19 @@
             });
         }
 
-        function renderHierarchicalBlocks(blocks, container, level = 0, parentPosition = { x: 0, y: 0 }) {
+        function renderHierarchicalBlocks(blocks, container, level = 0, parentPosition = { x: 0, y: 0 }, renderedBlocks = new Set()) {
             const blockSpacing = { x: 320, y: 160 };
             const levelOffset = level * blockSpacing.y;
             
             blocks.forEach((block, index) => {
+                // Skip if this block has already been rendered (prevents duplicates for multi-input blocks)
+                if (renderedBlocks.has(block.id)) {
+                    return;
+                }
+                
+                // Mark this block as rendered
+                renderedBlocks.add(block.id);
+                
                 // Use stored position if manually placed, otherwise calculate auto position
                 let position;
                 if (block.position && (block.position.x !== 0 || block.position.y !== 0)) {
@@ -2448,7 +3371,7 @@
                 
                 // Recursively render follow-up blocks
                 if (block.nextBlocks && block.nextBlocks.length > 0) {
-                    renderHierarchicalBlocks(block.nextBlocks, container, level + 1, position);
+                    renderHierarchicalBlocks(block.nextBlocks, container, level + 1, position, renderedBlocks);
                 }
             });
         }
@@ -2738,7 +3661,8 @@
             for (const element of elements) {
                 const blockId = element.dataset.blockId || element.closest('[data-block-id]')?.dataset.blockId;
                 if (blockId) {
-                    return workflowBlocks.find(block => block.id === blockId);
+                    // Use global lookup so we can target blocks that are not at the workflowBlocks root
+                    return findBlockById(blockId) || null;
                 }
             }
             return null;
@@ -2748,7 +3672,7 @@
             // Can't connect to self
             if (sourceBlock.id === targetBlock.id) return false;
             
-            // Check if connection already exists
+            // Check if connection already exists between these specific blocks
             if (sourceBlock.nextBlocks && sourceBlock.nextBlocks.some(block => block.id === targetBlock.id)) {
                 return false;
             }
@@ -2756,8 +3680,23 @@
             // Prevent circular connections
             if (wouldCreateCircularConnection(sourceBlock, targetBlock)) return false;
             
-            // Check max connections limit (5)
+            // Check max connections limit (5) for source block
             if (sourceBlock.nextBlocks && sourceBlock.nextBlocks.length >= 5) return false;
+            
+            // Check max inputs limit for target blocks
+            // Treat condition blocks as multi-input even if the flag is missing
+            const isTargetMulti = !!(targetBlock.supportsMultipleInputs || targetBlock.type === 'condition');
+            if (!isTargetMulti) {
+                // For single-input blocks, block if they already have any parent
+                const hasAnyParent = !!(targetBlock.parentId) || (Array.isArray(targetBlock.parentIds) && targetBlock.parentIds.length > 0);
+                if (hasAnyParent) return false;
+            } else {
+                // For multi-input blocks (condition blocks), allow up to 5 inputs
+                const currentInputs = Array.isArray(targetBlock.parentIds)
+                  ? targetBlock.parentIds.length
+                  : (targetBlock.parentId ? 1 : 0);
+                if (currentInputs >= 5) return false;
+            }
             
             // Trigger blocks can't have incoming connections
             if (targetBlock.type.startsWith('trigger-')) return false;
@@ -2796,11 +3735,38 @@
                 return; // Don't create direct connection, let modal handle it
             }
             
-            // Add connection for regular blocks
+            // Special handling for action blocks - show status modal
+            if (['appointment','task','document','order'].includes(sourceBlock.type)) {
+                console.log('Action block detected - showing status modal');
+                showActionStatusPromptModal(sourceBlock, targetBlock);
+                return;
+            }
+            
+            // Add forward connection (source -> target)
             if (!sourceBlock.nextBlocks) {
                 sourceBlock.nextBlocks = [];
             }
             sourceBlock.nextBlocks.push(targetBlock);
+            
+            // Add backward connection (target parent tracking)
+            const isTargetMulti = !!(targetBlock.supportsMultipleInputs || targetBlock.type === 'condition');
+            if (isTargetMulti) {
+                // For multi-input blocks (condition blocks), add to parentIds array
+                if (!Array.isArray(targetBlock.parentIds)) {
+                    targetBlock.parentIds = [];
+                }
+                // Migrate legacy single-parent to multi-parent representation if present
+                if (targetBlock.parentId && !targetBlock.parentIds.includes(targetBlock.parentId)) {
+                    targetBlock.parentIds.push(targetBlock.parentId);
+                    targetBlock.parentId = null;
+                }
+                if (!targetBlock.parentIds.includes(sourceBlock.id)) {
+                    targetBlock.parentIds.push(sourceBlock.id);
+                }
+            } else {
+                // For single-input blocks, set parentId
+                targetBlock.parentId = sourceBlock.id;
+            }
             
             // Re-render workflow to update red handles and connections
             renderWorkflow();
@@ -2850,11 +3816,30 @@
         }
 
         function disconnectBlocks(sourceBlock, targetBlock) {
+            // Remove forward connection (source -> target)
             if (sourceBlock.nextBlocks) {
                 sourceBlock.nextBlocks = sourceBlock.nextBlocks.filter(block => block.id !== targetBlock.id);
-                renderWorkflow();
-                showNotification(`Disconnected ${getBlockTitle(sourceBlock)} from ${getBlockTitle(targetBlock)}`, 'info');
             }
+            
+            // Remove backward connection (target parent tracking)
+            if (targetBlock.supportsMultipleInputs) {
+                // For multi-input blocks (condition blocks), remove from parentIds array
+                if (targetBlock.parentIds) {
+                    targetBlock.parentIds = targetBlock.parentIds.filter(id => id !== sourceBlock.id);
+                    // If no more parents, clear parentId too
+                    if (targetBlock.parentIds.length === 0) {
+                        targetBlock.parentId = null;
+                    }
+                }
+            } else {
+                // For single-input blocks, clear parentId if it matches
+                if (targetBlock.parentId === sourceBlock.id) {
+                    targetBlock.parentId = null;
+                }
+            }
+            
+            renderWorkflow();
+            showNotification(`Disconnected ${getBlockTitle(sourceBlock)} from ${getBlockTitle(targetBlock)}`, 'info');
         }
 
         function getBlockTitle(block) {
@@ -2926,6 +3911,9 @@
                                 </div>
                             </div>
                             <div class="flex items-center space-x-2">
+                                <button class="select-blocks-btn px-3 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-sm font-medium border border-blue-200" onclick="event.stopPropagation(); toggleBlockSelection('${block.id}')" title="Click blocks to include in loop">
+                                    <i class="ri-edit-2-line mr-1"></i>Select Blocks
+                                </button>
                                 <button class="configure-block p-1 text-gray-400 hover:text-gray-600" onclick="event.stopPropagation(); showBlockConfiguration(findBlockById('${block.id}'))">
                                     <i class="ri-settings-line"></i>
                                 </button>
@@ -3083,7 +4071,11 @@
             }
             
             // Handle manual trigger blocks
-            if (block.type === 'trigger-manual') {
+            if (block.type === 'trigger-scheduled') {
+    return `<div class="text-sm text-gray-600 mt-1">📅 Every X days at X time starting on X date (to be configured when the workflow is assigned)</div>`;
+}
+
+if (block.type === 'trigger-manual') {
                 if (currentWorkflowType === 'patient') {
                     return `
                         <div class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
@@ -3201,7 +4193,7 @@
 
         function selectBlock(block) {
             // Remove previous selection
-            document.querySelectorAll('.workflow-block').forEach(el => {
+            document.querySelectorAll('.flowchart-block').forEach(el => {
                 el.classList.remove('selected');
             });
             
@@ -3557,24 +4549,122 @@
         
         function createLoopConfigModal(block) {
             return `
-                <div class="bg-white rounded-lg p-6 max-w-lg mx-4">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Configure Loop</h3>
-                    <div class="space-y-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Repeat Count</label>
-                            <input type="number" class="config-input w-full p-2 border border-gray-300 rounded-lg" 
-                                   data-field="count" min="1" placeholder="3">
-                        </div>
-                        <div class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-                            <strong>Note:</strong> Actions following this loop will be repeated the specified number of times.
+                <div class="bg-white rounded-lg p-6 max-w-3xl mx-4 max-h-[80vh] overflow-y-auto">
+                    <div class="mb-6">
+                        <div class="flex items-center mb-2">
+                            <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <i class="ri-repeat-line text-blue-600 text-lg"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xl font-semibold text-gray-900">Loop Configuration</h3>
+                                <p class="text-sm text-gray-600">Configure AI-driven loop conditions and select workflow blocks</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="mt-6 flex justify-end space-x-3">
+                    
+                    <div class="space-y-6">
+                        <!-- Selected Blocks Display -->
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <i class="ri-brush-2-line text-gray-600 mr-2"></i>
+                                <h4 class="text-lg font-medium text-gray-900">Selected Blocks</h4>
+                            </div>
+                            
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <div class="flex items-start">
+                                    <i class="ri-information-line text-blue-600 mr-2 mt-1"></i>
+                                    <div class="text-sm text-blue-800">
+                                        <strong>How to use:</strong> Click the "Select Blocks" button on the loop block card, then click the workflow blocks you want to include in this loop.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="enclosedBlocks" class="min-h-16 border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
+                                <div class="text-sm text-gray-500 text-center">
+                                    <i class="ri-brush-2-line text-xl mb-2 block"></i>
+                                    No blocks selected. Use the "Select Blocks" button on the loop block card to choose blocks.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- AI Loop Conditions Section -->
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <i class="ri-brain-line text-gray-600 mr-2"></i>
+                                <h4 class="text-lg font-medium text-gray-900">AI Loop Instructions</h4>
+                            </div>
+                            
+                            <div class="text-sm text-gray-600 mb-4">
+                                AI will analyze workflow context and make loop decisions based on your instructions. Use @@ to reference workflow blocks as context.
+                            </div>
+                            
+                            <div class="grid grid-cols-1 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-green-700 mb-1">
+                                        <i class="ri-refresh-line mr-1"></i>Continue Loop Instructions
+                                    </label>
+                                    <textarea class="config-input w-full p-3 border border-gray-300 rounded-lg text-sm" rows="3" 
+                                              data-field="continueInstructions" placeholder="When should AI continue the loop?&#10;Example: 'Continue loop if @@patient-response indicates more information needed'&#10;&#10;Use @@ to reference other workflow blocks"></textarea>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-red-700 mb-1">
+                                        <i class="ri-stop-circle-line mr-1"></i>Break Loop Instructions
+                                    </label>
+                                    <textarea class="config-input w-full p-3 border border-gray-300 rounded-lg text-sm" rows="3" 
+                                              data-field="breakInstructions" placeholder="When should AI exit the loop?&#10;Example: 'Break loop if @@task-status is completed or patient confirms understanding'&#10;&#10;Use @@ to reference other workflow blocks"></textarea>
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-orange-700 mb-1">
+                                        <i class="ri-user-line mr-1"></i>Manual Review Instructions
+                                    </label>
+                                    <textarea class="config-input w-full p-3 border border-gray-300 rounded-lg text-sm" rows="2" 
+                                              data-field="escalationInstructions" placeholder="When should AI request manual review?&#10;Example: 'Request manual review if patient response is unclear or contains urgent concerns'"></textarea>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center text-sm text-gray-600 bg-orange-50 p-3 rounded-lg">
+                                <i class="ri-alert-line text-orange-600 mr-2"></i>
+                                <div>
+                                    <strong>Default Behavior:</strong> If AI cannot decide based on instructions, it will notify the user: "Cannot decide loop action - manual review required."
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Settings -->
+                        <div class="space-y-4">
+                            <div class="flex items-center">
+                                <i class="ri-settings-3-line text-gray-600 mr-2"></i>
+                                <h4 class="text-lg font-medium text-gray-900">Advanced Settings</h4>
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Max Iterations</label>
+                                    <input type="number" class="config-input w-full p-2 border border-gray-300 rounded-lg" 
+                                           data-field="maxIterations" min="1" max="100" value="10" placeholder="10">
+                                </div>
+                                
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Safety Timeout</label>
+                                    <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="safetyTimeout">
+                                        <option value="5">5 minutes</option>
+                                        <option value="15" selected>15 minutes</option>
+                                        <option value="30">30 minutes</option>
+                                        <option value="60">1 hour</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 mt-6 pt-4 border-t border-gray-200">
                         <button class="cancel-btn px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50">
                             Cancel
                         </button>
                         <button class="save-btn px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                            Save Configuration
+                            Save Loop Configuration
                         </button>
                     </div>
                 </div>
@@ -3715,7 +4805,6 @@
                         <div class="border-t border-gray-200 pt-6">
                             <div class="flex items-center justify-between mb-4">
                                 <div class="flex items-center">
-                                    <i class="ri-robot-line text-purple-600 mr-2"></i>
                                     <h4 class="text-lg font-medium text-gray-900">AI Pre-Screening</h4>
                                 </div>
                                 
@@ -4309,6 +5398,55 @@
                 });
             }
             
+            // Loop configuration - just display and @@ autocomplete
+            if (block.type === 'loop') {
+                // Initialize display
+                updateEnclosedBlocksDisplay();
+                
+                function updateEnclosedBlocksDisplay() {
+                    const enclosedBlocksContainer = modal.querySelector('#enclosedBlocks');
+                    const enclosedBlockIds = block.data.enclosedBlocks || [];
+                    
+                    if (enclosedBlockIds.length === 0) {
+                        enclosedBlocksContainer.innerHTML = `
+                            <div class="text-sm text-gray-500 text-center">
+                                <i class="ri-brush-2-line text-xl mb-2 block"></i>
+                                No blocks selected. Use the "Select Blocks" button on the loop block card to choose blocks.
+                            </div>
+                        `;
+                    } else {
+                        const blockTags = enclosedBlockIds.map(blockId => {
+                            const targetBlock = findBlockById(blockId);
+                            if (targetBlock) {
+                                return `
+                                    <div class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm mr-2 mb-2">
+                                        <i class="${targetBlock.config.icon} mr-1"></i>
+                                        ${targetBlock.config.title}
+                                        <button onclick="removeEnclosedBlock('${blockId}')" class="ml-2 hover:text-blue-600">
+                                            <i class="ri-close-line text-xs"></i>
+                                        </button>
+                                    </div>
+                                `;
+                            }
+                            return '';
+                        }).join('');
+                        
+                        enclosedBlocksContainer.innerHTML = `
+                            <div class="text-sm text-gray-600 mb-2">Blocks enclosed by rope:</div>
+                            <div class="flex flex-wrap">
+                                ${blockTags}
+                            </div>
+                        `;
+                    }
+                }
+                
+                // Add @@ autocomplete to AI instruction textareas
+                const instructionTextareas = modal.querySelectorAll('textarea[data-field="continueInstructions"], textarea[data-field="breakInstructions"], textarea[data-field="escalationInstructions"]');
+                instructionTextareas.forEach(textarea => {
+                    addBlockReferenceAutocomplete(textarea);
+                });
+            }
+            
             // Cancel button
             modal.querySelector('.cancel-btn').addEventListener('click', () => {
                 modal.remove();
@@ -4778,7 +5916,7 @@
             const resultsContainer = document.getElementById('commandResults');
             
             // Get workflow type specific blocks (same logic as block library)
-            const patientTriggers = ['trigger-manual', 'trigger-order-events', 'trigger-appointment-events', 'trigger-document-events', 'trigger-report-events', 'trigger-task-events', 'trigger-profile-events'];
+            const patientTriggers = ['trigger-manual', 'trigger-scheduled', 'trigger-order-events', 'trigger-appointment-events', 'trigger-document-events', 'trigger-report-events', 'trigger-task-events', 'trigger-profile-events'];
             const practiceTriggers = ['trigger-manual', 'trigger-scheduled', 'trigger-threshold', 'trigger-system-event'];
             const patientActions = ['send-message', 'appointment', 'task', 'document', 'order', 'note'];
             const practiceActions = ['bulk-communication', 'generate-report', 'system-maintenance'];
@@ -4857,7 +5995,7 @@
             }
 
             if (logic.length > 0) {
-                html += '<div class="mb-4"><div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Logic</div>';
+                html += '<div class="mb-4"><div class="text-xs font-medium text-gray-500 uppercase tracking-wider mb-2 flex items-center relative">Logic<div class="ai-inline-tag">AI</div></div>';
                 logic.forEach(([type, config], index) => {
                     const globalIndex = triggers.length + actions.length + index;
                     const isSelected = globalIndex === selectedIndex;
