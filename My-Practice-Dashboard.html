@@ -169,12 +169,6 @@ Account Info
 <div class="border-t border-gray-100 mt-2">
 <div class="px-4 py-2">
 <div class="space-y-1">
-<a href="#" id="personalWalletBtn" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
-<div class="w-4 h-4 flex items-center justify-center mr-3">
-<i class="ri-wallet-3-line"></i>
-</div>
-Personal Wallet
-</a>
 <a href="#" id="associatedPracticesBtn" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
 <div class="w-4 h-4 flex items-center justify-center mr-3">
 <i class="ri-hospital-line"></i>
@@ -204,9 +198,14 @@ Associated Practice(s)
 <p class="text-xs text-gray-500">Primary Care Practice</p>
 </div>
 </div>
+<div class="flex items-center space-x-2">
+<button id="eastsideWalletBtn" class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Wallet Settings">
+<i class="ri-wallet-3-line text-lg"></i>
+</button>
 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
 Current
 </span>
+</div>
 </div>
 <div class="mt-3 flex items-center text-xs text-gray-500">
 <div class="w-4 h-4 flex items-center justify-center mr-1">
@@ -227,7 +226,15 @@ Role: Practice Owner
 <p class="text-xs text-gray-500">Multi-specialty Clinic</p>
 </div>
 </div>
+<div class="flex items-center space-x-2">
+<button id="westsideWalletBtn" class="relative p-2 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Personal Wallet Settings (Not in use - Practice uses shared mode)">
+<i class="ri-wallet-3-line text-lg"></i>
+<div class="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full flex items-center justify-center">
+<i class="ri-close-line text-white text-xs"></i>
+</div>
+</button>
 <button class="px-3 py-1.5 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button whitespace-nowrap hover:bg-primary/10">Switch</button>
+</div>
 </div>
 <div class="mt-3 flex items-center text-xs text-gray-500">
 <div class="w-4 h-4 flex items-center justify-center mr-1">
@@ -247,7 +254,12 @@ Role: Consulting Physician
 <p class="text-xs text-gray-500">Family Practice</p>
 </div>
 </div>
+<div class="flex items-center space-x-2">
+<button id="downtownWalletBtn" class="p-2 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Wallet Settings">
+<i class="ri-wallet-3-line text-lg"></i>
+</button>
 <button class="px-3 py-1.5 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button whitespace-nowrap hover:bg-primary/10">Switch</button>
+</div>
 </div>
 <div class="mt-3 flex items-center text-xs text-gray-500">
 <div class="w-4 h-4 flex items-center justify-center mr-1">
@@ -517,6 +529,436 @@ return closest;
 </div>
 </div>
 </div>
+
+        <!-- Eastside Family Medicine Wallet Modal -->
+        <div id="eastsideWalletModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg w-[480px] max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900">Eastside Family Medicine - Wallet Settings</h2>
+                        <button id="closeEastsideWalletModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="ri-close-line text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Practice Mode Info -->
+                    <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="w-5 h-5 flex-shrink-0 text-blue-500 mt-0.5">
+                                <i class="ri-information-line"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-blue-900">Practice Mode: Personal</h3>
+                                <p class="mt-1 text-sm text-blue-700">This practice operates in personal mode, where each provider manages their own wallet for transactions. All earnings and expenses will be processed through your personal wallet for this practice.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Balance -->
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Eastside Family Medicine Wallet</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-2xl font-semibold text-gray-900">$150.00</p>
+                                <p class="text-sm text-gray-500 mt-1">Available Balance</p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <button class="px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap hover:bg-primary/10">
+                                    <i class="ri-add-line mr-2"></i>
+                                    Top Up
+                                </button>
+                                <button class="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-button flex items-center whitespace-nowrap hover:bg-gray-50">
+                                    <i class="ri-bank-card-line mr-2"></i>
+                                    Withdraw
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">Payment Methods</h3>
+                        <p class="text-xs text-gray-500 mb-4">Drag and drop to set payment priority</p>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+                                        <i class="ri-drag-move-line"></i>
+                                    </div>
+                                    <div class="w-8 h-8 flex items-center justify-center text-[#1A1F71]">
+                                        <i class="ri-visa-fill text-xl"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Visa ending in 4242</p>
+                                        <p class="text-xs text-gray-500">Expires 12/25</p>
+                                    </div>
+                                </div>
+                                <button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+                                        <i class="ri-drag-move-line"></i>
+                                    </div>
+                                    <div class="w-8 h-8 flex items-center justify-center text-primary">
+                                        <i class="ri-wallet-3-fill text-xl"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Wallet Credit</p>
+                                        <p class="text-xs text-gray-500">Balance: $150.00</p>
+                                    </div>
+                                </div>
+                                <button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+                            </div>
+                        </div>
+                        <button class="w-full mt-3 px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+                            <i class="ri-add-line mr-2"></i>
+                            Add Payment Method
+                        </button>
+                    </div>
+
+                    <!-- Auto-withdraw Settings -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">Withdraw Settings</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+                                            <i class="ri-bank-line"></i>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">Withdraw Account</p>
+                                    </div>
+                                    <button class="text-sm text-primary hover:text-primary/80">Change</button>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
+                                            <i class="ri-bank-line text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">Chase Bank Account</p>
+                                            <p class="text-xs text-gray-500">****8965</p>
+                                        </div>
+                                    </div>
+                                    <div class="w-4 h-4 flex items-center justify-center text-green-500">
+                                        <i class="ri-checkbox-circle-fill"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+                                            <i class="ri-money-dollar-circle-line"></i>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">Auto-withdraw Threshold</p>
+                                    </div>
+                                    <label class="custom-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="switch-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 text-sm">$</span>
+                                    </div>
+                                    <input type="number" value="800" class="pl-7 pr-4 py-2 w-full text-sm border border-gray-200 rounded-lg" placeholder="Enter amount">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Funds will be automatically withdrawn when your balance exceeds this amount</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Westside Medical Center Wallet Modal -->
+        <div id="westsideWalletModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg w-[480px] max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900">Westside Medical Center - Wallet Settings</h2>
+                        <button id="closeWestsideWalletModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="ri-close-line text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Practice Mode Info -->
+                    <div class="mb-6 p-4 bg-orange-50 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="w-5 h-5 flex-shrink-0 text-orange-500 mt-0.5">
+                                <i class="ri-information-line"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-orange-900">Practice Mode: Shared (Personal Wallet Not In Use)</h3>
+                                <p class="mt-1 text-sm text-orange-700">This practice operates in shared mode, where all transactions are processed through the practice's shared wallet. Your personal wallet settings are maintained but not actively used for this practice.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Balance -->
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Westside Medical Center Wallet</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-2xl font-semibold text-gray-900">$75.00</p>
+                                <p class="text-sm text-gray-500 mt-1">Available Balance</p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <button class="px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap hover:bg-primary/10">
+                                    <i class="ri-add-line mr-2"></i>
+                                    Top Up
+                                </button>
+                                <button class="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-button flex items-center whitespace-nowrap hover:bg-gray-50">
+                                    <i class="ri-bank-card-line mr-2"></i>
+                                    Withdraw
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">Payment Methods</h3>
+                        <p class="text-xs text-gray-500 mb-4">Drag and drop to set payment priority</p>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+                                        <i class="ri-drag-move-line"></i>
+                                    </div>
+                                    <div class="w-8 h-8 flex items-center justify-center text-[#1A1F71]">
+                                        <i class="ri-mastercard-fill text-xl"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Mastercard ending in 1234</p>
+                                        <p class="text-xs text-gray-500">Expires 08/26</p>
+                                    </div>
+                                </div>
+                                <button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+                                        <i class="ri-drag-move-line"></i>
+                                    </div>
+                                    <div class="w-8 h-8 flex items-center justify-center text-primary">
+                                        <i class="ri-wallet-3-fill text-xl"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Wallet Credit</p>
+                                        <p class="text-xs text-gray-500">Balance: $75.00</p>
+                                    </div>
+                                </div>
+                                <button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+                            </div>
+                        </div>
+                        <button class="w-full mt-3 px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+                            <i class="ri-add-line mr-2"></i>
+                            Add Payment Method
+                        </button>
+                    </div>
+
+                    <!-- Auto-withdraw Settings -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">Withdraw Settings</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+                                            <i class="ri-bank-line"></i>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">Withdraw Account</p>
+                                    </div>
+                                    <button class="text-sm text-primary hover:text-primary/80">Change</button>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
+                                            <i class="ri-bank-line text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">Wells Fargo Account</p>
+                                            <p class="text-xs text-gray-500">****5432</p>
+                                        </div>
+                                    </div>
+                                    <div class="w-4 h-4 flex items-center justify-center text-green-500">
+                                        <i class="ri-checkbox-circle-fill"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+                                            <i class="ri-money-dollar-circle-line"></i>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">Auto-withdraw Threshold</p>
+                                    </div>
+                                    <label class="custom-switch">
+                                        <input type="checkbox">
+                                        <span class="switch-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 text-sm">$</span>
+                                    </div>
+                                    <input type="number" value="500" class="pl-7 pr-4 py-2 w-full text-sm border border-gray-200 rounded-lg" placeholder="Enter amount">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Funds will be automatically withdrawn when your balance exceeds this amount</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Downtown Health Partners Wallet Modal -->
+        <div id="downtownWalletModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg w-[480px] max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900">Downtown Health Partners - Wallet Settings</h2>
+                        <button id="closeDowntownWalletModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="ri-close-line text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Practice Mode Info -->
+                    <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="w-5 h-5 flex-shrink-0 text-blue-500 mt-0.5">
+                                <i class="ri-information-line"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-blue-900">Practice Mode: Personal</h3>
+                                <p class="mt-1 text-sm text-blue-700">This practice operates in personal mode, where each provider manages their own wallet for transactions. All earnings and expenses will be processed through your personal wallet for this practice.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Balance -->
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Downtown Health Partners Wallet</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-2xl font-semibold text-gray-900">$325.00</p>
+                                <p class="text-sm text-gray-500 mt-1">Available Balance</p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <button class="px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap hover:bg-primary/10">
+                                    <i class="ri-add-line mr-2"></i>
+                                    Top Up
+                                </button>
+                                <button class="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-button flex items-center whitespace-nowrap hover:bg-gray-50">
+                                    <i class="ri-bank-card-line mr-2"></i>
+                                    Withdraw
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">Payment Methods</h3>
+                        <p class="text-xs text-gray-500 mb-4">Drag and drop to set payment priority</p>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+                                        <i class="ri-drag-move-line"></i>
+                                    </div>
+                                    <div class="w-8 h-8 flex items-center justify-center text-[#1A1F71]">
+                                        <i class="ri-bank-fill text-xl"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Bank of America Account</p>
+                                        <p class="text-xs text-gray-500">****9876</p>
+                                    </div>
+                                </div>
+                                <button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+                                        <i class="ri-drag-move-line"></i>
+                                    </div>
+                                    <div class="w-8 h-8 flex items-center justify-center text-primary">
+                                        <i class="ri-wallet-3-fill text-xl"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Wallet Credit</p>
+                                        <p class="text-xs text-gray-500">Balance: $325.00</p>
+                                    </div>
+                                </div>
+                                <button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+                            </div>
+                        </div>
+                        <button class="w-full mt-3 px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+                            <i class="ri-add-line mr-2"></i>
+                            Add Payment Method
+                        </button>
+                    </div>
+
+                    <!-- Auto-withdraw Settings -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">Withdraw Settings</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+                                            <i class="ri-bank-line"></i>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">Withdraw Account</p>
+                                    </div>
+                                    <button class="text-sm text-primary hover:text-primary/80">Change</button>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
+                                            <i class="ri-bank-line text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">Bank of America Account</p>
+                                            <p class="text-xs text-gray-500">****9876</p>
+                                        </div>
+                                    </div>
+                                    <div class="w-4 h-4 flex items-center justify-center text-green-500">
+                                        <i class="ri-checkbox-circle-fill"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+                                            <i class="ri-money-dollar-circle-line"></i>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">Auto-withdraw Threshold</p>
+                                    </div>
+                                    <label class="custom-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="switch-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 text-sm">$</span>
+                                    </div>
+                                    <input type="number" value="1200" class="pl-7 pr-4 py-2 w-full text-sm border border-gray-200 rounded-lg" placeholder="Enter amount">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Funds will be automatically withdrawn when your balance exceeds this amount</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 <div class="border-t border-gray-100 mt-2">
 <a href="#" class="flex items-center px-7 py-2 text-sm text-red-600 hover:bg-gray-50">
 <div class="w-4 h-4 flex items-center justify-center mr-3">
@@ -3434,6 +3876,97 @@ if (accountInfoModal) {
     accountInfoModal.addEventListener('click', function(e) {
         if (e.target === accountInfoModal) {
             accountInfoModal.classList.add('hidden');
+        }
+    });
+}
+
+// Practice-specific Wallet Modals
+// Eastside Family Medicine Wallet Modal
+const eastsideWalletBtn = document.getElementById('eastsideWalletBtn');
+const eastsideWalletModal = document.getElementById('eastsideWalletModal');
+const closeEastsideWalletModal = document.getElementById('closeEastsideWalletModal');
+
+if (eastsideWalletBtn && eastsideWalletModal && closeEastsideWalletModal) {
+    function toggleEastsideWalletModal() {
+        eastsideWalletModal.classList.toggle('hidden');
+    }
+    
+    eastsideWalletBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleEastsideWalletModal();
+        // Close the associated practices modal
+        const associatedPracticesModal = document.getElementById('associatedPracticesModal');
+        if (associatedPracticesModal) {
+            associatedPracticesModal.classList.add('hidden');
+        }
+    });
+    
+    closeEastsideWalletModal.addEventListener('click', toggleEastsideWalletModal);
+    
+    eastsideWalletModal.addEventListener('click', function(e) {
+        if (e.target === eastsideWalletModal) {
+            toggleEastsideWalletModal();
+        }
+    });
+}
+
+// Westside Medical Center Wallet Modal
+const westsideWalletBtn = document.getElementById('westsideWalletBtn');
+const westsideWalletModal = document.getElementById('westsideWalletModal');
+const closeWestsideWalletModal = document.getElementById('closeWestsideWalletModal');
+
+if (westsideWalletBtn && westsideWalletModal && closeWestsideWalletModal) {
+    function toggleWestsideWalletModal() {
+        westsideWalletModal.classList.toggle('hidden');
+    }
+    
+    westsideWalletBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleWestsideWalletModal();
+        // Close the associated practices modal
+        const associatedPracticesModal = document.getElementById('associatedPracticesModal');
+        if (associatedPracticesModal) {
+            associatedPracticesModal.classList.add('hidden');
+        }
+    });
+    
+    closeWestsideWalletModal.addEventListener('click', toggleWestsideWalletModal);
+    
+    westsideWalletModal.addEventListener('click', function(e) {
+        if (e.target === westsideWalletModal) {
+            toggleWestsideWalletModal();
+        }
+    });
+}
+
+// Downtown Health Partners Wallet Modal
+const downtownWalletBtn = document.getElementById('downtownWalletBtn');
+const downtownWalletModal = document.getElementById('downtownWalletModal');
+const closeDowntownWalletModal = document.getElementById('closeDowntownWalletModal');
+
+if (downtownWalletBtn && downtownWalletModal && closeDowntownWalletModal) {
+    function toggleDowntownWalletModal() {
+        downtownWalletModal.classList.toggle('hidden');
+    }
+    
+    downtownWalletBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleDowntownWalletModal();
+        // Close the associated practices modal
+        const associatedPracticesModal = document.getElementById('associatedPracticesModal');
+        if (associatedPracticesModal) {
+            associatedPracticesModal.classList.add('hidden');
+        }
+    });
+    
+    closeDowntownWalletModal.addEventListener('click', toggleDowntownWalletModal);
+    
+    downtownWalletModal.addEventListener('click', function(e) {
+        if (e.target === downtownWalletModal) {
+            toggleDowntownWalletModal();
         }
     });
 }
