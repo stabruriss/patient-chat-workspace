@@ -788,6 +788,57 @@
             pointer-events: auto;
             z-index: 20;
         }
+        
+        /* Toggle Switch Styles */
+        .custom-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .custom-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #e5e7eb;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        input:checked + .switch-slider {
+            background-color: #10b981;
+        }
+
+        input:checked + .switch-slider:before {
+            transform: translateX(20px);
+        }
+
+        .switch-slider:hover {
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -5785,26 +5836,42 @@ if (block.type === 'trigger-manual') {
                 <div class="bg-white rounded-xl p-6 w-full max-w-2xl mx-4">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-gray-900">Patient Workflow Usage</h3>
-                        <button onclick="closePatientUsageModal()" class="text-gray-400 hover:text-gray-600">
-                            <i class="ri-close-line text-xl"></i>
-                        </button>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="archiveWorkflow()" class="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors" title="Archive Workflow">
+                                <i class="ri-archive-line text-lg"></i>
+                            </button>
+                            <button onclick="closePatientUsageModal()" class="p-2 text-gray-400 hover:text-gray-600 rounded-lg">
+                                <i class="ri-close-line text-lg"></i>
+                            </button>
+                        </div>
                     </div>
                     
-                    <!-- Auto-Application Settings -->
+                    <!-- Active/Draft Toggle -->
                     <div class="mb-6 p-4 border border-gray-200 rounded-lg">
                         <div class="flex items-center justify-between mb-3">
                             <div>
-                                <div class="text-sm font-medium text-gray-900">Auto-Apply to New Patients</div>
-                                <div class="text-xs text-gray-500">Automatically assign this workflow to newly created patients</div>
+                                <div class="text-sm font-medium text-gray-900">Workflow Status</div>
+                                <div class="text-xs text-gray-500">Set workflow to active or keep as draft</div>
                             </div>
-                            <label class="custom-switch">
-                                <input type="checkbox" id="autoApplicationToggle" checked>
-                                <span class="switch-slider"></span>
-                            </label>
+                            <div class="flex items-center space-x-3">
+                                <span class="text-sm text-gray-500" id="draftLabel">Draft</span>
+                                <label class="custom-switch">
+                                    <input type="checkbox" id="workflowActiveToggle" checked onchange="toggleWorkflowStatus()">
+                                    <span class="switch-slider"></span>
+                                </label>
+                                <span class="text-sm text-green-600 font-medium" id="activeLabel">Active</span>
+                            </div>
                         </div>
-                        <div class="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded p-2" id="autoApplicationWarning">
-                            <i class="ri-information-line mr-1"></i>
-                            This workflow will be automatically applied to all future new patients when enabled.
+                    </div>
+
+                    <!-- Auto-Application Message (only for New Patient Created triggers) -->
+                    <div class="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg" id="autoApplicationMessage" style="display: none;">
+                        <div class="flex items-start">
+                            <i class="ri-user-add-line text-emerald-600 mr-2 mt-1"></i>
+                            <div class="text-sm text-emerald-800">
+                                <div class="font-medium mb-1">Auto-Apply to New Patients</div>
+                                <p>This workflow will be automatically applied to all future new patients when they are created in your practice.</p>
+                            </div>
                         </div>
                     </div>
 
@@ -5822,9 +5889,76 @@ if (block.type === 'trigger-manual') {
                         </div>
                         
                         <div class="border rounded-lg max-h-64 overflow-y-auto">
-                            <div class="p-3 text-sm text-gray-500 text-center">
-                                No patients currently assigned to this workflow.<br>
-                                <span class="text-xs">Use "Batch Assign" to add patients.</span>
+                            <!-- Dummy patient entries -->
+                            <div class="divide-y divide-gray-100">
+                                <div class="p-3 flex items-center justify-between hover:bg-gray-50">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                            <span class="text-xs font-medium text-blue-600">JS</span>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">John Smith</div>
+                                            <div class="text-xs text-gray-500">ID: #1001 • Added 2 days ago</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-1 text-green-600 hover:bg-green-50 rounded" title="Workflow is running">
+                                            <i class="ri-pause-line text-sm"></i>
+                                        </button>
+                                        <button class="p-1 text-gray-400 hover:bg-gray-50 rounded text-xs">×</button>
+                                    </div>
+                                </div>
+                                <div class="p-3 flex items-center justify-between hover:bg-gray-50">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                            <span class="text-xs font-medium text-purple-600">MD</span>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">Maria Davis</div>
+                                            <div class="text-xs text-gray-500">ID: #1002 • Added 1 week ago</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-1 text-gray-400 hover:bg-gray-50 rounded" title="Workflow is paused">
+                                            <i class="ri-play-line text-sm"></i>
+                                        </button>
+                                        <button class="p-1 text-gray-400 hover:bg-gray-50 rounded text-xs">×</button>
+                                    </div>
+                                </div>
+                                <div class="p-3 flex items-center justify-between hover:bg-gray-50">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                            <span class="text-xs font-medium text-green-600">RJ</span>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">Robert Johnson</div>
+                                            <div class="text-xs text-gray-500">ID: #1003 • Added 3 days ago</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-1 text-green-600 hover:bg-green-50 rounded" title="Workflow is running">
+                                            <i class="ri-pause-line text-sm"></i>
+                                        </button>
+                                        <button class="p-1 text-gray-400 hover:bg-gray-50 rounded text-xs">×</button>
+                                    </div>
+                                </div>
+                                <div class="p-3 flex items-center justify-between hover:bg-gray-50">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
+                                            <span class="text-xs font-medium text-orange-600">LW</span>
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-medium text-gray-900">Lisa Wilson</div>
+                                            <div class="text-xs text-gray-500">ID: #1004 • Added 5 days ago</div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <button class="p-1 text-green-600 hover:bg-green-50 rounded" title="Workflow is running">
+                                            <i class="ri-pause-line text-sm"></i>
+                                        </button>
+                                        <button class="p-1 text-gray-400 hover:bg-gray-50 rounded text-xs">×</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -5838,6 +5972,73 @@ if (block.type === 'trigger-manual') {
             `;
             
             document.body.appendChild(modal);
+            
+            // Check if workflow has New Patient Created trigger
+            const hasNewPatientTrigger = workflowBlocks.some(block => block.type === 'trigger-new-patient');
+            const autoApplicationMessage = modal.querySelector('#autoApplicationMessage');
+            
+            if (hasNewPatientTrigger && autoApplicationMessage) {
+                autoApplicationMessage.style.display = 'block';
+            }
+        }
+        
+        function archiveWorkflow() {
+            // Show confirmation dialog
+            if (confirm('Are you sure you want to archive this workflow? It will be moved to your archived workflows and can be restored later.')) {
+                // Here you would normally make an API call to archive the workflow
+                console.log('Archiving workflow...');
+                
+                // Show success notification
+                showNotification('Workflow archived successfully!', 'success');
+                
+                // Close the modal
+                closePatientUsageModal();
+                
+                // Optionally redirect or update UI
+                // window.location.href = '/workflows';
+            }
+        }
+        
+        // Global workflow status for UI updates
+        let isWorkflowActive = true;
+        
+        function toggleWorkflowStatus() {
+            const toggle = document.getElementById('workflowActiveToggle');
+            const saveBtn = document.getElementById('saveBtn');
+            const saveBtnText = document.getElementById('saveBtnText');
+            const draftLabel = document.getElementById('draftLabel');
+            const activeLabel = document.getElementById('activeLabel');
+            
+            isWorkflowActive = toggle.checked;
+            
+            // Update label styles
+            if (isWorkflowActive) {
+                draftLabel.classList.remove('font-medium', 'text-gray-700');
+                draftLabel.classList.add('text-gray-500');
+                activeLabel.classList.remove('text-gray-500');
+                activeLabel.classList.add('font-medium', 'text-green-600');
+            } else {
+                activeLabel.classList.remove('font-medium', 'text-green-600');
+                activeLabel.classList.add('text-gray-500');
+                draftLabel.classList.remove('text-gray-500');
+                draftLabel.classList.add('font-medium', 'text-gray-700');
+            }
+            
+            // Update main save button
+            if (saveBtn && saveBtnText) {
+                if (isWorkflowActive) {
+                    saveBtn.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                            <span id="saveBtnText">Update Workflow</span>
+                        </div>
+                    `;
+                } else {
+                    saveBtn.innerHTML = `
+                        <span id="saveBtnText">Save Workflow</span>
+                    `;
+                }
+            }
         }
 
         function showPracticeUsageModal() {
@@ -6627,6 +6828,8 @@ if (block.type === 'trigger-manual') {
         // Initialize everything when the page loads
         document.addEventListener('DOMContentLoaded', function() {
             initializeTabs();
+            // Initialize workflow status UI
+            toggleWorkflowStatus();
             // Other existing initialization code...
         });
     </script>
