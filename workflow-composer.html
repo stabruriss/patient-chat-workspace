@@ -2248,7 +2248,7 @@
             
             // Define workflow type specific blocks
             const patientTriggers = ['trigger-manual', 'trigger-scheduled', 'trigger-order-events', 'trigger-appointment-events', 'trigger-document-events', 'trigger-report-events', 'trigger-task-events', 'trigger-profile-events'];
-            const practiceTriggers = ['trigger-manual', 'trigger-scheduled', 'trigger-threshold', 'trigger-system-event'];
+            const practiceTriggers = ['trigger-manual', 'trigger-scheduled', 'trigger-threshold', 'trigger-system-event', 'trigger-profile-events'];
             const patientActions = ['send-message', 'appointment', 'task', 'document', 'order', 'note'];
             const practiceActions = ['bulk-communication', 'generate-report', 'system-maintenance'];
             
@@ -5934,7 +5934,7 @@ if (block.type === 'trigger-manual') {
             
             // Get workflow type specific blocks (same logic as block library)
             const patientTriggers = ['trigger-manual', 'trigger-scheduled', 'trigger-order-events', 'trigger-appointment-events', 'trigger-document-events', 'trigger-report-events', 'trigger-task-events', 'trigger-profile-events'];
-            const practiceTriggers = ['trigger-manual', 'trigger-scheduled', 'trigger-threshold', 'trigger-system-event'];
+            const practiceTriggers = ['trigger-manual', 'trigger-scheduled', 'trigger-threshold', 'trigger-system-event', 'trigger-profile-events'];
             const patientActions = ['send-message', 'appointment', 'task', 'document', 'order', 'note'];
             const practiceActions = ['bulk-communication', 'generate-report', 'system-maintenance'];
             
