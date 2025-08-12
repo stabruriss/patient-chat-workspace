@@ -5221,7 +5221,8 @@ if (block.type === 'trigger-manual') {
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-3">Select Profile Updates to Monitor:</label>
                             <div class="space-y-2">
-                                <label class="flex items-center">
+                                <!-- Patient Profile Created - Only show for practice workflows -->
+                                <label class="flex items-center" style="display: none;" data-workflow-type="practice">
                                     <input type="checkbox" class="config-input mr-2" data-field="profileCreated" value="profile-created">
                                     <span class="text-sm text-gray-700">Patient Profile Created</span>
                                 </label>
@@ -5330,6 +5331,18 @@ if (block.type === 'trigger-manual') {
         }
         
         function setupModalEventListeners(modal, block) {
+            // Show/hide workflow-type-specific options
+            if (block.type === 'trigger-profile-events') {
+                const profileCreatedOption = modal.querySelector('[data-workflow-type="practice"]');
+                if (profileCreatedOption) {
+                    if (currentWorkflowType === 'practice') {
+                        profileCreatedOption.style.display = 'flex';
+                    } else {
+                        profileCreatedOption.style.display = 'none';
+                    }
+                }
+            }
+            
             // Wait type toggle for wait blocks
             const waitTypeSelect = modal.querySelector('select[data-field="type"]');
             if (waitTypeSelect && block.type === 'wait') {
