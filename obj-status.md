@@ -3,6 +3,7 @@
 Statuses are recorded with a time stamp
 
 - Patient Profile
+  - Created
   - Updated
 - Order
   - Order Created
