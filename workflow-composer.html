@@ -905,6 +905,10 @@
                     <i class="ri-play-line mr-2"></i>
                     Test & Log
                 </button>
+                <button onclick="viewWorkflowEngine()" class="px-4 py-3 text-sm font-medium text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-lg flex items-center transition-colors">
+                    <i class="ri-flow-chart mr-2"></i>
+                    View Engine
+                </button>
             </div>
         </div>
     </div>
@@ -5973,6 +5977,11 @@ if (block.type === 'trigger-manual') {
                 // Optionally redirect or update UI
                 // window.location.href = '/workflows';
             }
+        }
+        
+        function viewWorkflowEngine() {
+            // Open workflow engine flowchart in new page
+            window.open('workflow-engine-flowchart.html', '_blank');
         }
         
         // Global workflow status for UI updates

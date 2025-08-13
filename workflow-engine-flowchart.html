@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workflow Engine Architecture</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Viewport for zoom/pan */
+        #flowchart-viewport {
+            cursor: grab;
+            /* Allow custom gesture handling (no browser pan/zoom) */
+            touch-action: none;
+            position: relative;
+        }
+        #flowchart-viewport.grabbing {
+            cursor: grabbing;
+        }
+        /* Prevent text selection while panning */
+        #flowchart-viewport,
+        #flowchart-container,
+        .mermaid svg {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-user-drag: none;
+        }
+        /* Also disable native gestures on inner container */
+        #flowchart-container {
+            touch-action: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div class="px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <button onclick="window.close()" class="mr-4 p-2 text-gray-500 hover:bg-gray-100 rounded-lg">
+                        <i class="ri-arrow-left-line text-xl"></i>
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-semibold text-gray-900">Workflow Engine Architecture</h1>
+                        <p class="text-sm text-gray-600">Complete flowchart of the workflow execution engine</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="zoomOut()" class="px-3 py-2 text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50">
+                        <i class="ri-zoom-out-line mr-1"></i>
+                        Zoom Out
+                    </button>
+                    <button onclick="resetZoom()" class="px-3 py-2 text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50">
+                        <i class="ri-focus-3-line mr-1"></i>
+                        Reset
+                    </button>
+                    <button onclick="zoomIn()" class="px-3 py-2 text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-50">
+                        <i class="ri-zoom-in-line mr-1"></i>
+                        Zoom In
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="p-6">
+        <div id="flowchart-viewport" class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 overflow-hidden" style="min-height: 80vh;">
+            <div id="flowchart-container" style="transform-origin: top left; transition: transform 0.15s ease;">
+                <div class="mermaid">
+flowchart TD
+    %% Workflow Parsing and Preparation
+    A[Workflow JSON from Frontend] --> B{Parse & Validate JSON}
+    B -->|Valid| C[Extract Metadata & Build Execution Graph]
+    B -->|Invalid| D[Return Validation Errors]
+    C --> E[Pre-execution Validation]
+    E --> F{All Systems Ready?}
+    F -->|No| G[Report Integration Issues]
+    F -->|Yes| H[Create Execution Instance]
+    
+    %% Execution Lifecycle
+    H --> I[Initialize Context & State]
+    I --> J[Begin Audit Trail]
+    J --> K[Start Node Execution]
+    
+    %% Main Execution Loop
+    K --> L{Node Type?}
+    
+    %% Different Node Types
+    L -->|Trigger| M[Process Trigger Conditions]
+    L -->|Wait| N[Handle Wait Logic]
+    L -->|Condition| O[AI Evaluation via MCP]
+    L -->|Loop| P[Loop Iteration Management]
+    L -->|Approval| Q[Human Review Process]
+    L -->|Action| R[External API Integration]
+    L -->|AI Touch| S[AI Analysis via MCP]
+    
+    %% Wait Node Flow
+    N --> N1{Wait Type?}
+    N1 -->|Time| N2[Schedule Future Execution]
+    N1 -->|Input| N3[Pause for External Input]
+    N1 -->|Event| N4[Listen for System Events]
+    N2 --> N5[Resume at Scheduled Time]
+    N3 --> N6[Resume When Input Received]
+    N4 --> N7[Resume on Event Trigger]
+    N5 --> T
+    N6 --> T
+    N7 --> T
+    
+    %% Condition Node Flow
+    O --> O1[Gather Context Data]
+    O1 --> O2[Send to Logic Judging Agent]
+    O2 --> O3{AI Decision?}
+    O3 -->|Clear Decision| O4[Route to Selected Path]
+    O3 -->|Cannot Decide| O5[Manual Review Required]
+    O4 --> T
+    O5 --> Q
+    
+    %% Loop Node Flow
+    P --> P1[Initialize Loop Counter]
+    P1 --> P2[Execute Enclosed Blocks]
+    P2 --> P3{Exit Condition Met?}
+    P3 -->|No| P4[Increment Counter]
+    P4 --> P5{Max Iterations?}
+    P5 -->|No| P2
+    P5 -->|Yes| P6[Force Exit Loop]
+    P3 -->|Yes| T
+    P6 --> T
+    
+    %% Approval Node Flow
+    Q --> Q1[Add to Review Queue]
+    Q1 --> Q2[Notify Reviewers]
+    Q2 --> Q3{AI Pre-screening?}
+    Q3 -->|Yes| Q4[Get AI Recommendation]
+    Q3 -->|No| Q5[Wait for Human Decision]
+    Q4 --> Q5
+    Q5 --> Q6{Decision Made?}
+    Q6 -->|Approved| T
+    Q6 -->|Rejected| Q7[End Workflow Branch]
+    Q6 -->|Timeout| Q8{Timeout Action?}
+    Q8 -->|Auto-Approve| T
+    Q8 -->|Auto-Reject| Q7
+    Q8 -->|Escalate| Q9[Escalate to Secondary Reviewer]
+    Q9 --> Q5
+    
+    %% Action Node Flow
+    R --> R1[Prepare API Parameters]
+    R1 --> R2[Call External System via API Adapter]
+    R2 --> R3{API Success?}
+    R3 -->|Success| R4[Process Response Data]
+    R3 -->|Failure| R5{Retry Possible?}
+    R5 -->|Yes| R6[Exponential Backoff Retry]
+    R5 -->|No| R7[Handle Permanent Failure]
+    R6 --> R2
+    R4 --> T
+    
+    %% AI Touch Flow
+    S --> S1[Collect Previous Steps Context]
+    S1 --> S2[Send to Workflow Compose Agent]
+    S2 --> S3[Receive AI Analysis]
+    S3 --> S4{Execution Mode?}
+    S4 -->|Execute Next| S5[Auto-execute Recommendation]
+    S4 -->|Auto-generate| S6[Generate New Workflow Steps]
+    S4 -->|Hybrid| S7[Combine Analysis + Generation]
+    S5 --> T
+    S6 --> T
+    S7 --> T
+    
+    %% Continue Execution
+    M --> T[Update Execution State]
+    T --> U{More Nodes?}
+    U -->|Yes| V{Parallel Paths?}
+    V -->|No| K
+    V -->|Yes| W[Create Parallel Execution Threads]
+    W --> X[Execute Branches Independently]
+    X --> Y{All Branches Complete?}
+    Y -->|No| X
+    Y -->|Yes| Z[Merge Branch Results]
+    Z --> K
+    
+    %% Completion Flows
+    U -->|No| AA{Execution Status?}
+    AA -->|Success| BB[Mark as Completed]
+    AA -->|Error| CC[Mark as Failed]
+    AA -->|Cancelled| DD[Mark as Cancelled]
+    
+    %% User Control Actions
+    I --> PAUSE{User Action?}
+    K --> PAUSE
+    T --> PAUSE
+    
+    PAUSE -->|Pause| EE[Save Current State]
+    PAUSE -->|Resume| FF[Restore from Saved State]
+    PAUSE -->|Stop| GG[Graceful Termination]
+    PAUSE -->|Abort| HH[Emergency Stop]
+    PAUSE -->|Continue| K
+    
+    EE --> II[Workflow Paused]
+    FF --> K
+    GG --> DD
+    HH --> JJ[Mark as Aborted]
+    
+    %% Error Handling Flows
+    R7 --> ERROR{Error Type?}
+    CC --> ERROR
+    
+    ERROR -->|Node Failure| ER1[Automatic Retry with Backoff]
+    ERROR -->|Integration Failure| ER2[Check Integration Health]
+    ERROR -->|Data Issue| ER3[Request Data Validation]
+    ERROR -->|Timeout| ER4[Apply Timeout Recovery]
+    ERROR -->|System Error| ER5[Infrastructure Recovery]
+    
+    ER1 --> ER6{Recovery Successful?}
+    ER2 --> ER6
+    ER3 --> ER6
+    ER4 --> ER6
+    ER5 --> ER6
+    
+    ER6 -->|Yes| K
+    ER6 -->|No| ER7{Rollback Required?}
+    
+    ER7 -->|Node Rollback| ER8[Undo Failed Node Actions]
+    ER7 -->|Checkpoint Rollback| ER9[Return to Last Safe State]
+    ER7 -->|Full Rollback| ER10[Undo All Workflow Actions]
+    ER7 -->|Manual Intervention| ER11[Pause for Manual Resolution]
+    
+    ER8 --> K
+    ER9 --> K
+    ER10 --> KK[Workflow Fully Reversed]
+    ER11 --> II
+    
+    %% Final States
+    BB --> LL[Send Completion Notifications]
+    CC --> MM[Send Failure Notifications]
+    DD --> NN[Send Cancellation Notifications]
+    JJ --> OO[Send Abort Notifications]
+    KK --> PP[Send Rollback Notifications]
+    
+    %% Styling
+    classDef startEnd fill:#e1f5fe
+    classDef process fill:#f3e5f5
+    classDef decision fill:#fff3e0
+    classDef error fill:#ffebee
+    classDef nodeType fill:#e8f5e8
+    classDef userAction fill:#fff8e1
+    
+    class A,LL,MM,NN,OO,PP startEnd
+    class C,H,I,J,T,U,BB,CC,DD process
+    class B,F,L,N1,O3,P3,P5,Q3,Q6,Q8,R3,R5,S4,U,V,Y,AA,PAUSE,ER6,ER7 decision
+    class D,G,R7,ERROR,ER1,ER2,ER3,ER4,ER5 error
+    class M,N,O,P,Q,R,S nodeType
+    class EE,FF,GG,HH,II userAction
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#4f46e5',
+                primaryTextColor: '#ffffff',
+                primaryBorderColor: '#4338ca',
+                lineColor: '#6b7280',
+                background: '#ffffff',
+                tertiaryColor: '#f8fafc'
+            }
+        });
+
+        // Zoom/Pan controls
+        const viewport = document.getElementById('flowchart-viewport');
+        const container = document.getElementById('flowchart-container');
+        
+        let currentZoom = 1;
+        let panX = 0;
+        let panY = 0;
+        const MIN_ZOOM = 0.3;
+        const MAX_ZOOM = 2.0;
+        
+        function clampZoom(z) {
+            return Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, z));
+        }
+        
+        function updateTransform() {
+            // Scale first, then translate (translation in canvas coords)
+            container.style.transform = `scale(${currentZoom}) translate(${panX}px, ${panY}px)`;
+        }
+        
+        function zoomAt(clientX, clientY, factor) {
+            const rect = viewport.getBoundingClientRect();
+            const styles = getComputedStyle(viewport);
+            const padLeft = parseFloat(styles.paddingLeft) || 0;
+            const padTop = parseFloat(styles.paddingTop) || 0;
+            // Measure relative to container's layout origin (viewport's padding box)
+            const px = clientX - rect.left - padLeft;
+            const py = clientY - rect.top - padTop;
+            
+            const prev = currentZoom;
+            const next = clampZoom(prev * factor);
+            if (next === prev) return;
+            
+            // Keep the cursor position stable while zooming
+            panX += px * (1/next - 1/prev);
+            panY += py * (1/next - 1/prev);
+            currentZoom = next;
+            updateTransform();
+        }
+        
+        function zoomIn() {
+            const rect = viewport.getBoundingClientRect();
+            const next = clampZoom(currentZoom + 0.1);
+            const factor = next / currentZoom;
+            zoomAt(rect.left + rect.width/2, rect.top + rect.height/2, factor);
+        }
+        
+        function zoomOut() {
+            const rect = viewport.getBoundingClientRect();
+            const next = clampZoom(currentZoom - 0.1);
+            const factor = next / currentZoom;
+            zoomAt(rect.left + rect.width/2, rect.top + rect.height/2, factor);
+        }
+        
+        function resetZoom() {
+            currentZoom = 1;
+            panX = 0;
+            panY = 0;
+            updateTransform();
+        }
+        
+        // Mouse/touchpad wheel: Ctrl+scroll to zoom; otherwise pan
+        viewport.addEventListener('wheel', (e) => {
+            // Pinch on macOS trackpads reports as wheel with ctrlKey=true
+            // Allow Cmd (meta) as well for convenience
+            if (e.ctrlKey || e.metaKey) {
+                e.preventDefault();
+                const factor = Math.exp(-e.deltaY * 0.001); // smooth zoom
+                zoomAt(e.clientX, e.clientY, factor);
+            } else {
+                // Two-finger scroll pans the view
+                e.preventDefault();
+                panX -= (e.deltaX || 0) / currentZoom;
+                panY -= (e.deltaY || 0) / currentZoom;
+                updateTransform();
+            }
+        }, { passive: false });
+        
+        // Pointer-based drag to pan and pinch to zoom (touch)
+        const activePointers = new Map();
+        const supportsPointer = window.PointerEvent !== undefined;
+        let pointerActive = false; // guard to disable mouse fallback while pointer interaction is active
+        let isPanning = false;
+        let panPointerId = null;
+        let lastX = 0, lastY = 0;
+        let pinchStartDist = 0;
+        let pinchStartZoom = 1;
+        
+        function dist(a, b) {
+            return Math.hypot(a.x - b.x, a.y - b.y);
+        }
+        function center(a, b) {
+            return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+        }
+        
+        viewport.addEventListener('pointerdown', (e) => {
+            // Only start panning on primary mouse button; allow touch/pen
+            if (e.pointerType === 'mouse' && e.button !== 0) return;
+            e.preventDefault();
+            try { e.currentTarget.setPointerCapture(e.pointerId); } catch(_) {}
+            pointerActive = true;
+            activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+            if (activePointers.size === 1) {
+                isPanning = true;
+                panPointerId = e.pointerId;
+                lastX = e.clientX;
+                lastY = e.clientY;
+                viewport.classList.add('grabbing');
+            } else if (activePointers.size === 2) {
+                // Initialize pinch
+                const pts = [...activePointers.values()];
+                pinchStartDist = dist(pts[0], pts[1]);
+                pinchStartZoom = currentZoom;
+                isPanning = false;
+            }
+        }, { passive: false, capture: true });
+        
+        viewport.addEventListener('pointermove', (e) => {
+            if (!activePointers.has(e.pointerId)) return;
+            activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+            if (activePointers.size === 2) {
+                e.preventDefault();
+                const pts = [...activePointers.values()];
+                const d = dist(pts[0], pts[1]);
+                if (pinchStartDist > 0) {
+                    const centerPt = center(pts[0], pts[1]);
+                    const desiredZoom = clampZoom(pinchStartZoom * (d / pinchStartDist));
+                    const factor = desiredZoom / currentZoom;
+                    zoomAt(centerPt.x, centerPt.y, factor);
+                }
+            } else if (isPanning && e.pointerId === panPointerId) {
+                e.preventDefault();
+                const dx = (e.clientX - lastX) / currentZoom;
+                const dy = (e.clientY - lastY) / currentZoom;
+                panX += dx;
+                panY += dy;
+                lastX = e.clientX;
+                lastY = e.clientY;
+                updateTransform();
+            }
+        }, { passive: false, capture: true });
+        
+        function endPointer(e) {
+            activePointers.delete(e.pointerId);
+            if (e.pointerId === panPointerId) {
+                isPanning = false;
+                panPointerId = null;
+                viewport.classList.remove('grabbing');
+            }
+            if (activePointers.size < 2) {
+                pinchStartDist = 0;
+            }
+            if (activePointers.size === 0) {
+                pointerActive = false;
+            }
+        }
+        viewport.addEventListener('pointerup', endPointer, { capture: true });
+        viewport.addEventListener('pointercancel', endPointer, { capture: true });
+        viewport.addEventListener('pointerleave', endPointer, { capture: true });
+        viewport.addEventListener('pointerout', endPointer, { capture: true });
+        // Prevent native drag image behavior inside SVG
+        viewport.addEventListener('dragstart', (e) => e.preventDefault());
+
+        // Mouse fallback (always registered; guarded by pointerActive)
+        let mousePanning = false;
+        let mLastX = 0, mLastY = 0;
+        viewport.addEventListener('mousedown', (e) => {
+            if (pointerActive) return; // pointer events are handling it
+            if (e.button !== 0) return;
+            e.preventDefault();
+            mousePanning = true;
+            mLastX = e.clientX;
+            mLastY = e.clientY;
+            viewport.classList.add('grabbing');
+        }, { passive: false, capture: true });
+        window.addEventListener('mousemove', (e) => {
+            if (pointerActive) return;
+            if (!mousePanning) return;
+            e.preventDefault();
+            const dx = (e.clientX - mLastX) / currentZoom;
+            const dy = (e.clientY - mLastY) / currentZoom;
+            panX += dx;
+            panY += dy;
+            mLastX = e.clientX;
+            mLastY = e.clientY;
+            updateTransform();
+        }, { passive: false, capture: true });
+        window.addEventListener('mouseup', () => {
+            if (pointerActive) return;
+            if (!mousePanning) return;
+            mousePanning = false;
+            viewport.classList.remove('grabbing');
+        }, { capture: true });
+        
+        // Keyboard shortcuts (Ctrl/Cmd + +/-/0)
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '=':
+                    case '+':
+                        e.preventDefault();
+                        zoomIn();
+                        break;
+                    case '-':
+                        e.preventDefault();
+                        zoomOut();
+                        break;
+                    case '0':
+                        e.preventDefault();
+                        resetZoom();
+                        break;
+                }
+            }
+        });
+        
+        // Initial transform
+        updateTransform();
+    </script>
+</body>
+</html>

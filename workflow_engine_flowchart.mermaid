@@ -1,0 +1,182 @@
+flowchart TD
+    %% Workflow Parsing and Preparation
+    A[Workflow JSON from Frontend] --> B{Parse & Validate JSON}
+    B -->|Valid| C[Extract Metadata & Build Execution Graph]
+    B -->|Invalid| D[Return Validation Errors]
+    C --> E[Pre-execution Validation]
+    E --> F{All Systems Ready?}
+    F -->|No| G[Report Integration Issues]
+    F -->|Yes| H[Create Execution Instance]
+    
+    %% Execution Lifecycle
+    H --> I[Initialize Context & State]
+    I --> J[Begin Audit Trail]
+    J --> K[Start Node Execution]
+    
+    %% Main Execution Loop
+    K --> L{Node Type?}
+    
+    %% Different Node Types
+    L -->|Trigger| M[Process Trigger Conditions]
+    L -->|Wait| N[Handle Wait Logic]
+    L -->|Condition| O[AI Evaluation via MCP]
+    L -->|Loop| P[Loop Iteration Management]
+    L -->|Approval| Q[Human Review Process]
+    L -->|Action| R[External API Integration]
+    L -->|AI Touch| S[AI Analysis via MCP]
+    
+    %% Wait Node Flow
+    N --> N1{Wait Type?}
+    N1 -->|Time| N2[Schedule Future Execution]
+    N1 -->|Input| N3[Pause for External Input]
+    N1 -->|Event| N4[Listen for System Events]
+    N2 --> N5[Resume at Scheduled Time]
+    N3 --> N6[Resume When Input Received]
+    N4 --> N7[Resume on Event Trigger]
+    N5 --> T
+    N6 --> T
+    N7 --> T
+    
+    %% Condition Node Flow
+    O --> O1[Gather Context Data]
+    O1 --> O2[Send to Logic Judging Agent]
+    O2 --> O3{AI Decision?}
+    O3 -->|Clear Decision| O4[Route to Selected Path]
+    O3 -->|Cannot Decide| O5[Manual Review Required]
+    O4 --> T
+    O5 --> Q
+    
+    %% Loop Node Flow
+    P --> P1[Initialize Loop Counter]
+    P1 --> P2[Execute Enclosed Blocks]
+    P2 --> P3{Exit Condition Met?}
+    P3 -->|No| P4[Increment Counter]
+    P4 --> P5{Max Iterations?}
+    P5 -->|No| P2
+    P5 -->|Yes| P6[Force Exit Loop]
+    P3 -->|Yes| T
+    P6 --> T
+    
+    %% Approval Node Flow
+    Q --> Q1[Add to Review Queue]
+    Q1 --> Q2[Notify Reviewers]
+    Q2 --> Q3{AI Pre-screening?}
+    Q3 -->|Yes| Q4[Get AI Recommendation]
+    Q3 -->|No| Q5[Wait for Human Decision]
+    Q4 --> Q5
+    Q5 --> Q6{Decision Made?}
+    Q6 -->|Approved| T
+    Q6 -->|Rejected| Q7[End Workflow Branch]
+    Q6 -->|Timeout| Q8{Timeout Action?}
+    Q8 -->|Auto-Approve| T
+    Q8 -->|Auto-Reject| Q7
+    Q8 -->|Escalate| Q9[Escalate to Secondary Reviewer]
+    Q9 --> Q5
+    
+    %% Action Node Flow
+    R --> R1[Prepare API Parameters]
+    R1 --> R2[Call External System via API Adapter]
+    R2 --> R3{API Success?}
+    R3 -->|Success| R4[Process Response Data]
+    R3 -->|Failure| R5{Retry Possible?}
+    R5 -->|Yes| R6[Exponential Backoff Retry]
+    R5 -->|No| R7[Handle Permanent Failure]
+    R6 --> R2
+    R4 --> T
+    
+    %% AI Touch Flow
+    S --> S1[Collect Previous Steps Context]
+    S1 --> S2[Send to Workflow Compose Agent]
+    S2 --> S3[Receive AI Analysis]
+    S3 --> S4{Execution Mode?}
+    S4 -->|Execute Next| S5[Auto-execute Recommendation]
+    S4 -->|Auto-generate| S6[Generate New Workflow Steps]
+    S4 -->|Hybrid| S7[Combine Analysis + Generation]
+    S5 --> T
+    S6 --> T
+    S7 --> T
+    
+    %% Continue Execution
+    M --> T[Update Execution State]
+    T --> U{More Nodes?}
+    U -->|Yes| V{Parallel Paths?}
+    V -->|No| K
+    V -->|Yes| W[Create Parallel Execution Threads]
+    W --> X[Execute Branches Independently]
+    X --> Y{All Branches Complete?}
+    Y -->|No| X
+    Y -->|Yes| Z[Merge Branch Results]
+    Z --> K
+    
+    %% Completion Flows
+    U -->|No| AA{Execution Status?}
+    AA -->|Success| BB[Mark as Completed]
+    AA -->|Error| CC[Mark as Failed]
+    AA -->|Cancelled| DD[Mark as Cancelled]
+    
+    %% User Control Actions
+    I --> PAUSE{User Action?}
+    K --> PAUSE
+    T --> PAUSE
+    
+    PAUSE -->|Pause| EE[Save Current State]
+    PAUSE -->|Resume| FF[Restore from Saved State]
+    PAUSE -->|Stop| GG[Graceful Termination]
+    PAUSE -->|Abort| HH[Emergency Stop]
+    PAUSE -->|Continue| K
+    
+    EE --> II[Workflow Paused]
+    FF --> K
+    GG --> DD
+    HH --> JJ[Mark as Aborted]
+    
+    %% Error Handling Flows
+    R7 --> ERROR{Error Type?}
+    CC --> ERROR
+    
+    ERROR -->|Node Failure| ER1[Automatic Retry with Backoff]
+    ERROR -->|Integration Failure| ER2[Check Integration Health]
+    ERROR -->|Data Issue| ER3[Request Data Validation]
+    ERROR -->|Timeout| ER4[Apply Timeout Recovery]
+    ERROR -->|System Error| ER5[Infrastructure Recovery]
+    
+    ER1 --> ER6{Recovery Successful?}
+    ER2 --> ER6
+    ER3 --> ER6
+    ER4 --> ER6
+    ER5 --> ER6
+    
+    ER6 -->|Yes| K
+    ER6 -->|No| ER7{Rollback Required?}
+    
+    ER7 -->|Node Rollback| ER8[Undo Failed Node Actions]
+    ER7 -->|Checkpoint Rollback| ER9[Return to Last Safe State]
+    ER7 -->|Full Rollback| ER10[Undo All Workflow Actions]
+    ER7 -->|Manual Intervention| ER11[Pause for Manual Resolution]
+    
+    ER8 --> K
+    ER9 --> K
+    ER10 --> KK[Workflow Fully Reversed]
+    ER11 --> II
+    
+    %% Final States
+    BB --> LL[Send Completion Notifications]
+    CC --> MM[Send Failure Notifications]
+    DD --> NN[Send Cancellation Notifications]
+    JJ --> OO[Send Abort Notifications]
+    KK --> PP[Send Rollback Notifications]
+    
+    %% Styling
+    classDef startEnd fill:#e1f5fe
+    classDef process fill:#f3e5f5
+    classDef decision fill:#fff3e0
+    classDef error fill:#ffebee
+    classDef nodeType fill:#e8f5e8
+    classDef userAction fill:#fff8e1
+    
+    class A,LL,MM,NN,OO,PP startEnd
+    class C,H,I,J,T,U,BB,CC,DD process
+    class B,F,L,N1,O3,P3,P5,Q3,Q6,Q8,R3,R5,S4,U,V,Y,AA,PAUSE,ER6,ER7 decision
+    class D,G,R7,ERROR,ER1,ER2,ER3,ER4,ER5 error
+    class M,N,O,P,Q,R,S nodeType
+    class EE,FF,GG,HH,II userAction
