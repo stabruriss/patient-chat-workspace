@@ -4478,7 +4478,6 @@ if (block.type === 'trigger-manual') {
                             <label class="block text-sm font-medium text-gray-700 mb-2">Wait Type</label>
                             <select class="config-input w-full p-2 border border-gray-300 rounded-lg" data-field="type">
                                 <option value="time">Fixed Time Period</option>
-                                <option value="input">Wait for Input</option>
                             </select>
                         </div>
                         <div id="timeConfig" class="space-y-3">
@@ -4494,13 +4493,6 @@ if (block.type === 'trigger-manual') {
                                     <option value="hours">Hours</option>
                                     <option value="days">Days</option>
                                 </select>
-                            </div>
-                        </div>
-                        <div id="inputConfig" class="hidden">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Number of Inputs Required</label>
-                                <input type="number" class="config-input w-full p-2 border border-gray-300 rounded-lg" 
-                                       data-field="inputCount" min="1" placeholder="1">
                             </div>
                         </div>
                     </div>
@@ -5443,22 +5435,6 @@ if (block.type === 'trigger-manual') {
         }
         
         function setupModalEventListeners(modal, block) {
-            // Wait type toggle for wait blocks
-            const waitTypeSelect = modal.querySelector('select[data-field="type"]');
-            if (waitTypeSelect && block.type === 'wait') {
-                waitTypeSelect.addEventListener('change', (e) => {
-                    const timeConfig = modal.querySelector('#timeConfig');
-                    const inputConfig = modal.querySelector('#inputConfig');
-                    
-                    if (e.target.value === 'input') {
-                        timeConfig.classList.add('hidden');
-                        inputConfig.classList.remove('hidden');
-                    } else {
-                        timeConfig.classList.remove('hidden');
-                        inputConfig.classList.add('hidden');
-                    }
-                });
-            }
             
             // AI analysis toggle for approval blocks
             const aiEnabledToggle = modal.querySelector('input[data-field="aiEnabled"]');
