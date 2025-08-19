@@ -16,6 +16,20 @@
 body {
 font-family: 'Inter', sans-serif;
 overflow: hidden;
+position: fixed;
+width: 100%;
+height: 100%;
+}
+/* Ensure top navigation is always visible and properly positioned */
+#top-navigation {
+display: block !important;
+visibility: visible !important;
+position: relative !important;
+top: 0 !important;
+left: 0 !important;
+width: 100% !important;
+flex-shrink: 0 !important;
+z-index: 100 !important;
 }
 .message-list::-webkit-scrollbar, .patient-list::-webkit-scrollbar, .profile-panel::-webkit-scrollbar {
 width: 6px;
@@ -171,7 +185,7 @@ display: block;
 </head>
 <body class="bg-gray-50 h-screen flex flex-col">
 <!-- Page Switch Tabs -->
-<div class="w-full bg-white border-b border-gray-200">
+<div id="top-navigation" class="w-full bg-white border-b border-gray-200">
 <div class="max-w-screen-2xl mx-auto px-4">
 <div class="flex items-center justify-between">
 <div class="grid grid-cols-4 gap-4 flex-1">
@@ -223,7 +237,7 @@ My Practice
 <div class="w-5 h-5 flex items-center justify-center mr-1">
 <i class="ri-robot-line"></i>
 </div>
-AI Assistant
+Notifications
 <div class="ml-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white text-xs font-medium">3</div>
 </button>
 </div>
@@ -236,7 +250,7 @@ AI Assistant
 </div>
 </div>
 <div class="ml-3">
-<h3 class="text-base font-medium text-gray-900">AI Assistant</h3>
+<h3 class="text-base font-medium text-gray-900">Notifications</h3>
 <p class="text-xs text-gray-500">Always here to help</p>
 </div>
 </div>
@@ -1944,7 +1958,10 @@ const messageListContainer = document.getElementById('message-list');
 const quickReplyBar = document.getElementById('quick-reply-bar');
 const patientItems = document.querySelectorAll('.patient-item');
 patientItems.forEach(item => {
-item.addEventListener('click', function() {
+item.addEventListener('click', function(event) {
+// Prevent any default scrolling behavior
+event.preventDefault();
+event.stopPropagation();
 // Remove active class from all items
 patientItems.forEach(p => p.classList.remove('active'));
 // Add active class to clicked item
@@ -1958,10 +1975,57 @@ const quickActionBar = document.getElementById('quick-action-bar');
 if(quickActionBar) {
 quickActionBar.style.display = 'flex';
 }
-// Keep page tabs visible
-const pageTabs = document.querySelector('.w-full.bg-white.border-b.border-gray-200');
+// Keep page tabs visible and properly positioned
+const pageTabs = document.querySelector('#top-navigation');
 if(pageTabs) {
 pageTabs.style.display = 'block';
+pageTabs.style.visibility = 'visible';
+pageTabs.style.position = 'relative';
+pageTabs.style.top = '0';
+}
+// Show patient profile header when a patient is selected
+const chatHeaderElement = document.querySelector('.p-4.border-b.border-gray-200.flex.flex-col.bg-white.w-full');
+if(chatHeaderElement) {
+chatHeaderElement.style.display = 'flex';
+}
+// Show patient profile panel when a patient is selected
+const profilePanel = document.querySelector('.w-80.bg-white.border-l');
+if(profilePanel) {
+profilePanel.style.display = 'block';
+}
+// Restore original channel options for patient chats
+const channelOptions = document.querySelector('.channel-options');
+if(channelOptions) {
+channelOptions.innerHTML = `
+<button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-message-3-line"></i>
+</div>
+In-App
+</button>
+<button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-message-2-line"></i>
+</div>
+SMS
+</button>
+<button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-mail-line"></i>
+</div>
+Email
+</button>
+`;
+}
+// Restore original channel selector icon and color for patient chats
+const channelToggle = document.querySelector('.channel-toggle');
+if(channelToggle) {
+channelToggle.className = 'channel-toggle flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200 whitespace-nowrap';
+channelToggle.innerHTML = `
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-message-3-line"></i>
+</div>
+`;
 }
 // Remove unread badge
 if(unreadBadge) {
@@ -1978,11 +2042,7 @@ message.style.backgroundColor = 'transparent';
 }, 2000);
 }
 });
-// Scroll to the latest unread message
-const lastUnreadMessage = unreadMessages[unreadMessages.length - 1];
-if(lastUnreadMessage) {
-lastUnreadMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
-}
+// Note: Scroll behavior removed to prevent navigation displacement
 // Show quick reply suggestions
 quickReplyBar.classList.remove('hidden');
 // Add click handlers for quick reply buttons
@@ -2006,14 +2066,56 @@ const chatHeader = document.querySelector('.p-4.border-b.border-gray-200.flex.it
 const messageList = document.querySelector('.message-list');
 const profilePanel = document.querySelector('.w-80.bg-white.border-l');
 aiAssistantChat.addEventListener('click', function() {
-// Keep page tabs visible
-const pageTabs = document.querySelector('.w-full.bg-white.border-b.border-gray-200');
+// Keep page tabs visible and properly positioned
+const pageTabs = document.querySelector('#top-navigation');
 const quickActionBar = document.getElementById('quick-action-bar');
 if(pageTabs) {
 pageTabs.style.display = 'block';
+pageTabs.style.visibility = 'visible';
+pageTabs.style.position = 'relative';
+pageTabs.style.top = '0';
 }
 if(quickActionBar) {
 quickActionBar.style.display = 'none';
+}
+// Hide patient profile sections when viewing notifications
+const chatHeaderElement = document.querySelector('.p-4.border-b.border-gray-200.flex.flex-col.bg-white.w-full');
+if(chatHeaderElement) {
+chatHeaderElement.style.display = 'none';
+}
+// Update channel options for notifications
+const channelOptions = document.querySelector('.channel-options');
+if(channelOptions) {
+channelOptions.innerHTML = `
+<button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-send-plane-line"></i>
+</div>
+Send here
+</button>
+<button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-robot-line"></i>
+</div>
+Ask AI
+</button>
+<button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded flex items-center whitespace-nowrap">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-customer-service-line"></i>
+</div>
+Ask Support
+</button>
+`;
+}
+// Update channel selector icon and color for notifications
+const channelToggle = document.querySelector('.channel-toggle');
+if(channelToggle) {
+channelToggle.className = 'channel-toggle flex items-center justify-center w-8 h-8 bg-purple-100 rounded-full text-purple-600 hover:bg-purple-200 whitespace-nowrap';
+channelToggle.innerHTML = `
+<div class="w-4 h-4 flex items-center justify-center">
+<i class="ri-notification-3-line"></i>
+</div>
+`;
 }
 // Update chat header
 chatHeader.innerHTML = `
@@ -2024,7 +2126,7 @@ chatHeader.innerHTML = `
 </div>
 </div>
 <div class="ml-3">
-<h2 class="text-base font-medium text-gray-900">AI Assistant</h2>
+<h2 class="text-base font-medium text-gray-900">Notifications</h2>
 <div class="flex items-center">
 <span class="text-xs text-gray-500">Always available</span>
 <span class="mx-1 text-gray-300">•</span>
@@ -2058,10 +2160,10 @@ messageList.innerHTML = `
 </div>
 <div>
 <div class="flex items-center mb-1">
-<span class="text-xs font-medium text-gray-900 mr-2">AI Assistant</span>
+<span class="text-xs font-medium text-gray-900 mr-2">Notifications</span>
 </div>
 <div class="message-bubble patient-message p-3">
-<p class="text-sm">Hello! I'm your AI assistant. I can help you with managing appointments, reviewing patient data, and answering general questions. How can I assist you today?</p>
+<p class="text-sm">You have 3 new notifications. Stay updated with important alerts and messages.</p>
 </div>
 <span class="text-xs text-gray-500 mt-1">9:00 AM</span>
 </div>
@@ -2074,6 +2176,39 @@ document.querySelectorAll('.patient-item').forEach(item => {
 item.classList.remove('active');
 });
 aiAssistantChat.classList.add('active');
+});
+
+// Add protection for top navigation - monitor and prevent style changes
+document.addEventListener('DOMContentLoaded', function() {
+const topNavigation = document.querySelector('#top-navigation');
+if (topNavigation) {
+// Monitor for style changes and prevent hiding or misplacement
+const observer = new MutationObserver(function(mutations) {
+mutations.forEach(function(mutation) {
+if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+const target = mutation.target;
+if (target === topNavigation) {
+// Fix visibility issues
+if (target.style.display === 'none' || target.style.visibility === 'hidden') {
+target.style.display = 'block';
+target.style.visibility = 'visible';
+}
+// Fix positioning issues  
+if (target.style.position === 'static' || target.style.position === 'absolute' || target.style.position === 'fixed') {
+target.style.position = 'relative';
+target.style.top = '0';
+}
+}
+}
+});
+});
+
+// Start observing
+observer.observe(topNavigation, {
+attributes: true,
+attributeFilter: ['style']
+});
+}
 });
 const pageTabs = document.querySelectorAll('.page-tab');
 pageTabs.forEach(tab => {
