@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eRx Interface</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-primary {
+            --tw-text-opacity: 1;
+            color: rgb(79 70 229 / var(--tw-text-opacity));
+        }
+        .bg-custom-primary {
+            --tw-bg-opacity: 1;
+            background-color: rgb(79 70 229 / var(--tw-bg-opacity));
+        }
+        .border-custom-primary {
+            --tw-border-opacity: 1;
+            border-color: rgb(79 70 229 / var(--tw-border-opacity));
+        }
+        .hover\:bg-custom-primary:hover {
+            --tw-bg-opacity: 1;
+            background-color: rgb(79 70 229 / var(--tw-bg-opacity));
+        }
+        .autocomplete-dropdown {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .sig-button.active {
+            background-color: rgb(79 70 229 / 0.1);
+            border-color: rgb(79 70 229);
+            color: rgb(79 70 229);
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-6xl mx-auto p-6">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+            <div class="p-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                    <i class="ri-medicine-bottle-line mr-2 custom-primary"></i>
+                    Electronic Prescribing (eRx)
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">Patient: Sarah Johnson | DOB: 03/15/1985 | MRN: MR123456</p>
+            </div>
+            
+            <!-- Tab Navigation -->
+            <div class="flex border-b border-gray-200">
+                <button class="erx-tab px-6 py-3 text-sm font-medium custom-primary bg-blue-50 border-b-2 border-custom-primary" data-tab="composer">
+                    <i class="ri-edit-line mr-2"></i>Composer (New Rx)
+                </button>
+                <button class="erx-tab px-6 py-3 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="existing">
+                    <i class="ri-file-list-line mr-2"></i>Patient's Existing Rx
+                </button>
+            </div>
+        </div>
+
+        <!-- Composer Tab Content -->
+        <div id="composer-content" class="erx-content">
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Left Column - Main Composer -->
+                <div class="col-span-8 space-y-6">
+                    
+                    <!-- Copy from Past Rx -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Copy from Past Prescriptions</h3>
+                        <div class="relative">
+                            <input type="text" placeholder="Search past prescriptions..." class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="absolute right-3 top-3">
+                                <i class="ri-search-line text-gray-400"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3 space-y-2">
+                            <div class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Lisinopril 10mg tablets</p>
+                                        <p class="text-sm text-gray-500">Take 1 tablet daily • Last prescribed: 2024-11-15</p>
+                                    </div>
+                                    <button class="px-3 py-1 bg-custom-primary text-white rounded text-sm hover:bg-blue-600">Copy</button>
+                                </div>
+                            </div>
+                            <div class="p-3 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <p class="font-medium text-gray-900">Metformin 500mg tablets</p>
+                                        <p class="text-sm text-gray-500">Take 1 tablet twice daily • Last prescribed: 2024-10-20</p>
+                                    </div>
+                                    <button class="px-3 py-1 bg-custom-primary text-white rounded text-sm hover:bg-blue-600">Copy</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Drug Search -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Drug Search & Selection</h3>
+                        <div class="relative">
+                            <input id="drug-search" type="text" placeholder="Search for medication..." class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="absolute right-3 top-3">
+                                <i class="ri-search-line text-gray-400"></i>
+                            </div>
+                            <!-- Autocomplete Dropdown -->
+                            <div id="drug-autocomplete" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg z-10 hidden autocomplete-dropdown">
+                                <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                                    <p class="font-medium">Lisinopril</p>
+                                    <p class="text-sm text-gray-500">ACE Inhibitor • Generic available</p>
+                                </div>
+                                <div class="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100">
+                                    <p class="font-medium">Lipitor (Atorvastatin)</p>
+                                    <p class="text-sm text-gray-500">Statin • Brand/Generic available</p>
+                                </div>
+                                <div class="p-3 hover:bg-gray-50 cursor-pointer">
+                                    <p class="font-medium">Losartan</p>
+                                    <p class="text-sm text-gray-500">ARB • Generic available</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Selected Drug Details -->
+                        <div id="selected-drug" class="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg hidden">
+                            <h4 class="font-medium text-gray-900 mb-3">Selected: Lisinopril</h4>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Strength</label>
+                                    <select class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option>5mg</option>
+                                        <option selected>10mg</option>
+                                        <option>20mg</option>
+                                        <option>40mg</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Form</label>
+                                    <select class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <option selected>Tablet</option>
+                                        <option>Capsule</option>
+                                        <option>Solution</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SIG Builder -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">SIG Builder</h3>
+                        
+                        <!-- Common SIGs -->
+                        <div class="mb-4">
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Common Instructions</h4>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button class="sig-button p-2 text-left border border-gray-200 rounded hover:bg-gray-50 text-sm">
+                                    Take 1 tablet daily
+                                </button>
+                                <button class="sig-button p-2 text-left border border-gray-200 rounded hover:bg-gray-50 text-sm">
+                                    Take 1 tablet twice daily
+                                </button>
+                                <button class="sig-button p-2 text-left border border-gray-200 rounded hover:bg-gray-50 text-sm">
+                                    Take 1 tablet three times daily
+                                </button>
+                                <button class="sig-button p-2 text-left border border-gray-200 rounded hover:bg-gray-50 text-sm">
+                                    Take 1 tablet as needed
+                                </button>
+                                <button class="sig-button p-2 text-left border border-gray-200 rounded hover:bg-gray-50 text-sm">
+                                    Take 2 tablets daily
+                                </button>
+                                <button class="sig-button p-2 text-left border border-gray-200 rounded hover:bg-gray-50 text-sm">
+                                    Take 1 tablet every 8 hours
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Custom SIG -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-2">Custom Instructions</h4>
+                            <textarea id="custom-sig" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" rows="3" placeholder="Enter custom dosing instructions...">Take 1 tablet daily</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Prescription Details -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Prescription Details</h3>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+                                <input type="number" value="30" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Days Supply</label>
+                                <input type="number" value="30" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Refills</label>
+                                <select class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option>0</option>
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option selected>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">DAW (Dispense as Written)</label>
+                                <select class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option>Generic Substitution Allowed</option>
+                                    <option>Dispense as Written</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Indication</label>
+                            <input type="text" placeholder="Reason for prescription..." value="Hypertension" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+
+                    <!-- Pharmacy Picker -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Select Pharmacy</h3>
+                        <div class="relative mb-4">
+                            <input type="text" placeholder="Search by pharmacy name or ZIP code..." class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <div class="absolute right-3 top-3">
+                                <i class="ri-search-line text-gray-400"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Pharmacy Results -->
+                        <div class="space-y-3">
+                            <div class="p-4 border border-gray-200 rounded-lg hover:border-custom-primary cursor-pointer">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <div class="flex items-center mb-1">
+                                            <h4 class="font-medium text-gray-900">CVS Pharmacy #1234</h4>
+                                            <span class="ml-2 px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs rounded">⭐ Favorite</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600">123 Main Street, Springfield, IL 62701</p>
+                                        <div class="flex items-center mt-2 text-xs text-gray-500 space-x-4">
+                                            <span class="flex items-center"><i class="ri-time-line mr-1"></i>Open until 10 PM</span>
+                                            <span class="flex items-center"><i class="ri-truck-line mr-1"></i>Delivery Available</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-green-600">0.5 miles</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="p-4 border border-gray-200 rounded-lg hover:border-custom-primary cursor-pointer">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">Walgreens #5678</h4>
+                                        <p class="text-sm text-gray-600">456 Oak Avenue, Springfield, IL 62702</p>
+                                        <div class="flex items-center mt-2 text-xs text-gray-500 space-x-4">
+                                            <span class="flex items-center"><i class="ri-time-line mr-1"></i>Open until 9 PM</span>
+                                            <span class="flex items-center"><i class="ri-car-line mr-1"></i>Drive-through</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-green-600">1.2 miles</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Send Button -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <h3 class="text-lg font-medium text-gray-900">Ready to Send</h3>
+                                <p class="text-sm text-gray-500">Review prescription details before sending</p>
+                            </div>
+                            <button class="px-8 py-3 bg-custom-primary text-white rounded-lg font-medium hover:bg-blue-600 flex items-center">
+                                <i class="ri-send-plane-2-line mr-2"></i>Send Prescription
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Safety & Benefits Panels -->
+                <div class="col-span-4 space-y-6">
+                    
+                    <!-- Safety Panel -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                            <i class="ri-shield-line mr-2 text-red-500"></i>Safety Panel
+                        </h3>
+                        
+                        <!-- Drug-Drug Interactions -->
+                        <div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                            <div class="flex items-start">
+                                <i class="ri-error-warning-line text-red-500 mr-2 mt-0.5"></i>
+                                <div>
+                                    <h4 class="font-medium text-red-800">Drug-Drug Interaction</h4>
+                                    <p class="text-sm text-red-700 mt-1">Lisinopril may increase potassium levels when used with potassium supplements.</p>
+                                    <div class="mt-2 flex space-x-2">
+                                        <button class="px-2 py-1 bg-red-100 text-red-700 text-xs rounded hover:bg-red-200">Override</button>
+                                        <button class="px-2 py-1 bg-white text-red-700 border border-red-200 text-xs rounded hover:bg-red-50">Add Note</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Allergy Warning -->
+                        <div class="mb-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                            <div class="flex items-start">
+                                <i class="ri-alert-line text-orange-500 mr-2 mt-0.5"></i>
+                                <div>
+                                    <h4 class="font-medium text-orange-800">Allergy Check</h4>
+                                    <p class="text-sm text-orange-700 mt-1">No known allergies to ACE inhibitors on file.</p>
+                                    <div class="mt-2">
+                                        <button class="px-2 py-1 bg-green-100 text-green-700 text-xs rounded">✓ Verified</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Duplicate Therapy -->
+                        <div class="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                            <div class="flex items-start">
+                                <i class="ri-repeat-line text-yellow-600 mr-2 mt-0.5"></i>
+                                <div>
+                                    <h4 class="font-medium text-yellow-800">Duplicate Therapy</h4>
+                                    <p class="text-sm text-yellow-700 mt-1">Patient currently taking Losartan (ARB). Consider interaction with ACE inhibitor.</p>
+                                    <div class="mt-2 flex space-x-2">
+                                        <button class="px-2 py-1 bg-yellow-100 text-yellow-700 text-xs rounded hover:bg-yellow-200">Review</button>
+                                        <button class="px-2 py-1 bg-white text-yellow-700 border border-yellow-200 text-xs rounded hover:bg-yellow-50">Add Note</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Benefits & Price Panel (RTBC) -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-3 flex items-center">
+                            <i class="ri-money-dollar-circle-line mr-2 text-green-500"></i>Benefits & Pricing (RTBC)
+                        </h3>
+                        
+                        <!-- Patient Cost -->
+                        <div class="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <h4 class="font-medium text-green-800 mb-2">Patient Out-of-Pocket</h4>
+                            <div class="text-2xl font-bold text-green-600">$4.00</div>
+                            <p class="text-sm text-green-700">30-day supply with insurance</p>
+                        </div>
+
+                        <!-- Covered Alternatives -->
+                        <div class="mb-4">
+                            <h4 class="font-medium text-gray-800 mb-2">Covered Alternatives</h4>
+                            <div class="space-y-2">
+                                <div class="p-2 bg-gray-50 rounded border">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm font-medium">Generic Lisinopril</span>
+                                        <span class="text-sm text-green-600">$4.00</span>
+                                    </div>
+                                </div>
+                                <div class="p-2 bg-gray-50 rounded border">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm font-medium">Enalapril (alternative)</span>
+                                        <span class="text-sm text-green-600">$8.00</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prior Authorization -->
+                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <div class="flex items-center">
+                                <i class="ri-file-shield-line text-blue-500 mr-2"></i>
+                                <div>
+                                    <h4 class="font-medium text-blue-800">Prior Authorization</h4>
+                                    <p class="text-sm text-blue-700">Not required for this medication</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary Card -->
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-3">Prescription Summary</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Drug:</span>
+                                <span class="text-sm font-medium">Lisinopril 10mg tablets</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">SIG:</span>
+                                <span class="text-sm font-medium">Take 1 tablet daily</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Quantity:</span>
+                                <span class="text-sm font-medium">30 tablets</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Days Supply:</span>
+                                <span class="text-sm font-medium">30 days</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Refills:</span>
+                                <span class="text-sm font-medium">3</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-gray-600">Pharmacy:</span>
+                                <span class="text-sm font-medium">CVS Pharmacy #1234</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Existing Rx Tab Content -->
+        <div id="existing-content" class="erx-content hidden">
+            <div class="grid grid-cols-1 gap-6">
+                
+                <!-- Patient's Current Medications -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Current Active Prescriptions</h3>
+                    
+                    <!-- Renewal Requests -->
+                    <div class="mb-6">
+                        <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="ri-refresh-line mr-2 text-blue-500"></i>Pending Renewals (3)
+                        </h4>
+                        <div class="space-y-3">
+                            <div class="p-4 border border-blue-200 bg-blue-50 rounded-lg">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900">Metformin 500mg tablets</h5>
+                                        <p class="text-sm text-gray-600">Take 1 tablet twice daily with meals</p>
+                                        <p class="text-xs text-gray-500 mt-1">Original: 90 tablets, 45 days supply, 2 refills remaining</p>
+                                        <p class="text-xs text-blue-600 mt-1">Requested by: CVS Pharmacy #1234 • 2 hours ago</p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600">Approve</button>
+                                        <button class="px-3 py-1 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600">Edit</button>
+                                        <button class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600">Deny</button>
+                                    </div>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-blue-200">
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Reason/Notes:</label>
+                                    <textarea class="w-full p-2 border border-gray-300 rounded text-sm" rows="2" placeholder="Enter reason for approval/denial..."></textarea>
+                                </div>
+                            </div>
+
+                            <div class="p-4 border border-blue-200 bg-blue-50 rounded-lg">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900">Lisinopril 10mg tablets</h5>
+                                        <p class="text-sm text-gray-600">Take 1 tablet daily</p>
+                                        <p class="text-xs text-gray-500 mt-1">Original: 30 tablets, 30 days supply, 1 refill remaining</p>
+                                        <p class="text-xs text-blue-600 mt-1">Requested by: Walgreens #5678 • 4 hours ago</p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600">Approve</button>
+                                        <button class="px-3 py-1 bg-yellow-500 text-white text-sm rounded hover:bg-yellow-600">Edit</button>
+                                        <button class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600">Deny</button>
+                                    </div>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-blue-200">
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Reason/Notes:</label>
+                                    <textarea class="w-full p-2 border border-gray-300 rounded text-sm" rows="2" placeholder="Enter reason for approval/denial..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change Requests -->
+                    <div class="mb-6">
+                        <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="ri-exchange-line mr-2 text-orange-500"></i>Change Requests (1)
+                        </h4>
+                        <div class="space-y-3">
+                            <div class="p-4 border border-orange-200 bg-orange-50 rounded-lg">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900">Atorvastatin 20mg → Generic Alternative Request</h5>
+                                        <p class="text-sm text-gray-600">Pharmacy suggests: Generic Atorvastatin 20mg tablets</p>
+                                        <p class="text-xs text-gray-500 mt-1">Original: Take 1 tablet daily at bedtime</p>
+                                        <p class="text-xs text-orange-600 mt-1">Requested by: CVS Pharmacy #1234 • 1 day ago</p>
+                                        <p class="text-xs text-green-600">Patient savings: $45/month</p>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button class="px-3 py-1 bg-green-500 text-white text-sm rounded hover:bg-green-600">Accept</button>
+                                        <button class="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600">Counter</button>
+                                        <button class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600">Decline</button>
+                                    </div>
+                                </div>
+                                <div class="mt-3 pt-3 border-t border-orange-200">
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Response/Notes:</label>
+                                    <textarea class="w-full p-2 border border-gray-300 rounded text-sm" rows="2" placeholder="Enter response to pharmacy..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Prescriptions -->
+                    <div>
+                        <h4 class="font-medium text-gray-800 mb-3 flex items-center">
+                            <i class="ri-medicine-bottle-line mr-2 text-green-500"></i>Active Prescriptions
+                        </h4>
+                        <div class="space-y-3">
+                            <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900">Metformin 500mg tablets</h5>
+                                        <p class="text-sm text-gray-600">Take 1 tablet twice daily with meals</p>
+                                        <p class="text-xs text-gray-500 mt-1">Prescribed: 2024-11-01 • 90 tablets, 45 days supply</p>
+                                        <p class="text-xs text-gray-500">Refills: 2 remaining • Pharmacy: CVS #1234</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Active</span>
+                                        <button class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900">Lisinopril 10mg tablets</h5>
+                                        <p class="text-sm text-gray-600">Take 1 tablet daily</p>
+                                        <p class="text-xs text-gray-500 mt-1">Prescribed: 2024-10-15 • 30 tablets, 30 days supply</p>
+                                        <p class="text-xs text-gray-500">Refills: 1 remaining • Pharmacy: Walgreens #5678</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Active</span>
+                                        <button class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h5 class="font-medium text-gray-900">Atorvastatin 20mg tablets</h5>
+                                        <p class="text-sm text-gray-600">Take 1 tablet daily at bedtime</p>
+                                        <p class="text-xs text-gray-500 mt-1">Prescribed: 2024-09-20 • 30 tablets, 30 days supply</p>
+                                        <p class="text-xs text-gray-500">Refills: 3 remaining • Pharmacy: CVS #1234</p>
+                                    </div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Active</span>
+                                        <button class="px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600">Cancel</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Audit Trail -->
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                        <i class="ri-history-line mr-2 text-purple-500"></i>Recent Activity & Audit Trail
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="p-3 border-l-4 border-blue-400 bg-blue-50">
+                            <p class="text-sm font-medium text-blue-800">Prescription Renewal Approved</p>
+                            <p class="text-xs text-blue-600">Metformin 500mg - Approved renewal request from CVS #1234</p>
+                            <p class="text-xs text-gray-500">2024-12-20 14:30 - Dr. Sarah Mitchell</p>
+                        </div>
+                        <div class="p-3 border-l-4 border-green-400 bg-green-50">
+                            <p class="text-sm font-medium text-green-800">New Prescription Sent</p>
+                            <p class="text-xs text-green-600">Lisinopril 10mg - Sent to Walgreens #5678</p>
+                            <p class="text-xs text-gray-500">2024-12-18 09:15 - Dr. Sarah Mitchell</p>
+                        </div>
+                        <div class="p-3 border-l-4 border-orange-400 bg-orange-50">
+                            <p class="text-sm font-medium text-orange-800">Generic Substitution Accepted</p>
+                            <p class="text-xs text-orange-600">Atorvastatin - Accepted generic alternative suggestion</p>
+                            <p class="text-xs text-gray-500">2024-12-17 16:45 - Dr. Sarah Mitchell</p>
+                        </div>
+                        <div class="p-3 border-l-4 border-red-400 bg-red-50">
+                            <p class="text-sm font-medium text-red-800">Prescription Cancelled</p>
+                            <p class="text-xs text-red-600">Hydrochlorothiazide 25mg - Cancelled due to side effects</p>
+                            <p class="text-xs text-gray-500">2024-12-15 11:20 - Dr. Sarah Mitchell</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.erx-tab');
+            const contents = document.querySelectorAll('.erx-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // Remove active classes from all tabs
+                    tabs.forEach(t => {
+                        t.classList.remove('custom-primary', 'bg-blue-50', 'border-custom-primary');
+                        t.classList.add('text-gray-500');
+                    });
+                    
+                    // Add active class to clicked tab
+                    this.classList.remove('text-gray-500');
+                    this.classList.add('custom-primary', 'bg-blue-50', 'border-b-2', 'border-custom-primary');
+                    
+                    // Hide all content sections
+                    contents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // Show target content
+                    document.getElementById(targetTab + '-content').classList.remove('hidden');
+                });
+            });
+
+            // Drug search autocomplete
+            const drugSearch = document.getElementById('drug-search');
+            const autocomplete = document.getElementById('drug-autocomplete');
+            const selectedDrug = document.getElementById('selected-drug');
+
+            drugSearch.addEventListener('input', function() {
+                if (this.value.length > 0) {
+                    autocomplete.classList.remove('hidden');
+                } else {
+                    autocomplete.classList.add('hidden');
+                }
+            });
+
+            // Handle autocomplete selection
+            autocomplete.addEventListener('click', function(e) {
+                if (e.target.closest('.p-3')) {
+                    const drugName = e.target.closest('.p-3').querySelector('.font-medium').textContent;
+                    drugSearch.value = drugName;
+                    autocomplete.classList.add('hidden');
+                    selectedDrug.classList.remove('hidden');
+                }
+            });
+
+            // SIG Builder functionality
+            const sigButtons = document.querySelectorAll('.sig-button');
+            const customSig = document.getElementById('custom-sig');
+
+            sigButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    sigButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Update custom SIG text
+                    customSig.value = this.textContent.trim();
+                });
+            });
+
+            // Click outside to hide autocomplete
+            document.addEventListener('click', function(e) {
+                if (!drugSearch.contains(e.target) && !autocomplete.contains(e.target)) {
+                    autocomplete.classList.add('hidden');
+                }
+            });
+
+            // Handle action buttons in existing Rx tab
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('button')) {
+                    const buttonText = e.target.textContent;
+                    if (['Approve', 'Edit', 'Deny', 'Accept', 'Counter', 'Decline', 'Cancel'].includes(buttonText)) {
+                        // Simulate action
+                        const notification = document.createElement('div');
+                        notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                        notification.innerHTML = `${buttonText} action processed`;
+                        document.body.appendChild(notification);
+                        setTimeout(() => notification.remove(), 2000);
+                    }
+                }
+            });
+
+            // Send Prescription button
+            document.querySelector('button:contains("Send Prescription")').addEventListener('click', function() {
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                notification.innerHTML = 'Prescription sent successfully!';
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 3000);
+            });
+        });
+    </script>
+</body>
+</html>

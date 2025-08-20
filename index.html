@@ -181,6 +181,43 @@ z-index: 20;
 .action-panel.active {
 display: block;
 }
+
+/* Fan Menu Styles */
+.fan-menu-item {
+position: absolute;
+transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#fan-menu.active .fan-menu-item {
+opacity: 1 !important;
+transform: scale(1) !important;
+}
+
+#fan-menu.active .fan-menu-item[data-index="0"] {
+transform: translate(140px, 5px) scale(1) !important;
+transition-delay: 0.1s;
+}
+
+#fan-menu.active .fan-menu-item[data-index="1"] {
+transform: translate(65px, -45px) scale(1) !important;
+transition-delay: 0.2s;
+}
+
+#fan-menu.active .fan-menu-item[data-index="2"] {
+transform: translate(155px, -95px) scale(1) !important;
+transition-delay: 0.3s;
+}
+
+#fan-menu.active .fan-menu-item[data-index="3"] {
+transform: translate(175px, -145px) scale(1) !important;
+transition-delay: 0.4s;
+}
+
+.feather-pen-trigger.active {
+background-color: #4f46e5 !important;
+color: white !important;
+border-color: #4f46e5 !important;
+}
 </style>
 </head>
 <body class="bg-gray-50 h-screen flex flex-col">
@@ -214,13 +251,848 @@ My Workbench
 My Practice
 </a>
 </div>
-<button class="flex items-center space-x-2 py-2 px-3 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-button">
-<img src="https://readdy.ai/api/search-image?query=professional%20headshot%20of%20a%20middle-aged%20man%20with%20glasses%2C%20short%20dark%20hair%2C%20white%20coat%2C%20professional%20medical%20appearance%2C%20natural%20lighting%2C%20high%20quality%20portrait&width=32&height=32&seq=7&orientation=squarish" class="w-8 h-8 rounded-full object-cover" alt="Provider Photo">
-<span>My Account</span>
-<div class="w-4 h-4 flex items-center justify-center">
+<div class="relative">
+<button id="profileDropdownBtn" class="flex items-center space-x-3 py-2 px-3 hover:bg-gray-50 rounded-lg">
+<div class="flex items-center">
+<div class="w-8 h-8 rounded-full overflow-hidden cursor-pointer">
+<img id="profileImage" src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520female%2520doctor%2520with%2520a%2520warm%2520smile%252C%2520wearing%2520a%2520white%2520coat%252C%2520natural%2520lighting%252C%2520high%2520quality%2520studio%2520portrait&width=100&height=100&seq=1&orientation=squarish" alt="Profile" class="w-full h-full object-cover object-top">
+</div>
+<div class="w-4 h-4 flex items-center justify-center ml-2 text-gray-500">
 <i class="ri-arrow-down-s-line"></i>
 </div>
+</div>
 </button>
+<div id="profileDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+<div class="px-4 py-3 border-b border-gray-100">
+<div class="flex items-center">
+<div class="w-12 h-12 rounded-full overflow-hidden mr-3">
+<img src="https://readdy.ai/api/search-image?query=professional%2520headshot%2520of%2520a%2520female%2520doctor%2520with%2520a%2520warm%2520smile%252C%2520wearing%2520a%2520white%2520coat%252C%2520natural%2520lighting%252C%2520high%2520quality%2520studio%2520portrait&width=100&height=100&seq=1&orientation=squarish" alt="Profile" class="w-full h-full object-cover object-top">
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Dr. Sarah Mitchell</p>
+<p class="text-xs text-gray-500">s.mitchell@eastsidefm.com</p>
+<p class="text-xs text-gray-500 mt-1"></p>
+</div>
+</div>
+</div>
+<div class="px-4 py-2">
+<div class="space-y-1">
+<a href="#" id="accountInfoBtn" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-user-settings-line"></i>
+</div>
+Account Info
+<div class="w-4 h-4 flex items-center justify-center ml-auto text-gray-400">
+<i class="ri-arrow-right-s-line"></i>
+</div>
+</a>
+</div>
+</div>
+<div class="border-t border-gray-100 mt-2">
+<div class="px-4 py-2">
+<div class="space-y-1">
+<a href="#" id="associatedPracticesBtn" class="flex items-center px-3 py-2 text-sm text-gray-700 rounded-lg hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-hospital-line"></i>
+</div>
+Associated Practice(s)
+</a>
+<!-- Associated Practices Modal -->
+<div id="associatedPracticesModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg w-[480px] max-h-[90vh] overflow-y-auto">
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-lg font-semibold text-gray-900">Associated Practices</h2>
+<button id="closeAssociatedPracticesModal" class="text-gray-400 hover:text-gray-600">
+<i class="ri-close-line text-xl"></i>
+</button>
+</div>
+<div class="space-y-4">
+<!-- Current Practice -->
+<div class="p-4 bg-primary/5 border border-primary/20 rounded-lg">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-hospital-fill text-primary"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Eastside Family Medicine</p>
+<p class="text-xs text-gray-500">Primary Care Practice</p>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<button id="eastsideWalletBtn" class="p-2 text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Wallet Settings">
+<i class="ri-wallet-3-line text-lg"></i>
+</button>
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary/10 text-primary">
+Current
+</span>
+</div>
+</div>
+<div class="mt-3 flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-user-star-line"></i>
+</div>
+Role: Practice Owner
+</div>
+</div>
+<!-- Other Practices -->
+<div class="p-4 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-hospital-line text-gray-600"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Westside Medical Center</p>
+<p class="text-xs text-gray-500">Multi-specialty Clinic</p>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<button id="westsideWalletBtn" class="relative p-2 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Personal Wallet Settings (Not in use - Practice uses shared mode)">
+<i class="ri-wallet-3-line text-lg"></i>
+<div class="absolute -top-1 -right-1 w-3 h-3 bg-orange-500 rounded-full flex items-center justify-center">
+<i class="ri-close-line text-white text-xs"></i>
+</div>
+</button>
+<button class="px-3 py-1.5 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button whitespace-nowrap hover:bg-primary/10">Switch</button>
+</div>
+</div>
+<div class="mt-3 flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-user-star-line"></i>
+</div>
+Role: Consulting Physician
+</div>
+</div>
+<div class="p-4 border border-gray-200 rounded-lg hover:border-primary/20 transition-colors">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-hospital-line text-gray-600"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Downtown Health Partners</p>
+<p class="text-xs text-gray-500">Family Practice</p>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<button id="downtownWalletBtn" class="p-2 text-gray-600 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Wallet Settings">
+<i class="ri-wallet-3-line text-lg"></i>
+</button>
+<button class="px-3 py-1.5 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button whitespace-nowrap hover:bg-primary/10">Switch</button>
+</div>
+</div>
+<div class="mt-3 flex items-center text-xs text-gray-500">
+<div class="w-4 h-4 flex items-center justify-center mr-1">
+<i class="ri-user-star-line"></i>
+</div>
+Role: Associate Physician
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Personal Wallet Modal -->
+<div id="personalWalletModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+<div class="bg-white rounded-lg w-[480px] max-h-[90vh] overflow-y-auto">
+<div class="p-6">
+<div class="flex items-center justify-between mb-6">
+<h2 class="text-lg font-semibold text-gray-900">Personal Wallet Settings</h2>
+<button id="closeWalletModal" class="text-gray-400 hover:text-gray-600">
+<i class="ri-close-line text-xl"></i>
+</button>
+</div>
+<!-- Practice Mode Info -->
+<div class="mb-6 p-4 bg-blue-50 rounded-lg">
+<div class="flex items-start">
+<div class="w-5 h-5 flex-shrink-0 text-blue-500 mt-0.5">
+<i class="ri-information-line"></i>
+</div>
+<div class="ml-3">
+<h3 class="text-sm font-medium text-blue-900">Current Practice Mode: Personal</h3>
+<p class="mt-1 text-sm text-blue-700">This practice operates in personal mode, where each provider manages their own wallet for transactions. All earnings and expenses will be processed through your personal wallet.</p>
+</div>
+</div>
+</div>
+<!-- Wallet Balance -->
+<div class="bg-gray-50 rounded-lg p-6 mb-6">
+<h3 class="text-sm font-medium text-gray-700 mb-2">Dr. Sarah Mitchell's Personal Wallet</h3>
+<div class="flex items-center justify-between">
+<div>
+<p class="text-2xl font-semibold text-gray-900">$200.00</p>
+<p class="text-sm text-gray-500 mt-1">Available Balance</p>
+</div>
+<div class="flex space-x-3">
+<button class="px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap hover:bg-primary/10">
+<i class="ri-add-line mr-2"></i>
+Top Up
+</button>
+<button class="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-button flex items-center whitespace-nowrap hover:bg-gray-50">
+<i class="ri-bank-card-line mr-2"></i>
+Withdraw
+</button>
+</div>
+</div>
+</div>
+<!-- Payment Methods -->
+<div class="mb-6">
+<h3 class="text-sm font-medium text-gray-900 mb-4">Payment Methods</h3>
+<p class="text-xs text-gray-500 mb-4">Drag and drop to set payment priority</p>
+<div id="payment-methods-list" class="space-y-3">
+<div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true" data-payment-id="visa">
+<div class="flex items-center">
+<div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+<i class="ri-drag-move-line"></i>
+</div>
+<div class="w-8 h-8 flex items-center justify-center text-[#1A1F71]">
+<i class="ri-visa-fill text-xl"></i>
+</div>
+<div class="ml-3">
+<p class="text-sm font-medium text-gray-900">Visa ending in 4242</p>
+<p class="text-xs text-gray-500">Expires 12/25</p>
+</div>
+</div>
+<button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+</div>
+<div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true" data-payment-id="bank">
+<div class="flex items-center">
+<div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+<i class="ri-drag-move-line"></i>
+</div>
+<div class="w-8 h-8 flex items-center justify-center text-[#1A1F71]">
+<i class="ri-bank-fill text-xl"></i>
+</div>
+<div class="ml-3">
+<p class="text-sm font-medium text-gray-900">Chase Bank Account</p>
+<p class="text-xs text-gray-500">****8965</p>
+</div>
+</div>
+<button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+</div>
+<div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true" data-payment-id="wallet">
+<div class="flex items-center">
+<div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+<i class="ri-drag-move-line"></i>
+</div>
+<div class="w-8 h-8 flex items-center justify-center text-primary">
+<i class="ri-wallet-3-fill text-xl"></i>
+</div>
+<div class="ml-3">
+<p class="text-sm font-medium text-gray-900">Wallet Credit</p>
+<p class="text-xs text-gray-500">Balance: $200.00</p>
+</div>
+</div>
+<button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+</div>
+</div>
+<button class="w-full mt-3 px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+<i class="ri-add-line mr-2"></i>
+Add Payment Method
+</button>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// Handle practice mode radio buttons
+const personalModeRadio = document.getElementById('personal-mode');
+const sharedModeRadio = document.getElementById('shared-mode');
+const personalModeIndicator = personalModeRadio?.nextElementSibling.querySelector('.w-2.h-2');
+const sharedModeIndicator = sharedModeRadio?.nextElementSibling.querySelector('.w-2.h-2');
+const sharedModeExplanation = document.getElementById('shared-mode-explanation');
+if (personalModeRadio && sharedModeRadio) {
+personalModeRadio.addEventListener('change', function() {
+if (this.checked) {
+personalModeIndicator.classList.remove('bg-transparent');
+personalModeIndicator.classList.add('bg-primary');
+sharedModeIndicator.classList.remove('bg-primary');
+sharedModeIndicator.classList.add('bg-transparent');
+sharedModeExplanation.classList.add('hidden');
+}
+});
+sharedModeRadio.addEventListener('change', function() {
+if (this.checked) {
+sharedModeIndicator.classList.remove('bg-transparent');
+sharedModeIndicator.classList.add('bg-primary');
+personalModeIndicator.classList.remove('bg-primary');
+personalModeIndicator.classList.add('bg-transparent');
+sharedModeExplanation.classList.remove('hidden');
+}
+});
+}
+const list = document.getElementById('payment-methods-list');
+let draggingElement = null;
+// Add drag start event
+list.addEventListener('dragstart', (e) => {
+draggingElement = e.target;
+e.target.classList.add('opacity-50');
+// Add visual feedback
+e.target.style.backgroundColor = '#f3f4f6';
+});
+// Add drag end event
+list.addEventListener('dragend', (e) => {
+draggingElement = null;
+e.target.classList.remove('opacity-50');
+// Remove visual feedback
+e.target.style.backgroundColor = '';
+});
+// Add drag over event
+list.addEventListener('dragover', (e) => {
+e.preventDefault();
+const afterElement = getDragAfterElement(list, e.clientY);
+const currentElement = draggingElement;
+if (afterElement == null) {
+list.appendChild(currentElement);
+} else {
+list.insertBefore(currentElement, afterElement);
+}
+});
+function getDragAfterElement(container, y) {
+const draggableElements = [...container.querySelectorAll('[draggable="true"]:not(.opacity-50)')];
+return draggableElements.reduce((closest, child) => {
+const box = child.getBoundingClientRect();
+const offset = y - box.top - box.height / 2;
+if (offset < 0 && offset > closest.offset) {
+return { offset: offset, element: child };
+} else {
+return closest;
+}
+}, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+});
+</script>
+<!-- Refund Method Settings -->
+<div class="mb-6">
+<h3 class="text-sm font-medium text-gray-900 mb-4">Refund Method Settings</h3>
+<div class="space-y-4">
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-refund-2-line"></i>
+</div>
+<p class="text-sm font-medium text-gray-900">Refund Method for Provider-paid Bills</p>
+</div>
+</div>
+<div class="space-y-3">
+<label class="flex items-center p-3 border border-gray-200 rounded-lg">
+<input type="radio" name="refund-method" value="original" class="sr-only" checked>
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+<div class="w-2 h-2 bg-primary rounded-full"></div>
+</div>
+<span class="text-sm text-gray-700">Original Payment Method</span>
+</label>
+<label class="flex items-center p-3 border border-gray-200 rounded-lg">
+<input type="radio" name="refund-method" value="wallet" class="sr-only">
+<div class="w-4 h-4 border-2 border-gray-300 rounded-full mr-3 flex items-center justify-center">
+<div class="w-2 h-2 bg-transparent rounded-full"></div>
+</div>
+<span class="text-sm text-gray-700">Wallet Credit</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Auto-withdraw Settings -->
+<div class="mb-6">
+<h3 class="text-sm font-medium text-gray-900 mb-4">Withdraw Settings</h3>
+<div class="space-y-4">
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-bank-line"></i>
+</div>
+<p class="text-sm font-medium text-gray-900">Withdraw Account</p>
+</div>
+<button class="text-sm text-primary hover:text-primary/80">Change</button>
+</div>
+<div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+<div class="flex items-center">
+<div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
+<i class="ri-bank-line text-primary"></i>
+</div>
+<div>
+<p class="text-sm font-medium text-gray-900">Chase Bank Account</p>
+<p class="text-xs text-gray-500">****8965</p>
+</div>
+</div>
+<div class="w-4 h-4 flex items-center justify-center text-green-500">
+<i class="ri-checkbox-circle-fill"></i>
+</div>
+</div>
+</div>
+<div class="p-4 border border-gray-200 rounded-lg">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center">
+<div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+<i class="ri-money-dollar-circle-line"></i>
+</div>
+<p class="text-sm font-medium text-gray-900">Auto-withdraw Threshold</p>
+</div>
+<label class="custom-switch">
+<input type="checkbox" checked>
+<span class="switch-slider"></span>
+</label>
+</div>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+<span class="text-gray-500 text-sm">$</span>
+</div>
+<input type="number" value="1000" class="pl-7 pr-4 py-2 w-full text-sm border border-gray-200 rounded-lg" placeholder="Enter amount">
+</div>
+<p class="text-xs text-gray-500 mt-2">Funds will be automatically withdrawn when your balance exceeds this amount</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+        <!-- Eastside Family Medicine Wallet Modal -->
+        <div id="eastsideWalletModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg w-[480px] max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900">Eastside Family Medicine - Wallet Settings</h2>
+                        <button id="closeEastsideWalletModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="ri-close-line text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Practice Mode Info -->
+                    <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="w-5 h-5 flex-shrink-0 text-blue-500 mt-0.5">
+                                <i class="ri-information-line"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-blue-900">Practice Mode: Personal</h3>
+                                <p class="mt-1 text-sm text-blue-700">This practice operates in personal mode, where each provider manages their own wallet for transactions. All earnings and expenses will be processed through your personal wallet for this practice.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Balance -->
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Eastside Family Medicine Wallet</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-2xl font-semibold text-gray-900">$150.00</p>
+                                <p class="text-sm text-gray-500 mt-1">Available Balance</p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <button class="px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap hover:bg-primary/10">
+                                    <i class="ri-add-line mr-2"></i>
+                                    Top Up
+                                </button>
+                                <button class="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-button flex items-center whitespace-nowrap hover:bg-gray-50">
+                                    <i class="ri-bank-card-line mr-2"></i>
+                                    Withdraw
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">Payment Methods</h3>
+                        <p class="text-xs text-gray-500 mb-4">Drag and drop to set payment priority</p>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+                                        <i class="ri-drag-move-line"></i>
+                                    </div>
+                                    <div class="w-8 h-8 flex items-center justify-center text-[#1A1F71]">
+                                        <i class="ri-visa-fill text-xl"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Visa ending in 4242</p>
+                                        <p class="text-xs text-gray-500">Expires 12/25</p>
+                                    </div>
+                                </div>
+                                <button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+                                        <i class="ri-drag-move-line"></i>
+                                    </div>
+                                    <div class="w-8 h-8 flex items-center justify-center text-primary">
+                                        <i class="ri-wallet-3-fill text-xl"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Wallet Credit</p>
+                                        <p class="text-xs text-gray-500">Balance: $150.00</p>
+                                    </div>
+                                </div>
+                                <button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+                            </div>
+                        </div>
+                        <button class="w-full mt-3 px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+                            <i class="ri-add-line mr-2"></i>
+                            Add Payment Method
+                        </button>
+                    </div>
+
+                    <!-- Auto-withdraw Settings -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">Withdraw Settings</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+                                            <i class="ri-bank-line"></i>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">Withdraw Account</p>
+                                    </div>
+                                    <button class="text-sm text-primary hover:text-primary/80">Change</button>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
+                                            <i class="ri-bank-line text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">Chase Bank Account</p>
+                                            <p class="text-xs text-gray-500">****8965</p>
+                                        </div>
+                                    </div>
+                                    <div class="w-4 h-4 flex items-center justify-center text-green-500">
+                                        <i class="ri-checkbox-circle-fill"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+                                            <i class="ri-money-dollar-circle-line"></i>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">Auto-withdraw Threshold</p>
+                                    </div>
+                                    <label class="custom-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="switch-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 text-sm">$</span>
+                                    </div>
+                                    <input type="number" value="800" class="pl-7 pr-4 py-2 w-full text-sm border border-gray-200 rounded-lg" placeholder="Enter amount">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Funds will be automatically withdrawn when your balance exceeds this amount</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Westside Medical Center Wallet Modal -->
+        <div id="westsideWalletModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg w-[480px] max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900">Westside Medical Center - Wallet Settings</h2>
+                        <button id="closeWestsideWalletModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="ri-close-line text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Practice Mode Info -->
+                    <div class="mb-6 p-4 bg-orange-50 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="w-5 h-5 flex-shrink-0 text-orange-500 mt-0.5">
+                                <i class="ri-information-line"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-orange-900">Practice Mode: Shared (Personal Wallet Not In Use)</h3>
+                                <p class="mt-1 text-sm text-orange-700">This practice operates in shared mode, where all transactions are processed through the practice's shared wallet. Your personal wallet settings are maintained but not actively used for this practice.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Balance -->
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Westside Medical Center Wallet</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-2xl font-semibold text-gray-900">$75.00</p>
+                                <p class="text-sm text-gray-500 mt-1">Available Balance</p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <button class="px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap hover:bg-primary/10">
+                                    <i class="ri-add-line mr-2"></i>
+                                    Top Up
+                                </button>
+                                <button class="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-button flex items-center whitespace-nowrap hover:bg-gray-50">
+                                    <i class="ri-bank-card-line mr-2"></i>
+                                    Withdraw
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">Payment Methods</h3>
+                        <p class="text-xs text-gray-500 mb-4">Drag and drop to set payment priority</p>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+                                        <i class="ri-drag-move-line"></i>
+                                    </div>
+                                    <div class="w-8 h-8 flex items-center justify-center text-[#1A1F71]">
+                                        <i class="ri-mastercard-fill text-xl"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Mastercard ending in 1234</p>
+                                        <p class="text-xs text-gray-500">Expires 08/26</p>
+                                    </div>
+                                </div>
+                                <button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+                                        <i class="ri-drag-move-line"></i>
+                                    </div>
+                                    <div class="w-8 h-8 flex items-center justify-center text-primary">
+                                        <i class="ri-wallet-3-fill text-xl"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Wallet Credit</p>
+                                        <p class="text-xs text-gray-500">Balance: $75.00</p>
+                                    </div>
+                                </div>
+                                <button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+                            </div>
+                        </div>
+                        <button class="w-full mt-3 px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+                            <i class="ri-add-line mr-2"></i>
+                            Add Payment Method
+                        </button>
+                    </div>
+
+                    <!-- Auto-withdraw Settings -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">Withdraw Settings</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+                                            <i class="ri-bank-line"></i>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">Withdraw Account</p>
+                                    </div>
+                                    <button class="text-sm text-primary hover:text-primary/80">Change</button>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
+                                            <i class="ri-bank-line text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">Wells Fargo Account</p>
+                                            <p class="text-xs text-gray-500">****5432</p>
+                                        </div>
+                                    </div>
+                                    <div class="w-4 h-4 flex items-center justify-center text-green-500">
+                                        <i class="ri-checkbox-circle-fill"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+                                            <i class="ri-money-dollar-circle-line"></i>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">Auto-withdraw Threshold</p>
+                                    </div>
+                                    <label class="custom-switch">
+                                        <input type="checkbox">
+                                        <span class="switch-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 text-sm">$</span>
+                                    </div>
+                                    <input type="number" value="500" class="pl-7 pr-4 py-2 w-full text-sm border border-gray-200 rounded-lg" placeholder="Enter amount">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Funds will be automatically withdrawn when your balance exceeds this amount</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Downtown Health Partners Wallet Modal -->
+        <div id="downtownWalletModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-50 flex items-center justify-center z-50">
+            <div class="bg-white rounded-lg w-[480px] max-h-[90vh] overflow-y-auto">
+                <div class="p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-lg font-semibold text-gray-900">Downtown Health Partners - Wallet Settings</h2>
+                        <button id="closeDowntownWalletModal" class="text-gray-400 hover:text-gray-600">
+                            <i class="ri-close-line text-xl"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Practice Mode Info -->
+                    <div class="mb-6 p-4 bg-blue-50 rounded-lg">
+                        <div class="flex items-start">
+                            <div class="w-5 h-5 flex-shrink-0 text-blue-500 mt-0.5">
+                                <i class="ri-information-line"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-blue-900">Practice Mode: Personal</h3>
+                                <p class="mt-1 text-sm text-blue-700">This practice operates in personal mode, where each provider manages their own wallet for transactions. All earnings and expenses will be processed through your personal wallet for this practice.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Wallet Balance -->
+                    <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                        <h3 class="text-sm font-medium text-gray-700 mb-2">Downtown Health Partners Wallet</h3>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-2xl font-semibold text-gray-900">$325.00</p>
+                                <p class="text-sm text-gray-500 mt-1">Available Balance</p>
+                            </div>
+                            <div class="flex space-x-3">
+                                <button class="px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap hover:bg-primary/10">
+                                    <i class="ri-add-line mr-2"></i>
+                                    Top Up
+                                </button>
+                                <button class="px-4 py-2 text-sm text-gray-700 border border-gray-200 rounded-button flex items-center whitespace-nowrap hover:bg-gray-50">
+                                    <i class="ri-bank-card-line mr-2"></i>
+                                    Withdraw
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Payment Methods -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">Payment Methods</h3>
+                        <p class="text-xs text-gray-500 mb-4">Drag and drop to set payment priority</p>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+                                        <i class="ri-drag-move-line"></i>
+                                    </div>
+                                    <div class="w-8 h-8 flex items-center justify-center text-[#1A1F71]">
+                                        <i class="ri-bank-fill text-xl"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Bank of America Account</p>
+                                        <p class="text-xs text-gray-500">****9876</p>
+                                    </div>
+                                </div>
+                                <button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white cursor-move hover:border-primary/20 transition-colors" draggable="true">
+                                <div class="flex items-center">
+                                    <div class="w-8 h-8 flex items-center justify-center text-gray-400 cursor-move">
+                                        <i class="ri-drag-move-line"></i>
+                                    </div>
+                                    <div class="w-8 h-8 flex items-center justify-center text-primary">
+                                        <i class="ri-wallet-3-fill text-xl"></i>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm font-medium text-gray-900">Wallet Credit</p>
+                                        <p class="text-xs text-gray-500">Balance: $325.00</p>
+                                    </div>
+                                </div>
+                                <button class="text-sm text-gray-500 hover:text-primary">Remove</button>
+                            </div>
+                        </div>
+                        <button class="w-full mt-3 px-4 py-2 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center justify-center whitespace-nowrap hover:bg-primary/10">
+                            <i class="ri-add-line mr-2"></i>
+                            Add Payment Method
+                        </button>
+                    </div>
+
+                    <!-- Auto-withdraw Settings -->
+                    <div class="mb-6">
+                        <h3 class="text-sm font-medium text-gray-900 mb-4">Withdraw Settings</h3>
+                        <div class="space-y-4">
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+                                            <i class="ri-bank-line"></i>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">Withdraw Account</p>
+                                    </div>
+                                    <button class="text-sm text-primary hover:text-primary/80">Change</button>
+                                </div>
+                                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center mr-3">
+                                            <i class="ri-bank-line text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900">Bank of America Account</p>
+                                            <p class="text-xs text-gray-500">****9876</p>
+                                        </div>
+                                    </div>
+                                    <div class="w-4 h-4 flex items-center justify-center text-green-500">
+                                        <i class="ri-checkbox-circle-fill"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="p-4 border border-gray-200 rounded-lg">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center">
+                                        <div class="w-4 h-4 flex items-center justify-center text-gray-400 mr-2">
+                                            <i class="ri-money-dollar-circle-line"></i>
+                                        </div>
+                                        <p class="text-sm font-medium text-gray-900">Auto-withdraw Threshold</p>
+                                    </div>
+                                    <label class="custom-switch">
+                                        <input type="checkbox" checked>
+                                        <span class="switch-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 text-sm">$</span>
+                                    </div>
+                                    <input type="number" value="1200" class="pl-7 pr-4 py-2 w-full text-sm border border-gray-200 rounded-lg" placeholder="Enter amount">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Funds will be automatically withdrawn when your balance exceeds this amount</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<div class="border-t border-gray-100 mt-2">
+<a href="#" class="flex items-center px-7 py-2 text-sm text-red-600 hover:bg-gray-50">
+<div class="w-4 h-4 flex items-center justify-center mr-3">
+<i class="ri-logout-box-line"></i>
+</div>
+Sign Out
+</a>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1013,37 +1885,64 @@ Order Page
 </div>
 </div>
 <!-- Quick Action Bar -->
-<div id="quick-action-bar" class="bg-white border-t border-gray-200 p-2 flex justify-between items-center sticky bottom-16">
-<div class="flex space-x-1">
-<button class="scheduler-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div id="quick-action-bar" class="bg-white border-t border-gray-200 py-3 px-4 flex justify-start items-center sticky bottom-16">
+<div class="flex space-x-2">
+<button class="feather-pen-trigger p-3 text-gray-600 bg-gray-50 hover:bg-primary hover:text-white rounded-lg shadow-sm border border-gray-100 hover:border-primary transition-all duration-200 whitespace-nowrap">
 <div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-calendar-2-line"></i>
+<i class="ri-quill-pen-line text-lg"></i>
 </div>
 </button>
-<button class="action-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap" data-action="task">
+<button class="scheduler-trigger p-3 text-gray-600 bg-gray-50 hover:bg-primary hover:text-white rounded-lg shadow-sm border border-gray-100 hover:border-primary transition-all duration-200 whitespace-nowrap">
 <div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-task-line"></i>
+<i class="ri-calendar-2-line text-lg"></i>
 </div>
 </button>
-<button class="document-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<button class="action-trigger p-3 text-gray-600 bg-gray-50 hover:bg-primary hover:text-white rounded-lg shadow-sm border border-gray-100 hover:border-primary transition-all duration-200 whitespace-nowrap" data-action="task">
 <div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-folder-shared-line"></i>
+<i class="ri-task-line text-lg"></i>
 </div>
 </button>
-<button class="action-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap" data-action="order">
+<button class="document-trigger p-3 text-gray-600 bg-gray-50 hover:bg-primary hover:text-white rounded-lg shadow-sm border border-gray-100 hover:border-primary transition-all duration-200 whitespace-nowrap">
 <div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-shopping-cart-line"></i>
+<i class="ri-folder-shared-line text-lg"></i>
 </div>
 </button>
-<button class="internal-note-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<button class="action-trigger p-3 text-gray-600 bg-gray-50 hover:bg-primary hover:text-white rounded-lg shadow-sm border border-gray-100 hover:border-primary transition-all duration-200 whitespace-nowrap" data-action="order">
 <div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-sticky-note-line"></i>
+<i class="ri-shopping-cart-line text-lg"></i>
 </div>
 </button>
-<button class="workflow-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<button class="workflow-trigger p-3 text-gray-600 bg-gray-50 hover:bg-primary hover:text-white rounded-lg shadow-sm border border-gray-100 hover:border-primary transition-all duration-200 whitespace-nowrap">
 <div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-flow-chart"></i>
+<i class="ri-flow-chart text-lg"></i>
 </div>
+</button>
+</div>
+</div>
+<!-- Fan Menu -->
+<div id="fan-menu" class="fixed bottom-20 left-16 z-50 hidden">
+<div class="fan-menu-item" data-index="0" style="transform: translate(0, 0) scale(0); opacity: 0;">
+<button class="bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-lg hover:bg-gray-50 flex items-center space-x-2 whitespace-nowrap">
+<i class="ri-more-line text-gray-600"></i>
+<span class="text-sm font-medium text-gray-700">Other</span>
+</button>
+</div>
+<div class="fan-menu-item" data-index="1" style="transform: translate(0, 0) scale(0); opacity: 0;">
+<button class="internal-note-trigger bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-lg hover:bg-gray-50 flex items-center space-x-2 whitespace-nowrap">
+<i class="ri-sticky-note-line text-gray-600"></i>
+<span class="text-sm font-medium text-gray-700">Internal Notes</span>
+</button>
+</div>
+<div class="fan-menu-item" data-index="2" style="transform: translate(0, 0) scale(0); opacity: 0;">
+<button class="bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-lg hover:bg-gray-50 flex items-center space-x-2 whitespace-nowrap">
+<i class="ri-medicine-bottle-line text-gray-600"></i>
+<span class="text-sm font-medium text-gray-700">eRx</span>
+</button>
+</div>
+<div class="fan-menu-item" data-index="3" style="transform: translate(0, 0) scale(0); opacity: 0;">
+<button class="bg-white border border-gray-200 rounded-lg px-4 py-2 shadow-lg hover:bg-gray-50 flex items-center space-x-2 whitespace-nowrap">
+<i class="ri-file-text-line text-gray-600"></i>
+<span class="text-sm font-medium text-gray-700">Encounter Notes</span>
 </button>
 </div>
 </div>
@@ -3644,6 +4543,218 @@ panel.classList.remove('active');
 });
 }
 });
+
+// Feather Pen Fan Menu Functionality
+const featherPenTrigger = document.querySelector('.feather-pen-trigger');
+const fanMenu = document.getElementById('fan-menu');
+let fanMenuActive = false;
+
+featherPenTrigger.addEventListener('click', function(e) {
+e.stopPropagation();
+fanMenuActive = !fanMenuActive;
+
+if (fanMenuActive) {
+// Show and animate fan menu
+fanMenu.classList.remove('hidden');
+fanMenu.classList.add('active');
+featherPenTrigger.classList.add('active');
+} else {
+// Hide fan menu
+fanMenu.classList.remove('active');
+featherPenTrigger.classList.remove('active');
+setTimeout(() => {
+fanMenu.classList.add('hidden');
+}, 300); // Wait for animation to complete
+}
+});
+
+// Close fan menu when clicking outside
+document.addEventListener('click', function(event) {
+if (!fanMenu.contains(event.target) && !featherPenTrigger.contains(event.target)) {
+if (fanMenuActive) {
+fanMenuActive = false;
+fanMenu.classList.remove('active');
+featherPenTrigger.classList.remove('active');
+setTimeout(() => {
+fanMenu.classList.add('hidden');
+}, 300);
+}
+}
+});
+
+// Handle fan menu item clicks
+const fanMenuItems = fanMenu.querySelectorAll('.fan-menu-item button');
+fanMenuItems.forEach((button, index) => {
+button.addEventListener('click', function(e) {
+e.stopPropagation();
+const buttonText = this.querySelector('span').textContent;
+
+// Check if this is the internal note button - if so, don't close menu yet
+if (!this.classList.contains('internal-note-trigger')) {
+// Check if this is the "Other" button - show special popup
+if (buttonText === 'Other') {
+// Close fan menu first
+fanMenuActive = false;
+fanMenu.classList.remove('active');
+featherPenTrigger.classList.remove('active');
+setTimeout(() => {
+fanMenu.classList.add('hidden');
+}, 100);
+
+// Create "Other" options modal
+const otherModal = document.createElement('div');
+otherModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+otherModal.innerHTML = `
+<div class="bg-white rounded-lg p-6 w-[500px] max-w-[90vw]">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-lg font-medium text-gray-900">Other Options</h3>
+<button class="close-other-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="space-y-3">
+<button class="other-option-btn w-full text-left p-4 border border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition-all duration-200">
+<div class="flex items-center justify-between">
+<div>
+<h4 class="text-sm font-medium text-gray-900">Add-on: Request Non-Vibrant Test</h4>
+<p class="text-xs text-gray-500 mt-1">Powered by Health Gorilla</p>
+</div>
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-test-tube-line"></i>
+</div>
+</div>
+</button>
+<button class="other-option-btn w-full text-left p-4 border border-gray-200 rounded-lg hover:border-primary hover:bg-primary/5 transition-all duration-200">
+<div class="flex items-center justify-between">
+<div>
+<h4 class="text-sm font-medium text-gray-900">Add-on: Request Image Integration</h4>
+</div>
+<div class="w-5 h-5 flex items-center justify-center text-primary">
+<i class="ri-image-line"></i>
+</div>
+</div>
+</button>
+</div>
+</div>
+`;
+document.body.appendChild(otherModal);
+
+// Handle modal close
+const closeButtons = otherModal.querySelectorAll('.close-other-modal');
+closeButtons.forEach(button => {
+button.addEventListener('click', () => {
+otherModal.remove();
+});
+});
+
+// Handle option clicks
+const optionButtons = otherModal.querySelectorAll('.other-option-btn');
+optionButtons.forEach(button => {
+button.addEventListener('click', () => {
+const optionText = button.querySelector('h4').textContent;
+
+// Show success notification
+const notification = document.createElement('div');
+notification.className = 'fixed top-4 right-4 bg-primary text-white px-4 py-2 rounded-lg shadow-lg z-50';
+notification.innerHTML = `
+<div class="flex items-center">
+<i class="ri-check-line mr-2"></i>
+${optionText} initiated
+</div>
+`;
+document.body.appendChild(notification);
+setTimeout(() => notification.remove(), 3000);
+otherModal.remove();
+});
+});
+
+// Close modal when clicking outside
+otherModal.addEventListener('click', (e) => {
+if (e.target === otherModal) {
+otherModal.remove();
+}
+});
+
+} else if (buttonText === 'eRx') {
+// Close fan menu first
+fanMenuActive = false;
+fanMenu.classList.remove('active');
+featherPenTrigger.classList.remove('active');
+setTimeout(() => {
+fanMenu.classList.add('hidden');
+}, 100);
+
+// Create eRx modal with iframe
+const erxModal = document.createElement('div');
+erxModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4';
+erxModal.innerHTML = `
+<div class="bg-white rounded-lg w-full h-full max-w-7xl max-h-[95vh] flex flex-col">
+<div class="flex justify-between items-center p-4 border-b border-gray-200 bg-white rounded-t-lg">
+<h3 class="text-lg font-medium text-gray-900 flex items-center">
+<i class="ri-medicine-bottle-line mr-2 text-primary"></i>
+Electronic Prescribing (eRx)
+</h3>
+<button class="close-erx-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-close-line"></i>
+</div>
+</button>
+</div>
+<div class="flex-1 overflow-hidden">
+<iframe src="erx-interface.html" class="w-full h-full border-none" frameborder="0"></iframe>
+</div>
+</div>
+`;
+document.body.appendChild(erxModal);
+
+// Handle modal close
+const closeButton = erxModal.querySelector('.close-erx-modal');
+closeButton.addEventListener('click', () => {
+erxModal.remove();
+});
+
+// Close modal when clicking outside (but not on iframe)
+erxModal.addEventListener('click', (e) => {
+if (e.target === erxModal) {
+erxModal.remove();
+}
+});
+
+} else {
+// Close fan menu for other non-internal note buttons
+fanMenuActive = false;
+fanMenu.classList.remove('active');
+featherPenTrigger.classList.remove('active');
+setTimeout(() => {
+fanMenu.classList.add('hidden');
+}, 300);
+
+// Show notification for other buttons
+const notification = document.createElement('div');
+notification.className = 'fixed top-4 right-4 bg-primary text-white px-4 py-2 rounded-lg shadow-lg z-50';
+notification.innerHTML = `
+<div class="flex items-center">
+<i class="ri-check-line mr-2"></i>
+${buttonText} selected
+</div>
+`;
+document.body.appendChild(notification);
+setTimeout(() => notification.remove(), 2000);
+}
+} else {
+// For internal note button, close fan menu after a short delay to allow modal to open
+setTimeout(() => {
+fanMenuActive = false;
+fanMenu.classList.remove('active');
+featherPenTrigger.classList.remove('active');
+fanMenu.classList.add('hidden');
+}, 100);
+}
+});
+});
+
 });
 </script>
 <script id="customCheckboxScript">
@@ -3655,6 +4766,24 @@ this.classList.toggle('checked');
 });
 });
 });
+
+// Profile Dropdown
+const profileBtn = document.getElementById('profileDropdownBtn');
+const profileDropdown = document.getElementById('profileDropdown');
+const profileImage = document.getElementById('profileImage');
+if (profileBtn && profileDropdown && profileImage) {
+function toggleProfileDropdown(e) {
+e.stopPropagation();
+profileDropdown.classList.toggle('hidden');
+}
+profileBtn.addEventListener('click', toggleProfileDropdown);
+profileImage.addEventListener('click', toggleProfileDropdown);
+document.addEventListener('click', function(e) {
+if (profileDropdown && !profileDropdown.contains(e.target) && !profileBtn.contains(e.target)) {
+profileDropdown.classList.add('hidden');
+}
+});
+}
 </script>
 </body>
 </html>
