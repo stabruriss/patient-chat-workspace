@@ -591,41 +591,6 @@ Billing and Shipping
 </div>
 </div>
 </div>
-<!-- Quick Action Bar -->
-<div id="quick-action-bar" class="bg-white border-t border-gray-200 p-2 flex justify-between items-center">
-<div class="flex space-x-1">
-<button class="scheduler-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
-<div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-calendar-2-line"></i>
-</div>
-</button>
-<button class="action-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap" data-action="task">
-<div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-task-line"></i>
-</div>
-</button>
-<button class="document-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
-<div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-folder-shared-line"></i>
-</div>
-</button>
-<button class="action-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap" data-action="order">
-<div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-shopping-cart-line"></i>
-</div>
-</button>
-<button class="internal-note-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
-<div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-sticky-note-line"></i>
-</div>
-</button>
-<button class="workflow-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
-<div class="w-5 h-5 flex items-center justify-center">
-<i class="ri-flow-chart"></i>
-</div>
-</button>
-</div>
-</div>
 <!-- Action Panels -->
 <!-- Appointment Panel -->
 <div id="appointment-panel" class="action-panel p-4 h-80">
@@ -1047,16 +1012,43 @@ Order Page
 </div>
 </div>
 </div>
-<!-- Message Composer -->
-<div class="bg-white border-t border-gray-200 p-3 sticky bottom-0 w-full">
-<div id="quick-reply-bar" class="flex items-center justify-start space-x-2 mb-3">
-<button class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 whitespace-nowrap">
-Thank you for sending your results
+<!-- Quick Action Bar -->
+<div id="quick-action-bar" class="bg-white border-t border-gray-200 p-2 flex justify-between items-center sticky bottom-16">
+<div class="flex space-x-1">
+<button class="scheduler-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-calendar-2-line"></i>
+</div>
 </button>
-<button class="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 whitespace-nowrap">
-I'll review them as soon as they arrive
+<button class="action-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap" data-action="task">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-task-line"></i>
+</div>
+</button>
+<button class="document-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-folder-shared-line"></i>
+</div>
+</button>
+<button class="action-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap" data-action="order">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-shopping-cart-line"></i>
+</div>
+</button>
+<button class="internal-note-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-sticky-note-line"></i>
+</div>
+</button>
+<button class="workflow-trigger p-2 text-gray-500 hover:bg-gray-100 rounded-full whitespace-nowrap">
+<div class="w-5 h-5 flex items-center justify-center">
+<i class="ri-flow-chart"></i>
+</div>
 </button>
 </div>
+</div>
+<!-- Message Composer -->
+<div class="bg-white border-t border-gray-200 p-3 sticky bottom-0 w-full relative z-10">
 <div class="flex items-center">
 <div class="channel-selector mr-2 relative">
 <button class="channel-toggle flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200 whitespace-nowrap">
@@ -1956,6 +1948,10 @@ const messagePreview = document.getElementById('message-preview');
 const unreadBadge = document.getElementById('unread-badge');
 const messageListContainer = document.getElementById('message-list');
 const quickReplyBar = document.getElementById('quick-reply-bar');
+// Store original chat content for restoration
+let originalChatContent = null;
+let originalChatHeader = null;
+
 const patientItems = document.querySelectorAll('.patient-item');
 patientItems.forEach(item => {
 item.addEventListener('click', function(event) {
@@ -1966,6 +1962,23 @@ event.stopPropagation();
 patientItems.forEach(p => p.classList.remove('active'));
 // Add active class to clicked item
 this.classList.add('active');
+
+// Restore original chat content if returning from notifications
+if (originalChatContent && originalChatHeader) {
+const messageListContainer = document.getElementById('message-list');
+const chatHeader = document.querySelector('.p-4.border-b.border-gray-200.flex.flex-col.bg-white.w-full');
+messageListContainer.innerHTML = originalChatContent;
+if (chatHeader) {
+chatHeader.innerHTML = originalChatHeader;
+}
+}
+
+// Hide AI chat window when switching back to patient
+const aiChatWindow = document.querySelector('.ai-chat-window');
+if (aiChatWindow) {
+aiChatWindow.classList.add('hidden');
+}
+
 // Show message preview and quick reply bar
 const messagePreview = document.getElementById('message-preview');
 const unreadBadge = document.getElementById('unread-badge');
@@ -1991,7 +2004,7 @@ chatHeaderElement.style.display = 'flex';
 // Show patient profile panel when a patient is selected
 const profilePanel = document.querySelector('.w-80.bg-white.border-l');
 if(profilePanel) {
-profilePanel.style.display = 'block';
+profilePanel.style.display = 'flex';
 }
 // Restore original channel options for patient chats
 const channelOptions = document.querySelector('.channel-options');
@@ -2066,6 +2079,17 @@ const chatHeader = document.querySelector('.p-4.border-b.border-gray-200.flex.it
 const messageList = document.querySelector('.message-list');
 const profilePanel = document.querySelector('.w-80.bg-white.border-l');
 aiAssistantChat.addEventListener('click', function() {
+// Store original content before switching to notifications
+if (!originalChatContent) {
+originalChatContent = messageList.innerHTML;
+}
+if (!originalChatHeader) {
+const chatHeaderElement = document.querySelector('.p-4.border-b.border-gray-200.flex.flex-col.bg-white.w-full');
+if (chatHeaderElement) {
+originalChatHeader = chatHeaderElement.innerHTML;
+}
+}
+
 // Keep page tabs visible and properly positioned
 const pageTabs = document.querySelector('#top-navigation');
 const quickActionBar = document.getElementById('quick-action-bar');
