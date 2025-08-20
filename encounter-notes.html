@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encounter Notes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-primary {
+            --tw-text-opacity: 1;
+            color: rgb(79 70 229 / var(--tw-text-opacity));
+        }
+        .bg-custom-primary {
+            --tw-bg-opacity: 1;
+            background-color: rgb(79 70 229 / var(--tw-bg-opacity));
+        }
+        .border-custom-primary {
+            --tw-border-opacity: 1;
+            border-color: rgb(79 70 229 / var(--tw-border-opacity));
+        }
+        .hover\:bg-custom-primary:hover {
+            --tw-bg-opacity: 1;
+            background-color: rgb(79 70 229 / var(--tw-bg-opacity));
+        }
+        .recording-pulse {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .recording-button.active {
+            background-color: #ef4444;
+            color: white;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        .recording-button.active:hover {
+            background-color: #dc2626;
+        }
+        .editor-container {
+            height: calc(100vh - 200px);
+            min-height: 600px;
+        }
+        .note-card:hover {
+            transform: translateY(-1px);
+            transition: transform 0.2s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto p-6">
+        <!-- Header -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+            <div class="p-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-900 flex items-center">
+                    <i class="ri-file-text-line mr-2 custom-primary"></i>
+                    Encounter Notes
+                </h2>
+                <p class="text-sm text-gray-500 mt-1">Patient: Sarah Johnson | DOB: 03/15/1985 | MRN: MR123456</p>
+                <p class="text-xs text-gray-500">Current Visit: Follow-up Consultation | Date: December 20, 2024</p>
+            </div>
+            
+            <!-- Tab Navigation -->
+            <div class="flex border-b border-gray-200">
+                <button class="encounter-tab px-6 py-3 text-sm font-medium custom-primary bg-blue-50 border-b-2 border-custom-primary" data-tab="voice">
+                    <i class="ri-mic-line mr-2"></i>Voice to Note
+                </button>
+                <button class="encounter-tab px-6 py-3 text-sm font-medium text-gray-500 hover:text-gray-700" data-tab="composer">
+                    <i class="ri-edit-box-line mr-2"></i>Composer
+                </button>
+            </div>
+        </div>
+
+        <!-- Voice to Note Tab Content -->
+        <div id="voice-content" class="encounter-content">
+            <div class="grid grid-cols-12 gap-6">
+                <!-- Left Column - Recording Controls -->
+                <div class="col-span-4">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+                            <i class="ri-mic-line mr-2 custom-primary"></i>
+                            Voice Recording
+                        </h3>
+                        
+                        <!-- Recording Button -->
+                        <div class="text-center mb-6">
+                            <button id="recording-button" class="recording-button w-20 h-20 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-2xl transition-all duration-200 mx-auto mb-4">
+                                <i class="ri-mic-line"></i>
+                            </button>
+                            <p id="recording-status" class="text-sm text-gray-600">Click to start recording</p>
+                            <div id="recording-timer" class="text-lg font-mono text-gray-900 mt-2 hidden">00:00</div>
+                        </div>
+
+                        <!-- Recording Quality Indicator -->
+                        <div class="mb-4 p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-700">Audio Quality</span>
+                                <span class="text-xs text-green-600">Good</span>
+                            </div>
+                            <div class="flex space-x-1">
+                                <div class="h-2 w-4 bg-green-400 rounded-sm"></div>
+                                <div class="h-2 w-4 bg-green-400 rounded-sm"></div>
+                                <div class="h-2 w-4 bg-green-400 rounded-sm"></div>
+                                <div class="h-2 w-4 bg-yellow-400 rounded-sm"></div>
+                                <div class="h-2 w-4 bg-gray-300 rounded-sm"></div>
+                            </div>
+                        </div>
+
+                        <!-- Recording Tips -->
+                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <h4 class="text-sm font-medium text-blue-800 mb-2">Recording Tips</h4>
+                            <ul class="text-xs text-blue-700 space-y-1">
+                                <li>• Speak clearly and at normal pace</li>
+                                <li>• Minimize background noise</li>
+                                <li>• Pause between different topics</li>
+                                <li>• Use medical terminology naturally</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Middle Column - Past Recordings -->
+                <div class="col-span-8">
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                                <i class="ri-history-line mr-2 custom-primary"></i>
+                                Past Recordings
+                            </h3>
+                            <button class="px-3 py-1 text-sm text-gray-500 hover:text-gray-700 flex items-center">
+                                <i class="ri-filter-line mr-1"></i>Filter
+                            </button>
+                        </div>
+
+                        <!-- Recording Cards -->
+                        <div class="space-y-4 max-h-96 overflow-y-auto">
+                            <!-- Recording Card 1 -->
+                            <div class="note-card p-4 border border-gray-200 rounded-lg hover:shadow-md transition-all duration-200">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">Follow-up Visit Recording</h4>
+                                        <p class="text-sm text-gray-500">December 20, 2024 • 2:15 PM</p>
+                                        <p class="text-xs text-gray-400">Duration: 4:32 • Status: Processed</p>
+                                    </div>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Complete</span>
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div class="flex items-center space-x-3">
+                                    <button class="play-button flex items-center px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-sm transition-colors">
+                                        <i class="ri-play-line mr-1"></i>Play
+                                    </button>
+                                    <button class="transcript-button flex items-center px-3 py-1 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded text-sm transition-colors">
+                                        <i class="ri-file-text-line mr-1"></i>Transcript
+                                    </button>
+                                    <button class="ai-preview-button flex items-center px-3 py-1 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded text-sm transition-colors">
+                                        <i class="ri-brain-line mr-1"></i>AI Note Preview
+                                    </button>
+                                </div>
+
+                                <!-- Expandable Transcript Section -->
+                                <div class="transcript-content hidden mt-4 p-4 bg-gray-50 rounded-lg">
+                                    <h5 class="font-medium text-gray-900 mb-2">Transcript</h5>
+                                    <p class="text-sm text-gray-700 leading-relaxed">
+                                        "Patient presents for follow-up of hypertension and diabetes. Blood pressure today is 142 over 88, which is elevated from our target. Patient reports good adherence to medications. Denies chest pain, shortness of breath, or other cardiovascular symptoms. Blood glucose logs show good control with average readings in the 120s..."
+                                    </p>
+                                    <div class="flex justify-between items-center mt-3 text-xs text-gray-500">
+                                        <span>Confidence: 94%</span>
+                                        <button class="text-blue-600 hover:text-blue-800">Edit Transcript</button>
+                                    </div>
+                                </div>
+
+                                <!-- AI Preview Section -->
+                                <div class="ai-preview-content hidden mt-4 p-4 bg-purple-50 rounded-lg">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <h5 class="font-medium text-gray-900">AI Note Preview</h5>
+                                        <div class="flex space-x-2">
+                                            <button class="format-toggle px-2 py-1 bg-white border border-purple-200 text-xs rounded active" data-format="soap">SOAP</button>
+                                            <button class="format-toggle px-2 py-1 bg-white border border-purple-200 text-xs rounded" data-format="bullets">Bullets</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- SOAP Format Preview -->
+                                    <div class="format-content soap-format">
+                                        <div class="space-y-3 text-sm">
+                                            <div>
+                                                <strong class="text-gray-900">Subjective:</strong>
+                                                <p class="text-gray-700 ml-4">Patient reports good medication adherence. Denies chest pain, SOB, or cardiovascular symptoms.</p>
+                                            </div>
+                                            <div>
+                                                <strong class="text-gray-900">Objective:</strong>
+                                                <p class="text-gray-700 ml-4">BP: 142/88 mmHg. Average glucose readings in 120s per patient logs.</p>
+                                            </div>
+                                            <div>
+                                                <strong class="text-gray-900">Assessment:</strong>
+                                                <p class="text-gray-700 ml-4">Hypertension not at target. Diabetes well-controlled.</p>
+                                            </div>
+                                            <div>
+                                                <strong class="text-gray-900">Plan:</strong>
+                                                <p class="text-gray-700 ml-4">Increase Lisinopril to 20mg daily. Follow-up in 4 weeks.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Bullet Format Preview -->
+                                    <div class="format-content bullets-format hidden">
+                                        <div class="space-y-2 text-sm">
+                                            <div>
+                                                <strong class="text-gray-900">Chief Complaint:</strong>
+                                                <ul class="text-gray-700 ml-4 list-disc list-inside">
+                                                    <li>Follow-up for hypertension and diabetes</li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <strong class="text-gray-900">Findings:</strong>
+                                                <ul class="text-gray-700 ml-4 list-disc list-inside">
+                                                    <li>BP elevated at 142/88 mmHg</li>
+                                                    <li>Good medication adherence reported</li>
+                                                    <li>Blood glucose well controlled (avg 120s)</li>
+                                                    <li>No cardiovascular symptoms</li>
+                                                </ul>
+                                            </div>
+                                            <div>
+                                                <strong class="text-gray-900">Actions:</strong>
+                                                <ul class="text-gray-700 ml-4 list-disc list-inside">
+                                                    <li>Increase Lisinopril to 20mg daily</li>
+                                                    <li>Schedule follow-up in 4 weeks</li>
+                                                    <li>Continue current diabetes regimen</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button class="open-composer-button mt-4 px-4 py-2 bg-custom-primary text-white rounded hover:bg-blue-600 transition-colors">
+                                        <i class="ri-edit-box-line mr-2"></i>Open in Composer
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Recording Card 2 -->
+                            <div class="note-card p-4 border border-gray-200 rounded-lg hover:shadow-md transition-all duration-200">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">Initial Consultation Recording</h4>
+                                        <p class="text-sm text-gray-500">December 18, 2024 • 10:30 AM</p>
+                                        <p class="text-xs text-gray-400">Duration: 8:15 • Status: Processed</p>
+                                    </div>
+                                    <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded">Complete</span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-3">
+                                    <button class="play-button flex items-center px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-sm transition-colors">
+                                        <i class="ri-play-line mr-1"></i>Play
+                                    </button>
+                                    <button class="transcript-button flex items-center px-3 py-1 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded text-sm transition-colors">
+                                        <i class="ri-file-text-line mr-1"></i>Transcript
+                                    </button>
+                                    <button class="ai-preview-button flex items-center px-3 py-1 bg-purple-50 text-purple-600 hover:bg-purple-100 rounded text-sm transition-colors">
+                                        <i class="ri-brain-line mr-1"></i>AI Note Preview
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Recording Card 3 - Processing -->
+                            <div class="note-card p-4 border border-yellow-200 bg-yellow-50 rounded-lg">
+                                <div class="flex items-start justify-between mb-3">
+                                    <div>
+                                        <h4 class="font-medium text-gray-900">Lab Review Recording</h4>
+                                        <p class="text-sm text-gray-500">December 20, 2024 • 1:45 PM</p>
+                                        <p class="text-xs text-gray-400">Duration: 2:18 • Status: Processing</p>
+                                    </div>
+                                    <span class="px-2 py-1 bg-yellow-200 text-yellow-800 text-xs rounded flex items-center">
+                                        <i class="ri-loader-4-line mr-1 animate-spin"></i>Processing
+                                    </span>
+                                </div>
+                                
+                                <div class="flex items-center space-x-3">
+                                    <button class="play-button flex items-center px-3 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded text-sm transition-colors">
+                                        <i class="ri-play-line mr-1"></i>Play
+                                    </button>
+                                    <button class="flex items-center px-3 py-1 bg-gray-200 text-gray-400 rounded text-sm cursor-not-allowed" disabled>
+                                        <i class="ri-file-text-line mr-1"></i>Transcript
+                                    </button>
+                                    <button class="flex items-center px-3 py-1 bg-gray-200 text-gray-400 rounded text-sm cursor-not-allowed" disabled>
+                                        <i class="ri-brain-line mr-1"></i>AI Note Preview
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Composer Tab Content -->
+        <div id="composer-content" class="encounter-content hidden">
+            <div class="grid grid-cols-12 gap-4 editor-container">
+                <!-- Left Column - Historical Notes -->
+                <div class="col-span-3 bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                                <i class="ri-history-line mr-2 custom-primary"></i>
+                                Historical Notes
+                            </h3>
+                            <button class="create-new-note-button px-2 py-1 bg-green-50 text-green-600 hover:bg-green-100 rounded text-xs flex items-center">
+                                <i class="ri-add-line mr-1"></i>New
+                            </button>
+                        </div>
+                        <div>
+                            <input type="text" placeholder="Search notes..." class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 h-full overflow-y-auto">
+                        <div class="space-y-3">
+                            <!-- Historical Note 1 -->
+                            <div class="historical-note p-3 border border-gray-200 rounded-lg hover:border-custom-primary cursor-pointer transition-colors">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h4 class="font-medium text-sm text-gray-900">Follow-up Visit</h4>
+                                    <span class="text-xs text-gray-500">Dec 18</span>
+                                </div>
+                                <p class="text-xs text-gray-600 line-clamp-3">Patient presents for follow-up of hypertension. BP improved on current regimen. Discussed lifestyle modifications...</p>
+                                <div class="flex items-center mt-2 text-xs text-gray-500">
+                                    <i class="ri-user-line mr-1"></i>Dr. Mitchell
+                                </div>
+                            </div>
+
+                            <!-- Historical Note 2 -->
+                            <div class="historical-note p-3 border border-gray-200 rounded-lg hover:border-custom-primary cursor-pointer transition-colors">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h4 class="font-medium text-sm text-gray-900">Initial Consultation</h4>
+                                    <span class="text-xs text-gray-500">Dec 15</span>
+                                </div>
+                                <p class="text-xs text-gray-600 line-clamp-3">New patient consultation for hypertension and diabetes management. Established care plan and medication review...</p>
+                                <div class="flex items-center mt-2 text-xs text-gray-500">
+                                    <i class="ri-user-line mr-1"></i>Dr. Mitchell
+                                </div>
+                            </div>
+
+                            <!-- Historical Note 3 -->
+                            <div class="historical-note p-3 border border-gray-200 rounded-lg hover:border-custom-primary cursor-pointer transition-colors">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h4 class="font-medium text-sm text-gray-900">Lab Review</h4>
+                                    <span class="text-xs text-gray-500">Dec 10</span>
+                                </div>
+                                <p class="text-xs text-gray-600 line-clamp-3">Reviewed recent lab results. HbA1c improved to 7.2%. Lipid panel shows good control...</p>
+                                <div class="flex items-center mt-2 text-xs text-gray-500">
+                                    <i class="ri-user-line mr-1"></i>Dr. Martinez
+                                </div>
+                            </div>
+
+                            <!-- Historical Note 4 -->
+                            <div class="historical-note p-3 border border-gray-200 rounded-lg hover:border-custom-primary cursor-pointer transition-colors">
+                                <div class="flex items-start justify-between mb-2">
+                                    <h4 class="font-medium text-sm text-gray-900">Annual Physical</h4>
+                                    <span class="text-xs text-gray-500">Nov 28</span>
+                                </div>
+                                <p class="text-xs text-gray-600 line-clamp-3">Comprehensive annual examination. Updated preventive care recommendations. Discussed vaccination status...</p>
+                                <div class="flex items-center mt-2 text-xs text-gray-500">
+                                    <i class="ri-user-line mr-1"></i>Dr. Mitchell
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Center Column - Editor -->
+                <div class="col-span-6 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col">
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                                <i class="ri-edit-box-line mr-2 custom-primary"></i>
+                                Note Editor
+                            </h3>
+                            <div class="flex items-center space-x-3">
+                                <button class="template-button px-3 py-1 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded text-sm flex items-center">
+                                    <i class="ri-file-copy-line mr-1"></i>Templates
+                                </button>
+                                <button class="save-button px-3 py-1 bg-custom-primary text-white rounded text-sm hover:bg-blue-600">
+                                    <i class="ri-save-line mr-1"></i>Save
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Note Metadata -->
+                        <div class="grid grid-cols-2 gap-4 mt-3 text-sm">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700">Visit Type</label>
+                                <select class="w-full p-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                    <option>Follow-up Visit</option>
+                                    <option>Initial Consultation</option>
+                                    <option>Lab Review</option>
+                                    <option>Procedure Note</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-700">Date/Time</label>
+                                <input type="datetime-local" class="w-full p-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" value="2024-12-20T14:15">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Editor Content -->
+                    <div class="flex-1 p-4">
+                        <textarea id="note-editor" class="w-full h-full resize-none border-none focus:outline-none text-sm leading-relaxed" placeholder="Begin typing your encounter note here...
+
+You can use templates or voice-to-text to get started quickly.
+
+Common sections:
+- Chief Complaint
+- History of Present Illness  
+- Review of Systems
+- Physical Examination
+- Assessment & Plan">Follow-up Visit - December 20, 2024
+
+CHIEF COMPLAINT:
+Follow-up for hypertension and diabetes management.
+
+HISTORY OF PRESENT ILLNESS:
+Patient returns for routine follow-up of hypertension and type 2 diabetes. Reports good adherence to current medications including Lisinopril 10mg daily and Metformin 500mg twice daily. Denies chest pain, shortness of breath, palpitations, or other cardiovascular symptoms. Blood glucose monitoring shows average readings in the 120s. No episodes of hypoglycemia.
+
+REVIEW OF SYSTEMS:
+Negative for headaches, dizziness, visual changes, chest pain, shortness of breath, abdominal pain, nausea, vomiting, or urinary symptoms.
+
+PHYSICAL EXAMINATION:
+Vitals: BP 142/88, HR 78, RR 16, Temp 98.6°F
+General: Alert, well-appearing, in no acute distress
+Cardiovascular: Regular rate and rhythm, no murmurs
+Pulmonary: Clear to auscultation bilaterally
+Extremities: No edema
+
+ASSESSMENT & PLAN:
+1. Hypertension - Not at target despite good medication adherence
+   - Increase Lisinopril to 20mg daily
+   - Home BP monitoring
+   - Lifestyle counseling reinforced
+
+2. Type 2 Diabetes - Well controlled
+   - Continue current Metformin regimen
+   - HbA1c due in 3 months
+
+3. Follow-up in 4 weeks to reassess BP control</textarea>
+                    </div>
+
+                    <!-- Editor Footer -->
+                    <div class="p-4 border-t border-gray-200 bg-gray-50">
+                        <div class="flex items-center justify-between text-sm">
+                            <div class="flex items-center space-x-4">
+                                <span class="text-gray-500">Words: 185</span>
+                                <span class="text-gray-500">Characters: 1,247</span>
+                                <span class="text-green-600 flex items-center">
+                                    <i class="ri-check-line mr-1"></i>Auto-saved
+                                </span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="px-2 py-1 text-gray-500 hover:text-gray-700">
+                                    <i class="ri-bold"></i>
+                                </button>
+                                <button class="px-2 py-1 text-gray-500 hover:text-gray-700">
+                                    <i class="ri-italic"></i>
+                                </button>
+                                <button class="px-2 py-1 text-gray-500 hover:text-gray-700">
+                                    <i class="ri-underline"></i>
+                                </button>
+                                <div class="border-l border-gray-300 h-4 mx-2"></div>
+                                <button class="px-2 py-1 text-gray-500 hover:text-gray-700">
+                                    <i class="ri-list-unordered"></i>
+                                </button>
+                                <button class="px-2 py-1 text-gray-500 hover:text-gray-700">
+                                    <i class="ri-list-ordered"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column - Action Cards -->
+                <div class="col-span-3 bg-white rounded-lg shadow-sm border border-gray-200">
+                    <div class="p-4 border-b border-gray-200">
+                        <h3 class="text-lg font-medium text-gray-900 flex items-center">
+                            <i class="ri-flashlight-line mr-2 custom-primary"></i>
+                            Smart Actions
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-1">AI-generated suggestions based on your note</p>
+                    </div>
+                    
+                    <div class="p-4 h-full overflow-y-auto">
+                        <div class="space-y-4">
+                            <!-- Action Card 1 - Orders -->
+                            <div class="action-card p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <h4 class="font-medium text-blue-900 text-sm mb-2 flex items-center">
+                                    <i class="ri-file-list-3-line mr-2"></i>Suggested Orders
+                                </h4>
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-blue-800">Basic Metabolic Panel</span>
+                                        <button class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200">Add</button>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-blue-800">Lipid Panel</span>
+                                        <button class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200">Add</button>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-blue-800">HbA1c</span>
+                                        <button class="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded hover:bg-blue-200">Add</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Card 2 - Prescriptions -->
+                            <div class="action-card p-3 bg-green-50 border border-green-200 rounded-lg">
+                                <h4 class="font-medium text-green-900 text-sm mb-2 flex items-center">
+                                    <i class="ri-medicine-bottle-line mr-2"></i>Prescription Updates
+                                </h4>
+                                <div class="space-y-2">
+                                    <div class="text-xs text-green-800 p-2 bg-green-100 rounded">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <span class="font-medium">Lisinopril</span>
+                                            <span class="text-green-600">Update</span>
+                                        </div>
+                                        <div class="text-green-700">10mg → 20mg daily</div>
+                                        <button class="mt-1 px-2 py-0.5 bg-green-200 text-green-800 text-xs rounded hover:bg-green-300">Send eRx</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Card 3 - Follow-up -->
+                            <div class="action-card p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                                <h4 class="font-medium text-purple-900 text-sm mb-2 flex items-center">
+                                    <i class="ri-calendar-check-line mr-2"></i>Follow-up Care
+                                </h4>
+                                <div class="space-y-2">
+                                    <div class="text-xs text-purple-800 p-2 bg-purple-100 rounded">
+                                        <div class="font-medium mb-1">4-week Follow-up</div>
+                                        <div class="text-purple-700">BP recheck and medication review</div>
+                                        <button class="mt-1 px-2 py-0.5 bg-purple-200 text-purple-800 text-xs rounded hover:bg-purple-300">Schedule</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Card 4 - Patient Instructions -->
+                            <div class="action-card p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                                <h4 class="font-medium text-orange-900 text-sm mb-2 flex items-center">
+                                    <i class="ri-information-line mr-2"></i>Patient Education
+                                </h4>
+                                <div class="space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-orange-800">Hypertension Management</span>
+                                        <button class="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded hover:bg-orange-200">Send</button>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs text-orange-800">Home BP Monitoring</span>
+                                        <button class="px-2 py-0.5 bg-orange-100 text-orange-700 text-xs rounded hover:bg-orange-200">Send</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Card 5 - Quality Measures -->
+                            <div class="action-card p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <h4 class="font-medium text-yellow-900 text-sm mb-2 flex items-center">
+                                    <i class="ri-award-line mr-2"></i>Quality Measures
+                                </h4>
+                                <div class="space-y-2 text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-yellow-800">BP Control</span>
+                                        <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded">Not Met</span>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-yellow-800">DM HbA1c</span>
+                                        <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded">Met</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Action Card 6 - Billing Codes -->
+                            <div class="action-card p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                                <h4 class="font-medium text-gray-900 text-sm mb-2 flex items-center">
+                                    <i class="ri-money-dollar-circle-line mr-2"></i>Suggested Codes
+                                </h4>
+                                <div class="space-y-2 text-xs">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-gray-800">99213 - Level 3 Visit</span>
+                                        <button class="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300">Apply</button>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-gray-800">I10 - Hypertension</span>
+                                        <button class="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300">Apply</button>
+                                    </div>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-gray-800">E11.9 - Type 2 DM</span>
+                                        <button class="px-2 py-0.5 bg-gray-200 text-gray-700 text-xs rounded hover:bg-gray-300">Apply</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching functionality
+            const tabs = document.querySelectorAll('.encounter-tab');
+            const contents = document.querySelectorAll('.encounter-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    
+                    // Remove active classes from all tabs
+                    tabs.forEach(t => {
+                        t.classList.remove('custom-primary', 'bg-blue-50', 'border-custom-primary');
+                        t.classList.add('text-gray-500');
+                    });
+                    
+                    // Add active class to clicked tab
+                    this.classList.remove('text-gray-500');
+                    this.classList.add('custom-primary', 'bg-blue-50', 'border-b-2', 'border-custom-primary');
+                    
+                    // Hide all content sections
+                    contents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // Show target content
+                    document.getElementById(targetTab + '-content').classList.remove('hidden');
+                });
+            });
+
+            // Recording functionality
+            const recordingButton = document.getElementById('recording-button');
+            const recordingStatus = document.getElementById('recording-status');
+            const recordingTimer = document.getElementById('recording-timer');
+            let isRecording = false;
+            let recordingInterval;
+            let recordingTime = 0;
+
+            recordingButton.addEventListener('click', function() {
+                if (!isRecording) {
+                    // Start recording
+                    startRecording();
+                } else {
+                    // Stop recording
+                    stopRecording();
+                }
+            });
+
+            function startRecording() {
+                isRecording = true;
+                recordingTime = 0;
+                recordingButton.classList.add('active');
+                recordingButton.innerHTML = '<i class="ri-stop-line"></i>';
+                recordingStatus.textContent = 'Recording in progress...';
+                recordingTimer.classList.remove('hidden');
+                
+                // Start timer
+                recordingInterval = setInterval(function() {
+                    recordingTime++;
+                    const minutes = Math.floor(recordingTime / 60);
+                    const seconds = recordingTime % 60;
+                    recordingTimer.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }, 1000);
+            }
+
+            function stopRecording() {
+                isRecording = false;
+                recordingButton.classList.remove('active');
+                recordingButton.innerHTML = '<i class="ri-mic-line"></i>';
+                recordingStatus.textContent = 'Recording stopped. Processing...';
+                recordingTimer.classList.add('hidden');
+                
+                if (recordingInterval) {
+                    clearInterval(recordingInterval);
+                }
+
+                // Simulate processing
+                setTimeout(function() {
+                    recordingStatus.textContent = 'Click to start recording';
+                    // Here you would typically add the new recording to the list
+                }, 2000);
+            }
+
+            // Transcript and AI Preview functionality
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('.transcript-button') || e.target.closest('.transcript-button')) {
+                    const card = e.target.closest('.note-card');
+                    const transcriptContent = card.querySelector('.transcript-content');
+                    
+                    if (transcriptContent.classList.contains('hidden')) {
+                        transcriptContent.classList.remove('hidden');
+                        card.querySelector('.ai-preview-content')?.classList.add('hidden');
+                    } else {
+                        transcriptContent.classList.add('hidden');
+                    }
+                }
+
+                if (e.target.matches('.ai-preview-button') || e.target.closest('.ai-preview-button')) {
+                    const card = e.target.closest('.note-card');
+                    const aiPreviewContent = card.querySelector('.ai-preview-content');
+                    
+                    if (aiPreviewContent.classList.contains('hidden')) {
+                        aiPreviewContent.classList.remove('hidden');
+                        card.querySelector('.transcript-content')?.classList.add('hidden');
+                    } else {
+                        aiPreviewContent.classList.add('hidden');
+                    }
+                }
+
+                if (e.target.matches('.play-button') || e.target.closest('.play-button')) {
+                    const button = e.target.closest('.play-button');
+                    if (button.innerHTML.includes('play')) {
+                        button.innerHTML = '<i class="ri-pause-line mr-1"></i>Pause';
+                        button.classList.add('bg-red-50', 'text-red-600');
+                        button.classList.remove('bg-blue-50', 'text-blue-600');
+                    } else {
+                        button.innerHTML = '<i class="ri-play-line mr-1"></i>Play';
+                        button.classList.add('bg-blue-50', 'text-blue-600');
+                        button.classList.remove('bg-red-50', 'text-red-600');
+                    }
+                }
+
+                if (e.target.matches('.format-toggle')) {
+                    const card = e.target.closest('.ai-preview-content');
+                    const buttons = card.querySelectorAll('.format-toggle');
+                    const formats = card.querySelectorAll('.format-content');
+                    
+                    buttons.forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    
+                    formats.forEach(format => format.classList.add('hidden'));
+                    const targetFormat = e.target.dataset.format;
+                    card.querySelector(`.${targetFormat}-format`).classList.remove('hidden');
+                }
+
+                if (e.target.matches('.open-composer-button') || e.target.closest('.open-composer-button')) {
+                    // Switch to composer tab
+                    document.querySelector('[data-tab="composer"]').click();
+                    
+                    // Show notification
+                    const notification = document.createElement('div');
+                    notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                    notification.innerHTML = 'Note opened in composer';
+                    document.body.appendChild(notification);
+                    setTimeout(() => notification.remove(), 2000);
+                }
+            });
+
+            // Historical notes click functionality
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.historical-note')) {
+                    const notes = document.querySelectorAll('.historical-note');
+                    notes.forEach(note => note.classList.remove('border-custom-primary', 'bg-blue-50'));
+                    
+                    const selectedNote = e.target.closest('.historical-note');
+                    selectedNote.classList.add('border-custom-primary', 'bg-blue-50');
+                    
+                    // Update action cards based on selected note
+                    updateActionCards(selectedNote);
+                }
+            });
+
+            function updateActionCards(selectedNote) {
+                // This would typically update the action cards based on the selected historical note
+                // For demo purposes, we'll just show a notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                notification.innerHTML = 'Action cards updated based on selected note';
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 2000);
+            }
+
+            // Note Actions data from note_actions.md
+            const noteActions = [
+                { name: 'eRx', icon: 'ri-medicine-bottle-line' },
+                { name: 'Internal Note', icon: 'ri-sticky-note-line' },
+                { name: 'Task', icon: 'ri-task-line' },
+                { name: 'Appointment', icon: 'ri-calendar-line' },
+                { name: 'Order', icon: 'ri-shopping-cart-line' },
+                { name: 'Document', icon: 'ri-file-text-line' },
+                { name: 'Workflow', icon: 'ri-flow-chart' }
+            ];
+
+            // Note Parts data from note_parts.md
+            const noteParts = {
+                'Test': {
+                    icon: 'ri-test-tube-line',
+                    items: ['Gut Zoomer', 'Wheat Zoomer', 'Egg Zoomer']
+                },
+                'Drag': {
+                    icon: 'ri-drag-drop-line',
+                    items: ['ABC Drag', 'XYZ Drag']
+                },
+                'Document': {
+                    icon: 'ri-file-text-line',
+                    items: ['ABC Form', 'XYZ Handout']
+                },
+                'Product': {
+                    icon: 'ri-gift-line',
+                    items: ['Gut Health Program', 'Welcome Skincare Package']
+                },
+                'Smart Blocks': {
+                    icon: 'ri-layout-grid-line',
+                    items: ['Vital Signs'],
+                    subItems: {
+                        'Vital Signs': [
+                            'Day 1: xxx',
+                            'Day 2: xxx', 
+                            'Day 3: xxx'
+                        ]
+                    }
+                }
+            };
+
+            // Word count functionality
+            const noteEditor = document.getElementById('note-editor');
+            let currentDropdown = null;
+            let currentCursorPosition = 0;
+
+            if (noteEditor) {
+                function updateWordCount() {
+                    const content = noteEditor.value;
+                    const words = content.trim().split(/\s+/).filter(word => word.length > 0).length;
+                    const characters = content.length;
+                    
+                    const wordCountElement = document.querySelector('.text-gray-500');
+                    if (wordCountElement && wordCountElement.textContent.includes('Words:')) {
+                        wordCountElement.textContent = `Words: ${words}`;
+                        wordCountElement.nextElementSibling.textContent = `Characters: ${characters}`;
+                    }
+                }
+
+                // Create dropdown element
+                function createDropdown(items, x, y) {
+                    hideDropdown();
+                    
+                    const dropdown = document.createElement('div');
+                    dropdown.id = 'editor-dropdown';
+                    dropdown.className = 'absolute bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto';
+                    dropdown.style.left = x + 'px';
+                    dropdown.style.top = y + 'px';
+                    dropdown.style.minWidth = '200px';
+
+                    items.forEach((item, index) => {
+                        const option = document.createElement('div');
+                        option.className = 'p-2 hover:bg-gray-100 cursor-pointer flex items-center text-sm border-b border-gray-100 last:border-b-0';
+                        option.innerHTML = `
+                            <i class="${item.icon} mr-2 text-gray-600"></i>
+                            <span>${item.name}</span>
+                        `;
+                        
+                        option.addEventListener('click', () => {
+                            handleItemSelection(item);
+                            hideDropdown();
+                        });
+
+                        if (index === 0) {
+                            option.classList.add('bg-gray-50');
+                        }
+
+                        dropdown.appendChild(option);
+                    });
+
+                    document.body.appendChild(dropdown);
+                    currentDropdown = dropdown;
+                    return dropdown;
+                }
+
+                function hideDropdown() {
+                    if (currentDropdown) {
+                        currentDropdown.remove();
+                        currentDropdown = null;
+                    }
+                }
+
+                function handleItemSelection(item) {
+                    // Check if this is a Smart Block item
+                    const isSmartBlock = isSmartBlockItem(item.name);
+                    
+                    if (isSmartBlock) {
+                        // Insert Smart Block with bullet points
+                        insertSmartBlock(item.name);
+                    } else {
+                        // Regular insertion
+                        insertAtCursor(item.insertText || item.name);
+                    }
+                    
+                    // Create action card for any selected item
+                    createActionCard(item);
+                }
+
+                function isSmartBlockItem(itemName) {
+                    const smartBlocksSection = noteParts['Smart Blocks'];
+                    return smartBlocksSection && smartBlocksSection.subItems && smartBlocksSection.subItems[itemName];
+                }
+
+                function insertSmartBlock(itemName) {
+                    const smartBlocksSection = noteParts['Smart Blocks'];
+                    const subItems = smartBlocksSection.subItems[itemName];
+                    
+                    let textToInsert = itemName + ':\n';
+                    if (subItems) {
+                        subItems.forEach(subItem => {
+                            textToInsert += '    - ' + subItem + '\n';
+                        });
+                    }
+                    
+                    insertAtCursor(textToInsert);
+                }
+
+                function insertAtCursor(text) {
+                    const start = noteEditor.selectionStart;
+                    const end = noteEditor.selectionEnd;
+                    const value = noteEditor.value;
+                    
+                    // Remove the trigger character (/ or the letter)
+                    const beforeCursor = value.substring(0, start - 1);
+                    const afterCursor = value.substring(end);
+                    
+                    noteEditor.value = beforeCursor + text + afterCursor;
+                    
+                    // Set cursor position after inserted text
+                    const newPosition = beforeCursor.length + text.length;
+                    noteEditor.selectionStart = newPosition;
+                    noteEditor.selectionEnd = newPosition;
+                    
+                    updateWordCount();
+                    noteEditor.focus();
+                }
+
+                function createActionCard(item) {
+                    // Find the Smart Actions container
+                    const smartActionsHeaders = document.querySelectorAll('h3');
+                    let smartActionsContainer = null;
+                    
+                    smartActionsHeaders.forEach(header => {
+                        if (header.textContent.includes('Smart Actions')) {
+                            const parentDiv = header.closest('.col-span-3');
+                            if (parentDiv) {
+                                smartActionsContainer = parentDiv.querySelector('.p-4.h-full.overflow-y-auto');
+                            }
+                        }
+                    });
+                    
+                    if (!smartActionsContainer) return;
+                    
+                    // Clear the "No Action Suggestions Yet" message if it exists
+                    const noSuggestionsMsg = smartActionsContainer.querySelector('.text-center');
+                    if (noSuggestionsMsg) {
+                        smartActionsContainer.innerHTML = '<div class="space-y-4"></div>';
+                    }
+                    
+                    const cardsContainer = smartActionsContainer.querySelector('.space-y-4') || smartActionsContainer;
+                    
+                    // Determine card type and color based on item category
+                    const cardInfo = getCardInfo(item.name);
+                    
+                    // Create unique ID for the card
+                    const cardId = 'card-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                    
+                    // Create the action card
+                    const actionCard = document.createElement('div');
+                    actionCard.id = cardId;
+                    actionCard.className = `action-card p-3 ${cardInfo.bgColor} border ${cardInfo.borderColor} rounded-lg`;
+                    actionCard.innerHTML = `
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-medium ${cardInfo.textColor} text-sm flex items-center">
+                                <i class="${item.icon} mr-2"></i>${cardInfo.title}
+                            </h4>
+                            <button class="remove-card p-1 text-gray-400 hover:text-red-500 transition-colors" data-card-id="${cardId}">
+                                <i class="ri-close-line text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs ${cardInfo.textColor}">${item.name}</span>
+                                <button class="px-2 py-0.5 ${cardInfo.buttonBg} ${cardInfo.buttonText} text-xs rounded hover:opacity-80 transition-opacity">
+                                    ${cardInfo.actionText}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    // Add click handler for remove button
+                    actionCard.querySelector('.remove-card').addEventListener('click', function() {
+                        actionCard.remove();
+                        
+                        // If no more cards, show the empty state
+                        const remainingCards = cardsContainer.querySelectorAll('.action-card');
+                        if (remainingCards.length === 0) {
+                            clearActionCards();
+                        }
+                    });
+                    
+                    // Add to container
+                    cardsContainer.appendChild(actionCard);
+                    
+                    // Show notification
+                    showNotification(`${item.name} added to Smart Actions`, 'success');
+                }
+
+                function getCardInfo(itemName) {
+                    // Determine card styling based on item type
+                    if (noteActions.find(action => action.name === itemName)) {
+                        // This is a note action (from slash commands)
+                        return {
+                            title: 'Quick Action',
+                            bgColor: 'bg-blue-50',
+                            borderColor: 'border-blue-200',
+                            textColor: 'text-blue-900',
+                            buttonBg: 'bg-blue-100',
+                            buttonText: 'text-blue-700',
+                            actionText: 'Execute'
+                        };
+                    }
+                    
+                    // Check which section this item belongs to
+                    for (const [sectionName, section] of Object.entries(noteParts)) {
+                        if (section.items.includes(itemName)) {
+                            switch (sectionName) {
+                                case 'Test':
+                                    return {
+                                        title: 'Lab Test Order',
+                                        bgColor: 'bg-green-50',
+                                        borderColor: 'border-green-200',
+                                        textColor: 'text-green-900',
+                                        buttonBg: 'bg-green-100',
+                                        buttonText: 'text-green-700',
+                                        actionText: 'Order'
+                                    };
+                                case 'Drag':
+                                    return {
+                                        title: 'Drug Order',
+                                        bgColor: 'bg-purple-50',
+                                        borderColor: 'border-purple-200',
+                                        textColor: 'text-purple-900',
+                                        buttonBg: 'bg-purple-100',
+                                        buttonText: 'text-purple-700',
+                                        actionText: 'Prescribe'
+                                    };
+                                case 'Document':
+                                    return {
+                                        title: 'Document Action',
+                                        bgColor: 'bg-orange-50',
+                                        borderColor: 'border-orange-200',
+                                        textColor: 'text-orange-900',
+                                        buttonBg: 'bg-orange-100',
+                                        buttonText: 'text-orange-700',
+                                        actionText: 'Send'
+                                    };
+                                case 'Product':
+                                    return {
+                                        title: 'Product Recommendation',
+                                        bgColor: 'bg-pink-50',
+                                        borderColor: 'border-pink-200',
+                                        textColor: 'text-pink-900',
+                                        buttonBg: 'bg-pink-100',
+                                        buttonText: 'text-pink-700',
+                                        actionText: 'Recommend'
+                                    };
+                                case 'Smart Blocks':
+                                    return {
+                                        title: 'Smart Block Added',
+                                        bgColor: 'bg-indigo-50',
+                                        borderColor: 'border-indigo-200',
+                                        textColor: 'text-indigo-900',
+                                        buttonBg: 'bg-indigo-100',
+                                        buttonText: 'text-indigo-700',
+                                        actionText: 'Update'
+                                    };
+                            }
+                        }
+                    }
+                    
+                    // Default styling
+                    return {
+                        title: 'Action Item',
+                        bgColor: 'bg-gray-50',
+                        borderColor: 'border-gray-200',
+                        textColor: 'text-gray-900',
+                        buttonBg: 'bg-gray-100',
+                        buttonText: 'text-gray-700',
+                        actionText: 'Action'
+                    };
+                }
+
+                function showNotification(message, type = 'info') {
+                    const notification = document.createElement('div');
+                    const bgColor = type === 'success' ? 'bg-green-500' : 'bg-blue-500';
+                    notification.className = `fixed top-4 right-4 ${bgColor} text-white px-4 py-2 rounded-lg shadow-lg z-50`;
+                    notification.innerHTML = `
+                        <div class="flex items-center">
+                            <i class="ri-check-line mr-2"></i>
+                            ${message}
+                        </div>
+                    `;
+                    document.body.appendChild(notification);
+                    setTimeout(() => notification.remove(), 2000);
+                }
+
+                function getCaretCoordinates() {
+                    const rect = noteEditor.getBoundingClientRect();
+                    const style = window.getComputedStyle(noteEditor);
+                    const lineHeight = parseInt(style.lineHeight);
+                    
+                    // Simple approximation for caret position
+                    const textBeforeCursor = noteEditor.value.substring(0, noteEditor.selectionStart);
+                    const lines = textBeforeCursor.split('\n');
+                    const currentLine = lines.length - 1;
+                    const charInLine = lines[lines.length - 1].length;
+                    
+                    const x = rect.left + charInLine * 8; // Approximate character width
+                    const y = rect.top + currentLine * lineHeight + lineHeight;
+                    
+                    return { x, y };
+                }
+
+                // Handle keyboard input
+                noteEditor.addEventListener('input', function(e) {
+                    updateWordCount();
+                    
+                    const cursorPosition = this.selectionStart;
+                    const textBeforeCursor = this.value.substring(0, cursorPosition);
+                    const lastChar = textBeforeCursor.charAt(textBeforeCursor.length - 1);
+                    
+                    // Handle slash command
+                    if (lastChar === '/') {
+                        const coords = getCaretCoordinates();
+                        const actions = noteActions.map(action => ({
+                            name: action.name,
+                            icon: action.icon,
+                            insertText: action.name
+                        }));
+                        createDropdown(actions, coords.x, coords.y);
+                        return;
+                    }
+                    
+                    // Handle letter matching for note parts
+                    if (lastChar && /[a-zA-Z]/.test(lastChar)) {
+                        const matches = [];
+                        const lowerLastChar = lastChar.toLowerCase();
+                        
+                        // Search through all note parts
+                        Object.keys(noteParts).forEach(sectionTitle => {
+                            const section = noteParts[sectionTitle];
+                            section.items.forEach(item => {
+                                if (item.toLowerCase().startsWith(lowerLastChar)) {
+                                    matches.push({
+                                        name: item,
+                                        icon: section.icon,
+                                        insertText: item
+                                    });
+                                }
+                            });
+                        });
+                        
+                        if (matches.length > 0) {
+                            const coords = getCaretCoordinates();
+                            createDropdown(matches, coords.x, coords.y);
+                        } else {
+                            hideDropdown();
+                        }
+                    } else {
+                        hideDropdown();
+                    }
+                });
+
+                // Handle keyboard navigation in dropdown
+                noteEditor.addEventListener('keydown', function(e) {
+                    if (!currentDropdown) return;
+                    
+                    const options = currentDropdown.querySelectorAll('div');
+                    const selected = currentDropdown.querySelector('.bg-gray-50');
+                    let selectedIndex = Array.from(options).indexOf(selected);
+                    
+                    switch(e.key) {
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            if (selected) selected.classList.remove('bg-gray-50');
+                            selectedIndex = (selectedIndex + 1) % options.length;
+                            options[selectedIndex].classList.add('bg-gray-50');
+                            break;
+                            
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            if (selected) selected.classList.remove('bg-gray-50');
+                            selectedIndex = selectedIndex <= 0 ? options.length - 1 : selectedIndex - 1;
+                            options[selectedIndex].classList.add('bg-gray-50');
+                            break;
+                            
+                        case 'Enter':
+                            e.preventDefault();
+                            if (selected) {
+                                const itemText = selected.querySelector('span').textContent;
+                                const itemIcon = selected.querySelector('i').className;
+                                const item = { name: itemText, icon: itemIcon };
+                                handleItemSelection(item);
+                                hideDropdown();
+                            }
+                            break;
+                            
+                        case 'Escape':
+                            e.preventDefault();
+                            hideDropdown();
+                            break;
+                    }
+                });
+
+                // Hide dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!noteEditor.contains(e.target) && currentDropdown && !currentDropdown.contains(e.target)) {
+                        hideDropdown();
+                    }
+                });
+
+                noteEditor.addEventListener('input', updateWordCount);
+                updateWordCount(); // Initial count
+            }
+
+            // Create New Note functionality
+            document.addEventListener('click', function(e) {
+                if (e.target.matches('.create-new-note-button') || e.target.closest('.create-new-note-button')) {
+                    createNewNote();
+                }
+            });
+
+            function createNewNote() {
+                // Clear the editor column (middle - red area)
+                clearEditor();
+
+                // Clear action cards column (right - red area)
+                clearActionCards();
+
+                // Show notification
+                const notification = document.createElement('div');
+                notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                notification.innerHTML = `
+                    <div class="flex items-center">
+                        <i class="ri-check-line mr-2"></i>
+                        New note ready
+                    </div>
+                `;
+                document.body.appendChild(notification);
+                setTimeout(() => notification.remove(), 2000);
+            }
+
+            function clearEditor() {
+                // Clear the editor content
+                const noteEditor = document.getElementById('note-editor');
+                if (noteEditor) {
+                    noteEditor.value = '';
+                    noteEditor.placeholder = 'Begin typing your new encounter note here...\n\nYou can use templates or voice-to-text to get started quickly.\n\nCommon sections:\n- Chief Complaint\n- History of Present Illness\n- Review of Systems\n- Physical Examination\n- Assessment & Plan';
+                    
+                    // Focus on editor
+                    noteEditor.focus();
+                    
+                    // Update word count
+                    const event = new Event('input');
+                    noteEditor.dispatchEvent(event);
+                }
+
+                // Reset visit type and date/time to current
+                const visitTypeSelect = document.querySelector('select');
+                if (visitTypeSelect) {
+                    visitTypeSelect.selectedIndex = 0;
+                }
+
+                const dateTimeInput = document.querySelector('input[type="datetime-local"]');
+                if (dateTimeInput) {
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    dateTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+                }
+            }
+
+            function setupNewNoteEditor() {
+                // Clear the editor for new note
+                const noteEditor = document.getElementById('note-editor');
+                if (noteEditor) {
+                    noteEditor.value = '';
+                    noteEditor.placeholder = 'Begin typing your new encounter note here...\n\nYou can use templates or voice-to-text to get started quickly.\n\nCommon sections:\n- Chief Complaint\n- History of Present Illness\n- Review of Systems\n- Physical Examination\n- Assessment & Plan';
+                    
+                    // Focus on editor
+                    noteEditor.focus();
+                    
+                    // Update word count
+                    const event = new Event('input');
+                    noteEditor.dispatchEvent(event);
+                }
+
+                // Set visit type and date/time to current
+                const visitTypeSelect = document.querySelector('select');
+                if (visitTypeSelect) {
+                    visitTypeSelect.selectedIndex = 0;
+                }
+
+                const dateTimeInput = document.querySelector('input[type="datetime-local"]');
+                if (dateTimeInput) {
+                    const now = new Date();
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    dateTimeInput.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+                }
+            }
+
+            function clearActionCards() {
+                // Target specifically the Smart Actions column by finding the div that contains "Smart Actions" text
+                const smartActionsHeaders = document.querySelectorAll('h3');
+                let smartActionsContainer = null;
+                
+                smartActionsHeaders.forEach(header => {
+                    if (header.textContent.includes('Smart Actions')) {
+                        // Find the content div in the same parent
+                        const parentDiv = header.closest('.col-span-3');
+                        if (parentDiv) {
+                            smartActionsContainer = parentDiv.querySelector('.p-4.h-full.overflow-y-auto');
+                        }
+                    }
+                });
+                
+                if (smartActionsContainer) {
+                    smartActionsContainer.innerHTML = `
+                        <div class="text-center py-8">
+                            <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="ri-lightbulb-line text-2xl text-gray-400"></i>
+                            </div>
+                            <h4 class="text-sm font-medium text-gray-600 mb-2">No Action Suggestions Yet</h4>
+                            <p class="text-xs text-gray-500 leading-relaxed">
+                                Start typing your note and AI-powered action suggestions will appear here based on your documentation.
+                            </p>
+                            <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <p class="text-xs text-blue-700">
+                                    💡 <strong>Tip:</strong> Mention diagnoses, medications, or procedures to get relevant suggestions
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
