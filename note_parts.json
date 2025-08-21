@@ -1,0 +1,76 @@
+{
+  "noteParts": {
+    "Test": {
+      "icon": "ri-test-tube-line",
+      "items": [
+        "Gut Zoomer",
+        "Wheat Zoomer",
+        "Egg Zoomer"
+      ]
+    },
+    "Drug": {
+      "icon": "ri-medicine-bottle-line",
+      "items": [
+        "ABC Drug",
+        "XYZ Drug"
+      ]
+    },
+    "Document": {
+      "icon": "ri-file-text-line",
+      "items": [
+        "ABC Form",
+        "XYZ Handout"
+      ]
+    },
+    "Product": {
+      "icon": "ri-gift-line",
+      "items": [
+        "Gut Health Program",
+        "Welcome Skincare Package"
+      ]
+    },
+    "Smart Blocks": {
+      "icon": "ri-layout-grid-line",
+      "items": [
+        "Vital Signs"
+      ],
+      "subItems": {
+        "Vital Signs": [
+          "Day 1: xxx",
+          "Day 2: xxx",
+          "Day 3: xxx"
+        ]
+      }
+    }
+  },
+  "noteActions": [
+    {
+      "name": "eRx",
+      "icon": "ri-medicine-bottle-line"
+    },
+    {
+      "name": "Internal Note",
+      "icon": "ri-sticky-note-line"
+    },
+    {
+      "name": "Task",
+      "icon": "ri-task-line"
+    },
+    {
+      "name": "Appointment",
+      "icon": "ri-calendar-line"
+    },
+    {
+      "name": "Order",
+      "icon": "ri-shopping-cart-line"
+    },
+    {
+      "name": "Document",
+      "icon": "ri-file-text-line"
+    },
+    {
+      "name": "Workflow",
+      "icon": "ri-flow-chart"
+    }
+  ]
+}

@@ -607,7 +607,7 @@ ASSESSMENT & PLAN:
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Tab switching functionality
+            // Tab switching functionality (initialize immediately)
             const tabs = document.querySelectorAll('.encounter-tab');
             const contents = document.querySelectorAll('.encounter-content');
             
@@ -634,6 +634,9 @@ ASSESSMENT & PLAN:
                     document.getElementById(targetTab + '-content').classList.remove('hidden');
                 });
             });
+
+            // Load configuration asynchronously (don't block other functionality)
+            loadConfiguration();
 
             // Recording functionality
             const recordingButton = document.getElementById('recording-button');
@@ -777,47 +780,67 @@ ASSESSMENT & PLAN:
                 setTimeout(() => notification.remove(), 2000);
             }
 
-            // Note Actions data from note_actions.md
-            const noteActions = [
-                { name: 'eRx', icon: 'ri-medicine-bottle-line' },
-                { name: 'Internal Note', icon: 'ri-sticky-note-line' },
-                { name: 'Task', icon: 'ri-task-line' },
-                { name: 'Appointment', icon: 'ri-calendar-line' },
-                { name: 'Order', icon: 'ri-shopping-cart-line' },
-                { name: 'Document', icon: 'ri-file-text-line' },
-                { name: 'Workflow', icon: 'ri-flow-chart' }
-            ];
+            // Configuration data - will be loaded from JSON
+            let noteActions = [];
+            let noteParts = {};
+            let configLoaded = false;
 
-            // Note Parts data from note_parts.md
-            const noteParts = {
-                'Test': {
-                    icon: 'ri-test-tube-line',
-                    items: ['Gut Zoomer', 'Wheat Zoomer', 'Egg Zoomer']
-                },
-                'Drag': {
-                    icon: 'ri-drag-drop-line',
-                    items: ['ABC Drag', 'XYZ Drag']
-                },
-                'Document': {
-                    icon: 'ri-file-text-line',
-                    items: ['ABC Form', 'XYZ Handout']
-                },
-                'Product': {
-                    icon: 'ri-gift-line',
-                    items: ['Gut Health Program', 'Welcome Skincare Package']
-                },
-                'Smart Blocks': {
-                    icon: 'ri-layout-grid-line',
-                    items: ['Vital Signs'],
-                    subItems: {
-                        'Vital Signs': [
-                            'Day 1: xxx',
-                            'Day 2: xxx', 
-                            'Day 3: xxx'
-                        ]
+            // Load configuration from JSON file
+            async function loadConfiguration() {
+                try {
+                    const response = await fetch('./note_parts.json');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
+                    const config = await response.json();
+                    noteActions = config.noteActions || [];
+                    noteParts = config.noteParts || {};
+                    configLoaded = true;
+                    console.log('Configuration loaded successfully');
+                } catch (error) {
+                    console.error('Failed to load configuration:', error);
+                    // Fallback to default configuration
+                    noteActions = [
+                        { name: 'eRx', icon: 'ri-medicine-bottle-line' },
+                        { name: 'Internal Note', icon: 'ri-sticky-note-line' },
+                        { name: 'Task', icon: 'ri-task-line' },
+                        { name: 'Appointment', icon: 'ri-calendar-line' },
+                        { name: 'Order', icon: 'ri-shopping-cart-line' },
+                        { name: 'Document', icon: 'ri-file-text-line' },
+                        { name: 'Workflow', icon: 'ri-flow-chart' }
+                    ];
+                    noteParts = {
+                        'Test': {
+                            icon: 'ri-test-tube-line',
+                            items: ['Gut Zoomer', 'Wheat Zoomer', 'Egg Zoomer']
+                        },
+                        'Drug': {
+                            icon: 'ri-medicine-bottle-line',
+                            items: ['ABC Drug', 'XYZ Drug']
+                        },
+                        'Document': {
+                            icon: 'ri-file-text-line',
+                            items: ['ABC Form', 'XYZ Handout']
+                        },
+                        'Product': {
+                            icon: 'ri-gift-line',
+                            items: ['Gut Health Program', 'Welcome Skincare Package']
+                        },
+                        'Smart Blocks': {
+                            icon: 'ri-layout-grid-line',
+                            items: ['Vital Signs'],
+                            subItems: {
+                                'Vital Signs': [
+                                    'Day 1: xxx',
+                                    'Day 2: xxx', 
+                                    'Day 3: xxx'
+                                ]
+                            }
+                        }
+                    };
+                    configLoaded = true;
                 }
-            };
+            }
 
             // Word count functionality
             const noteEditor = document.getElementById('note-editor');
@@ -887,23 +910,29 @@ ASSESSMENT & PLAN:
                     if (isSmartBlock) {
                         // Insert Smart Block with bullet points
                         insertSmartBlock(item.name);
+                        // Create action card for any selected item
+                        createActionCard(item);
+                    } else if (noteActions.find(action => action.name === item.name)) {
+                        // This is a slash command action - open modal instead of inserting text
+                        openActionModal(item.name);
                     } else {
-                        // Regular insertion
+                        // Regular insertion for other items
                         insertAtCursor(item.insertText || item.name);
+                        // Create action card for any selected item
+                        createActionCard(item);
                     }
-                    
-                    // Create action card for any selected item
-                    createActionCard(item);
                 }
 
                 function isSmartBlockItem(itemName) {
+                    if (!configLoaded || !noteParts['Smart Blocks']) return false;
                     const smartBlocksSection = noteParts['Smart Blocks'];
                     return smartBlocksSection && smartBlocksSection.subItems && smartBlocksSection.subItems[itemName];
                 }
 
                 function insertSmartBlock(itemName) {
+                    if (!configLoaded || !noteParts['Smart Blocks']) return;
                     const smartBlocksSection = noteParts['Smart Blocks'];
-                    const subItems = smartBlocksSection.subItems[itemName];
+                    const subItems = smartBlocksSection.subItems && smartBlocksSection.subItems[itemName];
                     
                     let textToInsert = itemName + ':\n';
                     if (subItems) {
@@ -999,6 +1028,17 @@ ASSESSMENT & PLAN:
                         }
                     });
                     
+                    // Add click handler for action button
+                    const actionButton = actionCard.querySelector('button:not(.remove-card)');
+                    actionButton.addEventListener('click', function() {
+                        // Check if this is a note action that should open a modal
+                        if (noteActions.find(action => action.name === item.name)) {
+                            openActionModal(item.name);
+                        } else {
+                            showNotification(`${cardInfo.actionText} ${item.name}`, 'success');
+                        }
+                    });
+                    
                     // Add to container
                     cardsContainer.appendChild(actionCard);
                     
@@ -1022,59 +1062,61 @@ ASSESSMENT & PLAN:
                     }
                     
                     // Check which section this item belongs to
-                    for (const [sectionName, section] of Object.entries(noteParts)) {
-                        if (section.items.includes(itemName)) {
-                            switch (sectionName) {
-                                case 'Test':
-                                    return {
-                                        title: 'Lab Test Order',
-                                        bgColor: 'bg-green-50',
-                                        borderColor: 'border-green-200',
-                                        textColor: 'text-green-900',
-                                        buttonBg: 'bg-green-100',
-                                        buttonText: 'text-green-700',
-                                        actionText: 'Order'
-                                    };
-                                case 'Drag':
-                                    return {
-                                        title: 'Drug Order',
-                                        bgColor: 'bg-purple-50',
-                                        borderColor: 'border-purple-200',
-                                        textColor: 'text-purple-900',
-                                        buttonBg: 'bg-purple-100',
-                                        buttonText: 'text-purple-700',
-                                        actionText: 'Prescribe'
-                                    };
-                                case 'Document':
-                                    return {
-                                        title: 'Document Action',
-                                        bgColor: 'bg-orange-50',
-                                        borderColor: 'border-orange-200',
-                                        textColor: 'text-orange-900',
-                                        buttonBg: 'bg-orange-100',
-                                        buttonText: 'text-orange-700',
-                                        actionText: 'Send'
-                                    };
-                                case 'Product':
-                                    return {
-                                        title: 'Product Recommendation',
-                                        bgColor: 'bg-pink-50',
-                                        borderColor: 'border-pink-200',
-                                        textColor: 'text-pink-900',
-                                        buttonBg: 'bg-pink-100',
-                                        buttonText: 'text-pink-700',
-                                        actionText: 'Recommend'
-                                    };
-                                case 'Smart Blocks':
-                                    return {
-                                        title: 'Smart Block Added',
-                                        bgColor: 'bg-indigo-50',
-                                        borderColor: 'border-indigo-200',
-                                        textColor: 'text-indigo-900',
-                                        buttonBg: 'bg-indigo-100',
-                                        buttonText: 'text-indigo-700',
-                                        actionText: 'Update'
-                                    };
+                    if (configLoaded) {
+                        for (const [sectionName, section] of Object.entries(noteParts)) {
+                            if (section && section.items && section.items.includes(itemName)) {
+                                switch (sectionName) {
+                                    case 'Test':
+                                        return {
+                                            title: 'Lab Test Order',
+                                            bgColor: 'bg-green-50',
+                                            borderColor: 'border-green-200',
+                                            textColor: 'text-green-900',
+                                            buttonBg: 'bg-green-100',
+                                            buttonText: 'text-green-700',
+                                            actionText: 'Order'
+                                        };
+                                    case 'Drug':
+                                        return {
+                                            title: 'Drug Order',
+                                            bgColor: 'bg-purple-50',
+                                            borderColor: 'border-purple-200',
+                                            textColor: 'text-purple-900',
+                                            buttonBg: 'bg-purple-100',
+                                            buttonText: 'text-purple-700',
+                                            actionText: 'Prescribe'
+                                        };
+                                    case 'Document':
+                                        return {
+                                            title: 'Document Action',
+                                            bgColor: 'bg-orange-50',
+                                            borderColor: 'border-orange-200',
+                                            textColor: 'text-orange-900',
+                                            buttonBg: 'bg-orange-100',
+                                            buttonText: 'text-orange-700',
+                                            actionText: 'Send'
+                                        };
+                                    case 'Product':
+                                        return {
+                                            title: 'Product Recommendation',
+                                            bgColor: 'bg-pink-50',
+                                            borderColor: 'border-pink-200',
+                                            textColor: 'text-pink-900',
+                                            buttonBg: 'bg-pink-100',
+                                            buttonText: 'text-pink-700',
+                                            actionText: 'Recommend'
+                                        };
+                                    case 'Smart Blocks':
+                                        return {
+                                            title: 'Smart Block Added',
+                                            bgColor: 'bg-indigo-50',
+                                            borderColor: 'border-indigo-200',
+                                            textColor: 'text-indigo-900',
+                                            buttonBg: 'bg-indigo-100',
+                                            buttonText: 'text-indigo-700',
+                                            actionText: 'Update'
+                                        };
+                                }
                             }
                         }
                     }
@@ -1089,6 +1131,796 @@ ASSESSMENT & PLAN:
                         buttonText: 'text-gray-700',
                         actionText: 'Action'
                     };
+                }
+
+                function openActionModal(actionName, draftId = null) {
+                    const draftData = draftId ? draftStorage[draftId] : null;
+                    
+                    switch(actionName) {
+                        case 'Task':
+                            openTaskModal(draftData, draftId);
+                            break;
+                        case 'Appointment':
+                            openAppointmentModal(draftData, draftId);
+                            break;
+                        case 'Order':
+                            openOrderModal(draftData, draftId);
+                            break;
+                        case 'Document':
+                            openDocumentModal(draftData, draftId);
+                            break;
+                        case 'Workflow':
+                            openWorkflowModal(draftData, draftId);
+                            break;
+                        case 'Internal Note':
+                            openInternalNoteModal(draftData, draftId);
+                            break;
+                        case 'eRx':
+                            showNotification('eRx module would open here', 'info');
+                            break;
+                        default:
+                            showNotification(`${actionName} modal would open here`, 'info');
+                    }
+                }
+
+                function openTaskModal(draftData = null, draftId = null) {
+                    const taskModal = document.createElement('div');
+                    taskModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                    taskModal.innerHTML = `
+                        <div class="bg-white rounded-lg p-6 w-[480px]">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-medium text-gray-900">Create New Task</h3>
+                                <button class="close-task-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+                                    <div class="w-5 h-5 flex items-center justify-center">
+                                        <i class="ri-close-line"></i>
+                                    </div>
+                                </button>
+                            </div>
+                            <form id="task-form" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+                                    <input type="text" required class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="Enter task title...">
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                                        <input type="date" required class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+                                        <select required class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <option value="low">Low</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="high">High</option>
+                                            <option value="urgent">Urgent</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Assign To</label>
+                                    <select required class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="self">Myself</option>
+                                        <option value="team">Team Member</option>
+                                        <option value="patient">Patient</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                    <textarea required class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="3" placeholder="Add task details..."></textarea>
+                                </div>
+                                <div class="pt-4 flex justify-end space-x-2">
+                                    <button type="button" class="close-task-modal px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50">Cancel</button>
+                                    <button type="submit" class="px-4 py-2 bg-custom-primary text-white rounded text-sm font-medium hover:bg-blue-600">Save Draft</button>
+                                </div>
+                            </form>
+                        </div>
+                    `;
+                    document.body.appendChild(taskModal);
+                    
+                    // Populate form with draft data if editing
+                    if (draftData) {
+                        taskModal.querySelector('input[type="text"]').value = draftData.title || '';
+                        taskModal.querySelector('input[type="date"]').value = draftData.dueDate || '';
+                        taskModal.querySelector('select').value = draftData.priority || 'low';
+                        taskModal.querySelectorAll('select')[1].value = draftData.assignTo || 'self';
+                        taskModal.querySelector('textarea').value = draftData.description || '';
+                    }
+                    
+                    const closeButtons = taskModal.querySelectorAll('.close-task-modal');
+                    closeButtons.forEach(button => {
+                        button.addEventListener('click', () => {
+                            taskModal.remove();
+                        });
+                    });
+                    
+                    const form = taskModal.querySelector('#task-form');
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        // Collect form data
+                        const formData = new FormData(form);
+                        const taskData = {
+                            type: 'Task',
+                            title: form.querySelector('input[type="text"]').value,
+                            dueDate: form.querySelector('input[type="date"]').value,
+                            priority: form.querySelector('select').value,
+                            assignTo: form.querySelectorAll('select')[1].value,
+                            description: form.querySelector('textarea').value,
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        if (draftId) {
+                            // Update existing draft
+                            draftStorage[draftId] = taskData;
+                            updateDraftCard(draftId, taskData);
+                            showNotification('Task draft updated', 'success');
+                        } else {
+                            // Create new draft card
+                            createDraftCard(taskData);
+                            showNotification('Task draft saved', 'success');
+                        }
+                        taskModal.remove();
+                    });
+                }
+
+                function openAppointmentModal(draftData = null, draftId = null) {
+                    const appointmentModal = document.createElement('div');
+                    appointmentModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                    appointmentModal.innerHTML = `
+                        <div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-medium text-gray-900">Schedule Appointment</h3>
+                                <button class="close-appointment-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+                                    <div class="w-5 h-5 flex items-center justify-center">
+                                        <i class="ri-close-line"></i>
+                                    </div>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-7 gap-4">
+                                <div class="col-span-2 border-r border-gray-200 pr-4">
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Appointment Type</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded text-sm">
+                                            <option>Follow-up Consultation</option>
+                                            <option>Initial Consultation</option>
+                                            <option>Lab Review</option>
+                                            <option>Treatment Session</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Duration</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded text-sm">
+                                            <option>30 minutes</option>
+                                            <option>45 minutes</option>
+                                            <option>60 minutes</option>
+                                            <option>90 minutes</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Provider</label>
+                                        <select class="w-full p-2 border border-gray-300 rounded text-sm">
+                                            <option>Dr. Martinez</option>
+                                            <option>Dr. Smith</option>
+                                            <option>Dr. Johnson</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-4">
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+                                        <textarea class="w-full p-2 border border-gray-300 rounded text-sm" rows="3" placeholder="Add appointment notes..."></textarea>
+                                    </div>
+                                </div>
+                                <div class="col-span-5">
+                                    <div class="mb-4 text-center">
+                                        <h4 class="text-lg font-medium text-gray-900 mb-2">December 2024</h4>
+                                        <div class="grid grid-cols-7 gap-1 text-xs text-gray-500 mb-2">
+                                            <div class="p-2 text-center">Sun</div>
+                                            <div class="p-2 text-center">Mon</div>
+                                            <div class="p-2 text-center">Tue</div>
+                                            <div class="p-2 text-center">Wed</div>
+                                            <div class="p-2 text-center">Thu</div>
+                                            <div class="p-2 text-center">Fri</div>
+                                            <div class="p-2 text-center">Sat</div>
+                                        </div>
+                                        <div class="grid grid-cols-7 gap-1">
+                                            <div class="p-2 text-center text-gray-400">1</div>
+                                            <div class="p-2 text-center text-gray-400">2</div>
+                                            <div class="p-2 text-center text-gray-400">3</div>
+                                            <div class="p-2 text-center text-gray-400">4</div>
+                                            <div class="p-2 text-center text-gray-400">5</div>
+                                            <div class="p-2 text-center text-gray-400">6</div>
+                                            <div class="p-2 text-center text-gray-400">7</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">8</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">9</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">10</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">11</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">12</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">13</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">14</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">15</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">16</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">17</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">18</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">19</div>
+                                            <div class="p-2 text-center bg-blue-100 text-blue-800 cursor-pointer rounded font-medium">20</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">21</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">22</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">23</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">24</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">25</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">26</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">27</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">28</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">29</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">30</div>
+                                            <div class="p-2 text-center hover:bg-blue-50 cursor-pointer rounded">31</div>
+                                        </div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <h5 class="text-sm font-medium text-gray-900 mb-2">Available Times - December 20, 2024</h5>
+                                        <div class="grid grid-cols-4 gap-2">
+                                            <button class="p-2 text-sm border border-gray-300 rounded hover:border-blue-500 hover:bg-blue-50">9:00 AM</button>
+                                            <button class="p-2 text-sm border border-gray-300 rounded hover:border-blue-500 hover:bg-blue-50">10:30 AM</button>
+                                            <button class="p-2 text-sm border border-gray-300 rounded hover:border-blue-500 hover:bg-blue-50">2:00 PM</button>
+                                            <button class="p-2 text-sm border border-gray-300 rounded hover:border-blue-500 hover:bg-blue-50">3:30 PM</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6 flex justify-end space-x-2">
+                                <button class="close-appointment-modal px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50">Cancel</button>
+                                <button class="save-appointment-draft px-4 py-2 bg-custom-primary text-white rounded text-sm font-medium hover:bg-blue-600">Save Draft</button>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(appointmentModal);
+                    
+                    // Populate form with draft data if editing
+                    if (draftData) {
+                        appointmentModal.querySelector('select').value = draftData.appointmentType || 'Follow-up Consultation';
+                        appointmentModal.querySelectorAll('select')[1].value = draftData.duration || '30 minutes';
+                        appointmentModal.querySelectorAll('select')[2].value = draftData.provider || 'Dr. Martinez';
+                        appointmentModal.querySelector('textarea').value = draftData.notes || '';
+                    }
+                    
+                    const closeButtons = appointmentModal.querySelectorAll('.close-appointment-modal');
+                    closeButtons.forEach(button => {
+                        button.addEventListener('click', () => {
+                            appointmentModal.remove();
+                        });
+                    });
+                    
+                    const saveButton = appointmentModal.querySelector('.save-appointment-draft');
+                    saveButton.addEventListener('click', () => {
+                        const appointmentData = {
+                            type: 'Appointment',
+                            appointmentType: appointmentModal.querySelector('select').value,
+                            duration: appointmentModal.querySelectorAll('select')[1].value,
+                            provider: appointmentModal.querySelectorAll('select')[2].value,
+                            notes: appointmentModal.querySelector('textarea').value,
+                            date: 'December 20, 2024',
+                            time: 'Selected time slot',
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        if (draftId) {
+                            // Update existing draft
+                            draftStorage[draftId] = appointmentData;
+                            updateDraftCard(draftId, appointmentData);
+                            showNotification('Appointment draft updated', 'success');
+                        } else {
+                            // Create new draft card
+                            createDraftCard(appointmentData);
+                            showNotification('Appointment draft saved', 'success');
+                        }
+                        appointmentModal.remove();
+                    });
+                }
+
+                function openOrderModal(draftData = null, draftId = null) {
+                    const orderModal = document.createElement('div');
+                    orderModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                    orderModal.innerHTML = `
+                        <div class="bg-white rounded-lg p-0 w-[1000px] max-h-[80vh] flex">
+                            <div class="flex-1 p-6 overflow-y-auto border-r border-gray-200">
+                                <div class="flex justify-between items-center mb-4">
+                                    <div class="flex items-center space-x-4">
+                                        <h3 class="text-lg font-medium text-gray-900">Create Order</h3>
+                                        <span class="text-sm bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">Select items</span>
+                                    </div>
+                                    <button class="close-order-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+                                        <div class="w-5 h-5 flex items-center justify-center">
+                                            <i class="ri-close-line"></i>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4 mb-6">
+                                    <button class="order-type-btn p-3 border border-gray-200 hover:border-blue-500 rounded-lg text-left cursor-pointer">
+                                        <div class="flex items-center mb-2">
+                                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-2">
+                                                <i class="ri-test-tube-line text-blue-600"></i>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900">Vibrant Products</span>
+                                        </div>
+                                        <p class="text-xs text-gray-500">Order lab tests from Vibrant Lab</p>
+                                    </button>
+                                    <button class="order-type-btn p-3 border border-gray-200 hover:border-blue-500 rounded-lg text-left cursor-pointer">
+                                        <div class="flex items-center mb-2">
+                                            <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-2">
+                                                <i class="ri-store-2-line text-purple-600"></i>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900">Practice Products</span>
+                                        </div>
+                                        <p class="text-xs text-gray-500">Clinic's sellable items</p>
+                                    </button>
+                                    <button class="order-type-btn p-3 border border-gray-200 hover:border-blue-500 rounded-lg text-left cursor-pointer">
+                                        <div class="flex items-center mb-2">
+                                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-2">
+                                                <i class="ri-bill-line text-green-600"></i>
+                                            </div>
+                                            <span class="text-sm font-medium text-gray-900">Quick Bill</span>
+                                        </div>
+                                        <p class="text-xs text-gray-500">Create custom payment</p>
+                                    </button>
+                                </div>
+                                <div class="mt-6 flex justify-end space-x-2">
+                                    <button class="close-order-modal px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50">Cancel</button>
+                                    <button class="save-order-draft px-4 py-2 bg-custom-primary text-white rounded text-sm font-medium hover:bg-blue-600">Save Draft</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(orderModal);
+                    
+                    const closeButtons = orderModal.querySelectorAll('.close-order-modal');
+                    closeButtons.forEach(button => {
+                        button.addEventListener('click', () => {
+                            orderModal.remove();
+                        });
+                    });
+                    
+                    const saveButton = orderModal.querySelector('.save-order-draft');
+                    saveButton.addEventListener('click', () => {
+                        const orderData = {
+                            type: 'Order',
+                            orderType: 'Lab Tests & Products',
+                            items: 'Selected items',
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        if (draftId) {
+                            draftStorage[draftId] = orderData;
+                            updateDraftCard(draftId, orderData);
+                            showNotification('Order draft updated', 'success');
+                        } else {
+                            createDraftCard(orderData);
+                            showNotification('Order draft saved', 'success');
+                        }
+                        orderModal.remove();
+                    });
+                }
+
+                function openDocumentModal(draftData = null, draftId = null) {
+                    const documentModal = document.createElement('div');
+                    documentModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                    documentModal.innerHTML = `
+                        <div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-medium text-gray-900">Share Documents</h3>
+                                <button class="close-document-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+                                    <div class="w-5 h-5 flex items-center justify-center">
+                                        <i class="ri-close-line"></i>
+                                    </div>
+                                </button>
+                            </div>
+                            <div class="flex space-x-4 mb-4">
+                                <button class="doc-tab flex-1 py-2 px-4 text-sm font-medium text-blue-600 bg-blue-50 rounded-full" data-tab="templates">Templates</button>
+                                <button class="doc-tab flex-1 py-2 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 rounded-full" data-tab="patient-docs">Patient Documents</button>
+                                <button class="doc-tab flex-1 py-2 px-4 text-sm font-medium text-gray-500 hover:text-gray-700 rounded-full" data-tab="upload">Upload New</button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="p-3 border border-gray-200 rounded-lg hover:border-blue-500 cursor-pointer">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                            <i class="ri-file-text-line text-blue-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-medium text-gray-900">New Patient Intake Form</h4>
+                                            <p class="text-xs text-gray-500">Standard intake questionnaire</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-3 border border-gray-200 rounded-lg hover:border-blue-500 cursor-pointer">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                                            <i class="ri-file-text-line text-purple-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-medium text-gray-900">Treatment Consent Form</h4>
+                                            <p class="text-xs text-gray-500">Legal waiver and consent</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6 flex justify-end space-x-2">
+                                <button class="close-document-modal px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50">Cancel</button>
+                                <button class="save-document-draft px-4 py-2 bg-custom-primary text-white rounded text-sm font-medium hover:bg-blue-600">Save Draft</button>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(documentModal);
+                    
+                    const closeButtons = documentModal.querySelectorAll('.close-document-modal');
+                    closeButtons.forEach(button => {
+                        button.addEventListener('click', () => {
+                            documentModal.remove();
+                        });
+                    });
+                    
+                    const saveButton = documentModal.querySelector('.save-document-draft');
+                    saveButton.addEventListener('click', () => {
+                        const documentData = {
+                            type: 'Document',
+                            documentType: 'Patient Documents',
+                            items: 'Selected documents',
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        if (draftId) {
+                            draftStorage[draftId] = documentData;
+                            updateDraftCard(draftId, documentData);
+                            showNotification('Document draft updated', 'success');
+                        } else {
+                            createDraftCard(documentData);
+                            showNotification('Document draft saved', 'success');
+                        }
+                        documentModal.remove();
+                    });
+                }
+
+                function openWorkflowModal(draftData = null, draftId = null) {
+                    const workflowModal = document.createElement('div');
+                    workflowModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                    workflowModal.innerHTML = `
+                        <div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-medium text-gray-900">Assign Workflow</h3>
+                                <button class="close-workflow-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+                                    <div class="w-5 h-5 flex items-center justify-center">
+                                        <i class="ri-close-line"></i>
+                                    </div>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="p-4 border border-gray-200 rounded-lg hover:border-blue-500 cursor-pointer">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                            <i class="ri-mail-send-line text-blue-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-medium text-gray-900">New Patient Onboarding</h4>
+                                            <p class="text-xs text-gray-500">Automated welcome sequence</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="p-4 border border-gray-200 rounded-lg hover:border-blue-500 cursor-pointer">
+                                    <div class="flex items-center mb-3">
+                                        <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                                            <i class="ri-calendar-check-line text-green-600"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-sm font-medium text-gray-900">Follow-up Reminders</h4>
+                                            <p class="text-xs text-gray-500">Automated appointment reminders</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6 flex justify-end space-x-2">
+                                <button class="close-workflow-modal px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50">Cancel</button>
+                                <button class="save-workflow-draft px-4 py-2 bg-custom-primary text-white rounded text-sm font-medium hover:bg-blue-600">Save Draft</button>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(workflowModal);
+                    
+                    const closeButtons = workflowModal.querySelectorAll('.close-workflow-modal');
+                    closeButtons.forEach(button => {
+                        button.addEventListener('click', () => {
+                            workflowModal.remove();
+                        });
+                    });
+                    
+                    const saveButton = workflowModal.querySelector('.save-workflow-draft');
+                    saveButton.addEventListener('click', () => {
+                        const workflowData = {
+                            type: 'Workflow',
+                            workflowType: 'Patient Automation',
+                            items: 'Selected workflows',
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        if (draftId) {
+                            draftStorage[draftId] = workflowData;
+                            updateDraftCard(draftId, workflowData);
+                            showNotification('Workflow draft updated', 'success');
+                        } else {
+                            createDraftCard(workflowData);
+                            showNotification('Workflow draft saved', 'success');
+                        }
+                        workflowModal.remove();
+                    });
+                }
+
+                function openInternalNoteModal(draftData = null, draftId = null) {
+                    const internalNoteModal = document.createElement('div');
+                    internalNoteModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                    internalNoteModal.innerHTML = `
+                        <div class="bg-white rounded-lg p-6 w-[800px] max-h-[80vh] overflow-y-auto">
+                            <div class="flex justify-between items-center mb-4">
+                                <div class="flex items-center">
+                                    <h3 class="text-lg font-medium text-gray-900">Internal Notes</h3>
+                                    <span class="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Staff Only</span>
+                                </div>
+                                <button class="close-internal-note-modal p-1 text-gray-500 hover:bg-gray-100 rounded-full">
+                                    <div class="w-5 h-5 flex items-center justify-center">
+                                        <i class="ri-close-line"></i>
+                                    </div>
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 gap-6">
+                                <div class="space-y-4">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-1">Add New Note</label>
+                                        <textarea id="new-note-content" class="w-full p-3 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" rows="4" placeholder="Type your internal note here..."></textarea>
+                                    </div>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-1">
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                                            <select class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                <option>General Note</option>
+                                                <option>Treatment Note</option>
+                                                <option>Follow-up Required</option>
+                                                <option>Important Alert</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex-1">
+                                            <label class="block text-sm font-medium text-gray-700 mb-1">Visibility</label>
+                                            <select class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                                <option>All Staff</option>
+                                                <option>Doctors Only</option>
+                                                <option>Admin Only</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-end">
+                                        <button id="add-note-btn" class="px-4 py-2 bg-custom-primary text-white rounded-lg text-sm font-medium hover:bg-blue-600">Add Note</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-medium text-gray-900 mb-3">Previous Notes</h4>
+                                    <div class="space-y-3 overflow-y-auto max-h-64">
+                                        <div class="p-3 bg-gray-50 rounded-lg">
+                                            <div class="flex justify-between items-start mb-2">
+                                                <div>
+                                                    <span class="text-sm font-medium text-gray-900">Dr. Martinez</span>
+                                                    <span class="text-xs text-gray-500 ml-2">Today at 10:30 AM</span>
+                                                </div>
+                                            </div>
+                                            <p class="text-sm text-gray-700">Patient shows good compliance with medication schedule.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-6 flex justify-end space-x-2">
+                                <button class="close-internal-note-modal px-4 py-2 border border-gray-300 text-gray-700 rounded text-sm font-medium hover:bg-gray-50">Cancel</button>
+                                <button class="save-internal-note-draft px-4 py-2 bg-custom-primary text-white rounded text-sm font-medium hover:bg-blue-600">Save Draft</button>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(internalNoteModal);
+                    
+                    // Populate form with draft data if editing
+                    if (draftData) {
+                        internalNoteModal.querySelector('#new-note-content').value = draftData.content || '';
+                        internalNoteModal.querySelector('select').value = draftData.category || 'General Note';
+                        internalNoteModal.querySelectorAll('select')[1].value = draftData.visibility || 'All Staff';
+                    }
+                    
+                    const closeButtons = internalNoteModal.querySelectorAll('.close-internal-note-modal');
+                    closeButtons.forEach(button => {
+                        button.addEventListener('click', () => {
+                            internalNoteModal.remove();
+                        });
+                    });
+                    
+                    const addNoteBtn = internalNoteModal.querySelector('#add-note-btn');
+                    addNoteBtn.addEventListener('click', () => {
+                        const noteContent = internalNoteModal.querySelector('#new-note-content').value;
+                        if (noteContent.trim()) {
+                            showNotification('Note added successfully', 'success');
+                            internalNoteModal.querySelector('#new-note-content').value = '';
+                        }
+                    });
+                    
+                    const saveButton = internalNoteModal.querySelector('.save-internal-note-draft');
+                    saveButton.addEventListener('click', () => {
+                        const noteData = {
+                            type: 'Internal Note',
+                            content: internalNoteModal.querySelector('#new-note-content').value,
+                            category: internalNoteModal.querySelector('select').value,
+                            visibility: internalNoteModal.querySelectorAll('select')[1].value,
+                            timestamp: new Date().toISOString()
+                        };
+                        
+                        if (draftId) {
+                            draftStorage[draftId] = noteData;
+                            updateDraftCard(draftId, noteData);
+                            showNotification('Internal note draft updated', 'success');
+                        } else {
+                            createDraftCard(noteData);
+                            showNotification('Internal note draft saved', 'success');
+                        }
+                        internalNoteModal.remove();
+                    });
+                }
+
+                // Store draft data for editing
+                let draftStorage = {};
+
+                function createDraftCard(draftData) {
+                    // Generate unique ID for the draft
+                    const draftId = 'draft-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                    
+                    // Store draft data
+                    draftStorage[draftId] = draftData;
+                    
+                    // Find the Smart Actions container
+                    const smartActionsHeaders = document.querySelectorAll('h3');
+                    let smartActionsContainer = null;
+                    
+                    smartActionsHeaders.forEach(header => {
+                        if (header.textContent.includes('Smart Actions')) {
+                            const parentDiv = header.closest('.col-span-3');
+                            if (parentDiv) {
+                                smartActionsContainer = parentDiv.querySelector('.p-4.h-full.overflow-y-auto');
+                            }
+                        }
+                    });
+                    
+                    if (!smartActionsContainer) return;
+                    
+                    // Clear the "No Action Suggestions Yet" message if it exists
+                    const noSuggestionsMsg = smartActionsContainer.querySelector('.text-center');
+                    if (noSuggestionsMsg) {
+                        smartActionsContainer.innerHTML = '<div class="space-y-4"></div>';
+                    }
+                    
+                    const cardsContainer = smartActionsContainer.querySelector('.space-y-4') || smartActionsContainer;
+                    
+                    // Determine card styling based on draft type
+                    const cardInfo = getDraftCardInfo(draftData.type);
+                    
+                    // Create the draft card
+                    const draftCard = document.createElement('div');
+                    draftCard.id = draftId;
+                    draftCard.className = `draft-card p-3 ${cardInfo.bgColor} border ${cardInfo.borderColor} rounded-lg cursor-pointer hover:shadow-md transition-all duration-200`;
+                    draftCard.innerHTML = `
+                        <div class="flex items-center justify-between mb-2">
+                            <h4 class="font-medium ${cardInfo.textColor} text-sm flex items-center">
+                                <i class="${cardInfo.icon} mr-2"></i>${draftData.type} Draft
+                            </h4>
+                            <button class="remove-draft p-1 text-gray-400 hover:text-red-500 transition-colors" data-draft-id="${draftId}">
+                                <i class="ri-close-line text-xs"></i>
+                            </button>
+                        </div>
+                        <div class="space-y-1">
+                            <div class="text-xs ${cardInfo.textColor} font-medium">${getDraftPreview(draftData)}</div>
+                            <div class="text-xs text-gray-500">Click to edit</div>
+                        </div>
+                    `;
+                    
+                    // Add click handler for editing
+                    draftCard.addEventListener('click', function(e) {
+                        if (!e.target.closest('.remove-draft')) {
+                            openActionModal(draftData.type, draftId);
+                        }
+                    });
+                    
+                    // Add click handler for remove button
+                    draftCard.querySelector('.remove-draft').addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        delete draftStorage[draftId];
+                        draftCard.remove();
+                        
+                        // If no more cards, show the empty state
+                        const remainingCards = cardsContainer.querySelectorAll('.draft-card, .action-card');
+                        if (remainingCards.length === 0) {
+                            clearActionCards();
+                        }
+                    });
+                    
+                    // Add to container
+                    cardsContainer.appendChild(draftCard);
+                }
+
+                function updateDraftCard(draftId, draftData) {
+                    const existingCard = document.getElementById(draftId);
+                    if (existingCard) {
+                        // Update the preview text
+                        const previewElement = existingCard.querySelector('.text-xs.font-medium');
+                        if (previewElement) {
+                            previewElement.textContent = getDraftPreview(draftData);
+                        }
+                        
+                        // Update stored data
+                        draftStorage[draftId] = draftData;
+                    }
+                }
+
+                function getDraftCardInfo(type) {
+                    const cardConfigs = {
+                        'Task': {
+                            bgColor: 'bg-blue-50',
+                            borderColor: 'border-blue-200',
+                            textColor: 'text-blue-900',
+                            icon: 'ri-task-line'
+                        },
+                        'Appointment': {
+                            bgColor: 'bg-green-50',
+                            borderColor: 'border-green-200',
+                            textColor: 'text-green-900',
+                            icon: 'ri-calendar-line'
+                        },
+                        'Order': {
+                            bgColor: 'bg-purple-50',
+                            borderColor: 'border-purple-200',
+                            textColor: 'text-purple-900',
+                            icon: 'ri-shopping-cart-line'
+                        },
+                        'Document': {
+                            bgColor: 'bg-orange-50',
+                            borderColor: 'border-orange-200',
+                            textColor: 'text-orange-900',
+                            icon: 'ri-file-text-line'
+                        },
+                        'Workflow': {
+                            bgColor: 'bg-indigo-50',
+                            borderColor: 'border-indigo-200',
+                            textColor: 'text-indigo-900',
+                            icon: 'ri-flow-chart'
+                        },
+                        'Internal Note': {
+                            bgColor: 'bg-yellow-50',
+                            borderColor: 'border-yellow-200',
+                            textColor: 'text-yellow-900',
+                            icon: 'ri-sticky-note-line'
+                        }
+                    };
+                    
+                    return cardConfigs[type] || {
+                        bgColor: 'bg-gray-50',
+                        borderColor: 'border-gray-200',
+                        textColor: 'text-gray-900',
+                        icon: 'ri-file-line'
+                    };
+                }
+
+                function getDraftPreview(draftData) {
+                    switch(draftData.type) {
+                        case 'Task':
+                            return draftData.title || 'Untitled Task';
+                        case 'Appointment':
+                            return `${draftData.appointmentType} - ${draftData.date}`;
+                        case 'Order':
+                            return draftData.orderType || 'Lab Tests & Products';
+                        case 'Document':
+                            return draftData.documentType || 'Patient Documents';
+                        case 'Workflow':
+                            return draftData.workflowType || 'Patient Automation';
+                        case 'Internal Note':
+                            return draftData.content ? draftData.content.substring(0, 50) + '...' : 'Note content';
+                        default:
+                            return 'Draft item';
+                    }
                 }
 
                 function showNotification(message, type = 'info') {
@@ -1126,6 +1958,9 @@ ASSESSMENT & PLAN:
                 noteEditor.addEventListener('input', function(e) {
                     updateWordCount();
                     
+                    // Wait for configuration to be loaded
+                    if (!configLoaded) return;
+                    
                     const cursorPosition = this.selectionStart;
                     const textBeforeCursor = this.value.substring(0, cursorPosition);
                     const lastChar = textBeforeCursor.charAt(textBeforeCursor.length - 1);
@@ -1150,15 +1985,17 @@ ASSESSMENT & PLAN:
                         // Search through all note parts
                         Object.keys(noteParts).forEach(sectionTitle => {
                             const section = noteParts[sectionTitle];
-                            section.items.forEach(item => {
-                                if (item.toLowerCase().startsWith(lowerLastChar)) {
-                                    matches.push({
-                                        name: item,
-                                        icon: section.icon,
-                                        insertText: item
-                                    });
-                                }
-                            });
+                            if (section && section.items) {
+                                section.items.forEach(item => {
+                                    if (item.toLowerCase().startsWith(lowerLastChar)) {
+                                        matches.push({
+                                            name: item,
+                                            icon: section.icon,
+                                            insertText: item
+                                        });
+                                    }
+                                });
+                            }
                         });
                         
                         if (matches.length > 0) {

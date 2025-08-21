@@ -2238,7 +2238,7 @@ Create Smart Block
 </button>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-<div class="border border-gray-200 rounded-lg p-4 hover:border-purple-200 hover:bg-purple-50/30 transition-colors cursor-pointer">
+<div class="smart-block-card border border-gray-200 rounded-lg p-4 hover:border-purple-200 hover:bg-purple-50/30 transition-colors cursor-pointer" data-block-type="chief_complaint">
 <div class="flex items-center mb-3">
 <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
 <i class="ri-brain-line text-purple-600"></i>
@@ -2256,7 +2256,7 @@ Create Smart Block
 </button>
 </div>
 </div>
-<div class="border border-gray-200 rounded-lg p-4 hover:border-purple-200 hover:bg-purple-50/30 transition-colors cursor-pointer">
+<div class="smart-block-card border border-gray-200 rounded-lg p-4 hover:border-purple-200 hover:bg-purple-50/30 transition-colors cursor-pointer" data-block-type="physical_exam">
 <div class="flex items-center mb-3">
 <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
 <i class="ri-stethoscope-line text-purple-600"></i>
@@ -2274,7 +2274,7 @@ Create Smart Block
 </button>
 </div>
 </div>
-<div class="border border-gray-200 rounded-lg p-4 hover:border-purple-200 hover:bg-purple-50/30 transition-colors cursor-pointer">
+<div class="smart-block-card border border-gray-200 rounded-lg p-4 hover:border-purple-200 hover:bg-purple-50/30 transition-colors cursor-pointer" data-block-type="assessment_plan">
 <div class="flex items-center mb-3">
 <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
 <i class="ri-clipboard-line text-purple-600"></i>
@@ -2292,7 +2292,7 @@ Create Smart Block
 </button>
 </div>
 </div>
-<div class="border border-gray-200 rounded-lg p-4 hover:border-purple-200 hover:bg-purple-50/30 transition-colors cursor-pointer">
+<div class="smart-block-card border border-gray-200 rounded-lg p-4 hover:border-purple-200 hover:bg-purple-50/30 transition-colors cursor-pointer" data-block-type="vital_signs">
 <div class="flex items-center mb-3">
 <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
 <i class="ri-heart-pulse-line text-purple-600"></i>
@@ -2310,7 +2310,7 @@ Create Smart Block
 </button>
 </div>
 </div>
-<div class="border border-gray-200 rounded-lg p-4 hover:border-purple-200 hover:bg-purple-50/30 transition-colors cursor-pointer">
+<div class="smart-block-card border border-gray-200 rounded-lg p-4 hover:border-purple-200 hover:bg-purple-50/30 transition-colors cursor-pointer" data-block-type="hpi">
 <div class="flex items-center mb-3">
 <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
 <i class="ri-time-line text-purple-600"></i>
@@ -2328,7 +2328,7 @@ Create Smart Block
 </button>
 </div>
 </div>
-<div class="border border-gray-200 rounded-lg p-4 hover:border-purple-200 hover:bg-purple-50/30 transition-colors cursor-pointer">
+<div class="smart-block-card border border-gray-200 rounded-lg p-4 hover:border-purple-200 hover:bg-purple-50/30 transition-colors cursor-pointer" data-block-type="medication_review">
 <div class="flex items-center mb-3">
 <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
 <i class="ri-medicine-bottle-line text-purple-600"></i>
@@ -3579,6 +3579,260 @@ profileDropdown.classList.add('hidden');
 }
 });
 }
+
+// Smart Blocks Composer Modal - Initialize after DOM is loaded
+function initializeSmartBlocksModal() {
+    const smartBlockCards = document.querySelectorAll('.smart-block-card');
+    const smartBlockModal = document.getElementById('smartBlockModal');
+    const closeSmartBlockModal = document.getElementById('closeSmartBlockModal');
+
+    console.log('Found', smartBlockCards.length, 'smart block cards');
+    console.log('Smart block modal:', smartBlockModal);
+
+    smartBlockCards.forEach(card => {
+        card.addEventListener('click', function() {
+            console.log('Smart block card clicked:', this);
+            const blockType = this.dataset.blockType;
+            const blockName = this.querySelector('h3').textContent;
+            
+            console.log('Block type:', blockType, 'Block name:', blockName);
+            
+            // Set modal title and content based on selected block
+            document.getElementById('smartBlockTitle').textContent = blockName;
+            document.getElementById('smartBlockEditor').value = getSmartBlockTemplate(blockType);
+            
+            // Update stats after loading template
+            updateEditorStats();
+            
+            // Show modal
+            smartBlockModal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        });
+    });
+
+    if (closeSmartBlockModal) {
+        closeSmartBlockModal.addEventListener('click', function() {
+            smartBlockModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        });
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+        if (e.target === smartBlockModal) {
+            smartBlockModal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+    });
+}
+
+function getSmartBlockTemplate(blockType) {
+    const templates = {
+        'chief_complaint': 'Patient presents with {{complaint}} that started {{duration}} ago.\n\nThe {{complaint}} is described as {{description}} and is {{severity}} in intensity.\n\nAssociated symptoms include: {{associated_symptoms}}\n\nAggravating factors: {{aggravating_factors}}\nAlleviating factors: {{alleviating_factors}}',
+        'physical_exam': 'PHYSICAL EXAMINATION:\n\nGeneral Appearance: {{general_appearance}}\nVital Signs: {{vital_signs}}\n\nHEENT: {{heent}}\nCardiovascular: {{cardiovascular}}\nPulmonary: {{pulmonary}}\nAbdomen: {{abdomen}}\nExtremities: {{extremities}}\nNeurological: {{neurological}}\nSkin: {{skin}}',
+        'assessment_plan': 'ASSESSMENT & PLAN:\n\n1. {{diagnosis_1}}\n   - {{plan_1}}\n   - {{medications_1}}\n   - {{follow_up_1}}\n\n2. {{diagnosis_2}}\n   - {{plan_2}}\n   - {{medications_2}}\n   - {{follow_up_2}}\n\nPatient Education: {{patient_education}}\nReturn Precautions: {{return_precautions}}',
+        'vital_signs': 'VITAL SIGNS:\n\nTemperature: {{temperature}}°F\nBlood Pressure: {{blood_pressure}} mmHg\nHeart Rate: {{heart_rate}} bpm\nRespiratory Rate: {{respiratory_rate}} breaths/min\nOxygen Saturation: {{oxygen_saturation}}% on {{oxygen_delivery}}\nWeight: {{weight}} lbs\nHeight: {{height}} inches\nBMI: {{bmi}}',
+        'hpi': 'HISTORY OF PRESENT ILLNESS:\n\n{{patient_name}} is a {{age}}-year-old {{gender}} who presents with {{chief_complaint}}.\n\nOnset: {{onset}}\nLocation: {{location}}\nDuration: {{duration}}\nCharacter: {{character}}\nAggravating factors: {{aggravating_factors}}\nAlleviating factors: {{alleviating_factors}}\nTiming: {{timing}}\nSeverity: {{severity}}\n\nReview of Systems: {{review_of_systems}}',
+        'medication_review': 'MEDICATION REVIEW:\n\nCurrent Medications:\n1. {{medication_1}} - {{dose_1}} - {{frequency_1}}\n2. {{medication_2}} - {{dose_2}} - {{frequency_2}}\n3. {{medication_3}} - {{dose_3}} - {{frequency_3}}\n\nAllergies: {{allergies}}\nAdherence: {{adherence}}\nSide Effects: {{side_effects}}\n\nRecommendations:\n- {{recommendation_1}}\n- {{recommendation_2}}'
+    };
+    return templates[blockType] || 'Template content for ' + blockType;
+}
+
+// Update character and variable counts
+function updateEditorStats() {
+    const editor = document.getElementById('smartBlockEditor');
+    const charCount = document.getElementById('charCount');
+    const varCount = document.getElementById('varCount');
+    
+    if (editor && charCount && varCount) {
+        const content = editor.value;
+        charCount.textContent = content.length;
+        
+        // Count variables ({{variable_name}} pattern)
+        const variableMatches = content.match(/\{\{[^}]+\}\}/g);
+        varCount.textContent = variableMatches ? variableMatches.length : 0;
+    }
+}
+
+// Add event listener for editor updates
+document.addEventListener('DOMContentLoaded', function() {
+    const editor = document.getElementById('smartBlockEditor');
+    if (editor) {
+        editor.addEventListener('input', updateEditorStats);
+    }
+    
+    // Initialize Smart Blocks modal functionality
+    initializeSmartBlocksModal();
+});
 </script>
+
+<!-- Smart Blocks Composer Modal -->
+<div id="smartBlockModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg w-[95vw] h-[90vh] flex flex-col shadow-2xl">
+        <!-- Modal Header -->
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 id="smartBlockTitle" class="text-xl font-semibold text-gray-900 flex items-center">
+                        <i class="ri-brain-line mr-2 text-purple-600"></i>
+                        Smart Block Editor
+                    </h3>
+                    <p class="text-sm text-gray-500 mt-1">Edit and customize your smart block template</p>
+                </div>
+                <button id="closeSmartBlockModal" class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100">
+                    <i class="ri-close-line text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="flex-1 flex overflow-hidden">
+            <!-- Center Column - Editor (8/12) -->
+            <div class="flex-1 bg-white border-r border-gray-200 flex flex-col">
+                <div class="p-4 border-b border-gray-200">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-lg font-medium text-gray-900 flex items-center">
+                            <i class="ri-edit-box-line mr-2 text-purple-600"></i>
+                            Template Editor
+                        </h4>
+                        <div class="flex items-center space-x-3">
+                            <button class="px-3 py-1 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded text-sm flex items-center">
+                                <i class="ri-eye-line mr-1"></i>Preview
+                            </button>
+                            <button class="px-3 py-1 bg-purple-600 text-white rounded text-sm hover:bg-purple-700">
+                                <i class="ri-save-line mr-1"></i>Save Template
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Template Metadata -->
+                    <div class="grid grid-cols-2 gap-4 mt-3 text-sm">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700">Template Name</label>
+                            <input type="text" class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter template name">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-700">Category</label>
+                            <select class="w-full p-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option>Chief Complaint</option>
+                                <option>Physical Exam</option>
+                                <option>Assessment & Plan</option>
+                                <option>Vital Signs</option>
+                                <option>History of Present Illness</option>
+                                <option>Medication Review</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Editor -->
+                <div class="flex-1 p-4">
+                    <textarea id="smartBlockEditor" class="w-full h-full p-4 border border-gray-300 rounded-lg text-sm font-mono resize-none focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter your smart block template content here...
+
+Use {{variable_name}} for template variables that will be replaced with actual data.
+
+Example:
+Patient {{patient_name}} presents with {{chief_complaint}} that started {{duration}} ago."></textarea>
+                </div>
+                
+                <!-- Editor Footer -->
+                <div class="p-4 border-t border-gray-200 bg-gray-50">
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center space-x-4">
+                            <span class="text-gray-500">Characters: <span id="charCount">0</span></span>
+                            <span class="text-gray-500">Variables: <span id="varCount">0</span></span>
+                            <span class="text-green-600 flex items-center">
+                                <i class="ri-check-line mr-1"></i>Auto-saved
+                            </span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button class="px-2 py-1 text-gray-500 hover:text-gray-700" title="Bold">
+                                <i class="ri-bold"></i>
+                            </button>
+                            <button class="px-2 py-1 text-gray-500 hover:text-gray-700" title="Italic">
+                                <i class="ri-italic"></i>
+                            </button>
+                            <button class="px-2 py-1 text-gray-500 hover:text-gray-700" title="Insert Variable">
+                                <i class="ri-code-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Reference Cards (4/12) -->
+            <div class="w-80 bg-white">
+                <div class="p-4 border-b border-gray-200">
+                    <h4 class="text-lg font-medium text-gray-900 flex items-center">
+                        <i class="ri-information-line mr-2 text-purple-600"></i>
+                        Template Reference
+                    </h4>
+                    <p class="text-xs text-gray-500 mt-1">Common variables and examples</p>
+                </div>
+                
+                <div class="p-4 h-full overflow-y-auto">
+                    <div class="space-y-4">
+                        <!-- Patient Variables Card -->
+                        <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                            <h5 class="font-medium text-blue-900 text-sm mb-2 flex items-center">
+                                <i class="ri-user-line mr-2"></i>Patient Variables
+                            </h5>
+                            <div class="space-y-1 text-xs text-blue-800">
+                                <div class="font-mono">{{patient_name}}</div>
+                                <div class="font-mono">{{age}}</div>
+                                <div class="font-mono">{{gender}}</div>
+                                <div class="font-mono">{{mrn}}</div>
+                                <div class="font-mono">{{dob}}</div>
+                            </div>
+                        </div>
+
+                        <!-- Clinical Variables Card -->
+                        <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                            <h5 class="font-medium text-green-900 text-sm mb-2 flex items-center">
+                                <i class="ri-stethoscope-line mr-2"></i>Clinical Variables
+                            </h5>
+                            <div class="space-y-1 text-xs text-green-800">
+                                <div class="font-mono">{{chief_complaint}}</div>
+                                <div class="font-mono">{{vital_signs}}</div>
+                                <div class="font-mono">{{blood_pressure}}</div>
+                                <div class="font-mono">{{heart_rate}}</div>
+                                <div class="font-mono">{{temperature}}</div>
+                            </div>
+                        </div>
+
+                        <!-- Time Variables Card -->
+                        <div class="p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                            <h5 class="font-medium text-purple-900 text-sm mb-2 flex items-center">
+                                <i class="ri-calendar-line mr-2"></i>Date & Time Variables
+                            </h5>
+                            <div class="space-y-1 text-xs text-purple-800">
+                                <div class="font-mono">{{date}}</div>
+                                <div class="font-mono">{{time}}</div>
+                                <div class="font-mono">{{provider_name}}</div>
+                                <div class="font-mono">{{visit_type}}</div>
+                                <div class="font-mono">{{duration}}</div>
+                            </div>
+                        </div>
+
+                        <!-- Medication Variables Card -->
+                        <div class="p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                            <h5 class="font-medium text-orange-900 text-sm mb-2 flex items-center">
+                                <i class="ri-medicine-bottle-line mr-2"></i>Medication Variables
+                            </h5>
+                            <div class="space-y-1 text-xs text-orange-800">
+                                <div class="font-mono">{{medication_1}}</div>
+                                <div class="font-mono">{{dose_1}}</div>
+                                <div class="font-mono">{{frequency_1}}</div>
+                                <div class="font-mono">{{allergies}}</div>
+                                <div class="font-mono">{{adherence}}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
