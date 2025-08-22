@@ -6,6 +6,7 @@
     <title>Encounter Notes</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <script src="demo-patient-data.js"></script>
     <style>
         :where([class^="ri-"])::before { content: "\f3c2"; }
         body {
@@ -475,6 +476,7 @@ ASSESSMENT & PLAN:
                                 <button class="px-2 py-1 text-gray-500 hover:text-gray-700">
                                     <i class="ri-list-ordered"></i>
                                 </button>
+
                             </div>
                         </div>
                     </div>
@@ -604,6 +606,8 @@ ASSESSMENT & PLAN:
             </div>
         </div>
     </div>
+
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -879,6 +883,9 @@ ASSESSMENT & PLAN:
                             <span>${item.name}</span>
                         `;
                         
+                        // Store the full item data for keyboard navigation
+                        option._itemData = item;
+                        
                         option.addEventListener('click', () => {
                             handleItemSelection(item);
                             hideDropdown();
@@ -904,22 +911,90 @@ ASSESSMENT & PLAN:
                 }
 
                 function handleItemSelection(item) {
+                    // Check if this is a variable category
+                    if (item.isVariableCategory) {
+                        // Show variables for this category
+                        showVariableSubItems(item.name);
+                        return;
+                    }
+                    
+                    // Check if this is a direct variable (has variableCode or starts with curly braces)
+                    if (item.isVariable || (item.variableCode) || (item.name && item.name.startsWith('{{') && item.name.endsWith('}}'))) {
+                        // Get the actual data value for this variable
+                        let valueToInsert = item.name;
+                        let variableCode = item.variableCode || item.name;
+                        
+                        if (typeof resolveVariable === 'function') {
+                            // Extract variable path from {{variable.path}} format
+                            const variablePath = variableCode.replace(/[{}]/g, '');
+                            const actualValue = resolveVariable(variablePath);
+                            
+                            // Use actual value if found, otherwise use the variable name
+                            if (actualValue && actualValue !== variableCode) {
+                                valueToInsert = actualValue;
+                            }
+                        }
+                        
+                        // Insert the actual data value by replacing the typed letters
+                        const cursorPosition = noteEditor.selectionStart;
+                        const textBeforeCursor = noteEditor.value.substring(0, cursorPosition);
+                        const textAfterCursor = noteEditor.value.substring(cursorPosition);
+                        
+                        // Find the start of the word being typed
+                        let wordStart = cursorPosition - 1;
+                        while (wordStart >= 0 && /[a-zA-Z]/.test(textBeforeCursor[wordStart])) {
+                            wordStart--;
+                        }
+                        wordStart++; // Move to the first letter
+                        
+                        // Replace the partial word with the actual data value
+                        const newTextBefore = textBeforeCursor.substring(0, wordStart);
+                        noteEditor.value = newTextBefore + valueToInsert + textAfterCursor;
+                        noteEditor.selectionStart = noteEditor.selectionEnd = newTextBefore.length + valueToInsert.length;
+                        noteEditor.focus();
+                        updateWordCount();
+                        return;
+                    }
+                    
                     // Check if this is a Smart Block item
                     const isSmartBlock = isSmartBlockItem(item.name);
                     
                     if (isSmartBlock) {
                         // Insert Smart Block with bullet points
                         insertSmartBlock(item.name);
-                        // Create action card for any selected item
+                        // Create action card for Smart Block items
                         createActionCard(item);
                     } else if (noteActions.find(action => action.name === item.name)) {
                         // This is a slash command action - open modal instead of inserting text
                         openActionModal(item.name);
                     } else {
-                        // Regular insertion for other items
+                        // Regular insertion for other items (but not variables)
                         insertAtCursor(item.insertText || item.name);
-                        // Create action card for any selected item
-                        createActionCard(item);
+                        // Create action card for non-variable items only
+                        if (!item.isVariable && !item.variableCode) {
+                            createActionCard(item);
+                        }
+                    }
+                }
+
+                function showVariableSubItems(categoryName) {
+                    if (!configLoaded || !noteParts['Variables']) return;
+                    
+                    const variablesSection = noteParts['Variables'];
+                    const subItems = variablesSection.subItems && variablesSection.subItems[categoryName];
+                    
+                    if (subItems) {
+                        const coords = getCaretCoordinates();
+                        const variables = Object.keys(subItems).map(displayName => ({
+                            name: displayName,
+                            variableCode: subItems[displayName],
+                            icon: 'ri-code-line',
+                            insertText: subItems[displayName],
+                            isVariable: true,
+                            category: categoryName
+                        }));
+                        
+                        createDropdown(variables, coords.x, coords.y);
                     }
                 }
 
@@ -1977,12 +2052,41 @@ ASSESSMENT & PLAN:
                         return;
                     }
                     
-                    // Handle letter matching for note parts
+                    // Handle dollar sign for showing all variables
+                    if (lastChar === '$') {
+                        const coords = getCaretCoordinates();
+                        const allVariables = [];
+                        
+                        // Get all variables from all categories with readable names
+                        if (noteParts['Variables'] && noteParts['Variables'].subItems) {
+                            Object.keys(noteParts['Variables'].subItems).forEach(category => {
+                                const variables = noteParts['Variables'].subItems[category];
+                                Object.keys(variables).forEach(displayName => {
+                                    const variableCode = variables[displayName];
+                                    allVariables.push({
+                                        name: displayName,
+                                        variableCode: variableCode,
+                                        icon: 'ri-code-line',
+                                        insertText: variableCode,
+                                        isVariable: true,
+                                        category: category
+                                    });
+                                });
+                            });
+                        }
+                        
+                        createDropdown(allVariables, coords.x, coords.y);
+                        return;
+                    }
+                    
+
+                    
+                    // Handle letter matching for note parts and variables
                     if (lastChar && /[a-zA-Z]/.test(lastChar)) {
                         const matches = [];
                         const lowerLastChar = lastChar.toLowerCase();
                         
-                        // Search through all note parts
+                        // Search through all note parts including Variables
                         Object.keys(noteParts).forEach(sectionTitle => {
                             const section = noteParts[sectionTitle];
                             if (section && section.items) {
@@ -1991,12 +2095,49 @@ ASSESSMENT & PLAN:
                                         matches.push({
                                             name: item,
                                             icon: section.icon,
-                                            insertText: item
+                                            insertText: item,
+                                            isVariableCategory: sectionTitle === 'Variables'
                                         });
                                     }
                                 });
                             }
                         });
+                        
+                        // Also search through individual variables for direct matching
+                        if (noteParts['Variables'] && noteParts['Variables'].subItems) {
+                            Object.keys(noteParts['Variables'].subItems).forEach(category => {
+                                const variables = noteParts['Variables'].subItems[category];
+                                Object.keys(variables).forEach(displayName => {
+                                    const variableCode = variables[displayName];
+                                    
+                                    // Match against readable display name
+                                    if (displayName.toLowerCase().includes(lowerLastChar)) {
+                                        matches.push({
+                                            name: displayName,
+                                            variableCode: variableCode,
+                                            icon: 'ri-code-line',
+                                            insertText: variableCode,
+                                            isVariable: true,
+                                            category: category
+                                        });
+                                    }
+                                    
+                                    // Also match against short variable names (e.g., 'dob', 'age', 'bp')
+                                    const variableName = variableCode.replace(/[{}]/g, '');
+                                    const shortName = variableName.split('.').pop();
+                                    if (shortName.toLowerCase().startsWith(lowerLastChar)) {
+                                        matches.push({
+                                            name: displayName,
+                                            variableCode: variableCode,
+                                            icon: 'ri-code-line',
+                                            insertText: variableCode,
+                                            isVariable: true,
+                                            category: category
+                                        });
+                                    }
+                                });
+                            });
+                        }
                         
                         if (matches.length > 0) {
                             const coords = getCaretCoordinates();
@@ -2023,6 +2164,8 @@ ASSESSMENT & PLAN:
                             if (selected) selected.classList.remove('bg-gray-50');
                             selectedIndex = (selectedIndex + 1) % options.length;
                             options[selectedIndex].classList.add('bg-gray-50');
+                            // Scroll into view if needed
+                            options[selectedIndex].scrollIntoView({ block: 'nearest' });
                             break;
                             
                         case 'ArrowUp':
@@ -2030,6 +2173,8 @@ ASSESSMENT & PLAN:
                             if (selected) selected.classList.remove('bg-gray-50');
                             selectedIndex = selectedIndex <= 0 ? options.length - 1 : selectedIndex - 1;
                             options[selectedIndex].classList.add('bg-gray-50');
+                            // Scroll into view if needed
+                            options[selectedIndex].scrollIntoView({ block: 'nearest' });
                             break;
                             
                         case 'Enter':
@@ -2037,7 +2182,11 @@ ASSESSMENT & PLAN:
                             if (selected) {
                                 const itemText = selected.querySelector('span').textContent;
                                 const itemIcon = selected.querySelector('i').className;
-                                const item = { name: itemText, icon: itemIcon };
+                                
+                                // Get the stored item data from the dropdown option
+                                const storedItem = selected._itemData;
+                                const item = storedItem || { name: itemText, icon: itemIcon };
+                                
                                 handleItemSelection(item);
                                 hideDropdown();
                             }
@@ -2060,6 +2209,8 @@ ASSESSMENT & PLAN:
                 noteEditor.addEventListener('input', updateWordCount);
                 updateWordCount(); // Initial count
             }
+
+
 
             // Create New Note functionality
             document.addEventListener('click', function(e) {

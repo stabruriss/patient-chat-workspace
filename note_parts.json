@@ -41,6 +41,77 @@
           "Day 3: xxx"
         ]
       }
+    },
+    "Variables": {
+      "icon": "ri-code-line",
+      "items": [
+        "Patient Demographics",
+        "Vital Signs",
+        "Medical History",
+        "Current Visit",
+        "Provider Info",
+        "Date/Time"
+      ],
+      "subItems": {
+        "Patient Demographics": {
+          "Patient Name": "{{patient.name}}",
+          "Date of Birth": "{{patient.dob}}",
+          "Age": "{{patient.age}}",
+          "Gender": "{{patient.gender}}",
+          "Medical Record Number": "{{patient.mrn}}",
+          "Phone Number": "{{patient.phone}}",
+          "Email Address": "{{patient.email}}",
+          "Home Address": "{{patient.address}}",
+          "Insurance": "{{patient.insurance}}",
+          "Emergency Contact": "{{patient.emergency_contact}}"
+        },
+        "Vital Signs": {
+          "Blood Pressure": "{{vitals.bp}}",
+          "Heart Rate": "{{vitals.hr}}",
+          "Temperature": "{{vitals.temp}}",
+          "Respiratory Rate": "{{vitals.resp}}",
+          "Oxygen Saturation": "{{vitals.o2sat}}",
+          "Height": "{{vitals.height}}",
+          "Weight": "{{vitals.weight}}",
+          "BMI": "{{vitals.bmi}}",
+          "Pain Scale": "{{vitals.pain_scale}}"
+        },
+        "Medical History": {
+          "Allergies": "{{history.allergies}}",
+          "Current Medications": "{{history.medications}}",
+          "Medical Conditions": "{{history.conditions}}",
+          "Past Surgeries": "{{history.surgeries}}",
+          "Family History": "{{history.family_history}}",
+          "Social History": "{{history.social_history}}",
+          "Immunizations": "{{history.immunizations}}",
+          "Last Visit": "{{history.last_visit}}"
+        },
+        "Current Visit": {
+          "Visit Date": "{{visit.date}}",
+          "Visit Time": "{{visit.time}}",
+          "Visit Type": "{{visit.type}}",
+          "Chief Complaint": "{{visit.chief_complaint}}",
+          "History of Present Illness": "{{visit.hpi}}",
+          "Review of Systems": "{{visit.ros}}",
+          "Assessment": "{{visit.assessment}}",
+          "Plan": "{{visit.plan}}"
+        },
+        "Provider Info": {
+          "Provider Name": "{{provider.name}}",
+          "Provider Title": "{{provider.title}}",
+          "NPI Number": "{{provider.npi}}",
+          "License Number": "{{provider.license}}",
+          "Specialty": "{{provider.specialty}}",
+          "Practice Name": "{{provider.practice}}"
+        },
+        "Date/Time": {
+          "Today's Date": "{{date.today}}",
+          "Current Date & Time": "{{date.now}}",
+          "Visit Date": "{{date.visit}}",
+          "Current Time": "{{time.now}}",
+          "Visit Time": "{{time.visit}}"
+        }
+      }
     }
   },
   "noteActions": [
