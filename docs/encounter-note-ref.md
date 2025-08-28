@@ -1,0 +1,63 @@
+- Entrance: patient chat quick action
+- Patient Header Display
+  - Show basic info
+  - Support switching patient
+  - Support multi-select patients, or switch to all patients to view all encounter notes
+- Voice to Encounter Notes (Heidi Integration)
+  - Button to start/pause/stop recording
+  - Generate a recording after stopping
+  - Can payback, view full transcript
+  - Can generate a note preview  from the transcript (can select bullet points or SOAP)
+  - Can open in Composer (create a new note)
+  - Can, change patient, and assign service date for generated recordings
+
+- Composer
+  - Can create, change patient, type and assign service date for each note
+  - Note type: Normal(human created), Auto(system created)
+  - 3-column notes page, note list, editor, smart actions
+  - note list ranked by newest first, have a bar for search(trditional amb search) or ask(LLM RAG matching)
+  - editor is a markdown text editor, and supports
+    - Slash command to insert: eRx(coming soon), task, appointment, internal note, order, document, workflow
+    - "3-letter match", match the name and select from inline dropbox to insert (so user do not need to select from the modal): 
+      - eRx: drug, 
+      - Order: practice product, Vibrant product, bundle, 
+      - Document: pre-defined document(form, waiver, handbook, webpage),
+      - Workflow 
+      - smart block 
+      - Patient Variables: as defined in patient-var.md
+    - input dollar sign to list all patient variables
+  - Smart action cards:
+    - If insert eRx, order, document, workflow, task, appointment, or internal note into a note, it will create coresponding action cards. 
+    - It will create action cards, if the insert smart block includes said objects. 
+    - Cards in the composer are essentially draft, user can click open and edit reuse the same modal as in the chat window
+    - fromt he right colum, user can execute each cards (e.g., send prescription for eRx card, send invitation for appointment card, assign task card, place order for order, share for document card, etc.)
+    - Use can multi-select/select all and execute all. 
+    - Once executed, the action will send through chat window in the background, but keep the user on the composer, the card marked as executed and become view only. 
+
+- Auto-create note from other objects
+  - For medication actions required a note to document for compliance, if the action is done elase where, it should auto generate a note in the list, user can edit it as other notes
+  - The action (eRx/lab order/etc) become a smart card (executed) in this new note, 
+
+- Manual create notes from other objects
+  - Quick button from an calander appoint to create a new note for this patient in invitation
+  - The appointment become a smart card in this new note
+- Note link to objects
+  - No encounter ID, all notes oganized by patient and service date/time
+  - Note are linked to it's smart cards objects, each card when created will generate a predefined short text in the note, but editable. the text block is editable and not longer linked to the perticular card after inserted.
+- Note Service date
+- Note signature
+- Note Sharing
+- Smart block
+  - Smart Blocks are definged in MyWorkbench, are templates that can be inserted using input matching their names, when user drafting a note
+  - Smart block must have a name so it can be matched, it can include text, variables, and action cards
+  - preload library
+    - ready to use smart blocks providered by the app, including Common medical dictionary terms, such as allergy, diseases, symptoms, treatments, etc.
+    - User can edit and rename smart blocks in this library, and a reset to default action is supported.
+  - Customized
+    - User defined smart blocks, user can add text, variables or action cards into the block. 
+  - The smart block composer is the same as a note composer, without history note and patient header, all action or variable insert in the smart block composer are left without patient info, until it is used in a real note, it will automatecally fill in that current patient. 
+
+- Permission control
+  - Practice Admin
+  - Provider
+  - Staff

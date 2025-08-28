@@ -1,0 +1,4 @@
+- context-aware auto complete
+- inline AI composer
+- select and ask AI to edit
+- voice input 
