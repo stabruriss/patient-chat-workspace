@@ -1,0 +1,313 @@
+{
+  "schema": {
+    "version": "1.0",
+    "description": "Healthcare workflow template schema",
+    "structure": {
+      "templates": {
+        "id": "string - unique identifier for the template",
+        "name": "string - display name for the template",
+        "description": "string - brief description of what the workflow does",
+        "type": "string - 'patient' or 'practice' workflow type",
+        "rating": "number - star rating from 1-5",
+        "category": "string - workflow category",
+        "tags": "array - searchable tags",
+        "blocks": "array - workflow blocks with configuration",
+        "connections": "array - connections between blocks",
+        "metadata": "object - additional template information"
+      }
+    }
+  },
+  "templates": [
+    {
+      "id": "test-reminder-90day",
+      "name": "90-Day Test Reminder",
+      "description": "Automated reminder workflow for follow-up testing after order placement",
+      "type": "patient",
+      "rating": 4.8,
+      "category": "Follow-up Care",
+      "tags": ["testing", "reminders", "follow-up", "orders"],
+      "blocks": [
+        {
+          "id": "block-1",
+          "type": "trigger-order-events",
+          "position": { "x": 160, "y": 80 },
+          "config": {
+            "title": "Order Placed",
+            "description": "Triggered when a new order is created",
+            "icon": "ri-shopping-cart-line",
+            "color": "teal"
+          },
+          "data": {
+            "triggerEvents": ["order-created"],
+            "conditions": {
+              "orderType": "lab-test",
+              "status": "active"
+            }
+          }
+        },
+        {
+          "id": "block-2",
+          "type": "wait",
+          "position": { "x": 160, "y": 200 },
+          "config": {
+            "title": "Wait 90 Days",
+            "description": "Delay workflow execution for 90 days",
+            "icon": "ri-timer-line",
+            "color": "gray"
+          },
+          "data": {
+            "duration": 90,
+            "unit": "days",
+            "businessDaysOnly": false
+          }
+        },
+        {
+          "id": "block-3",
+          "type": "condition",
+          "position": { "x": 160, "y": 320 },
+          "config": {
+            "title": "Check Order Status",
+            "description": "Verify if follow-up testing is still needed",
+            "icon": "ri-git-branch-line",
+            "color": "purple"
+          },
+          "data": {
+            "prompt": "Check if the original order has been completed or if follow-up testing is still required",
+            "paths": [
+              {
+                "prompt": "Continue if follow-up testing is still needed",
+                "nextBlockId": "block-4"
+              }
+            ]
+          }
+        },
+        {
+          "id": "block-4",
+          "type": "send-message",
+          "position": { "x": 160, "y": 440 },
+          "config": {
+            "title": "Send Test Reminder",
+            "description": "Send reminder message to patient",
+            "icon": "ri-message-line",
+            "color": "blue"
+          },
+          "data": {
+            "messageType": "sms",
+            "template": "Hello! This is a friendly reminder that your follow-up testing is due. Please contact our office to schedule your appointment.",
+            "channels": ["sms", "email"],
+            "priority": "normal"
+          }
+        }
+      ],
+      "connections": [
+        {
+          "from": "block-1",
+          "to": "block-2",
+          "type": "direct"
+        },
+        {
+          "from": "block-2",
+          "to": "block-3",
+          "type": "direct"
+        },
+        {
+          "from": "block-3",
+          "to": "block-4",
+          "type": "conditional",
+          "condition": "follow-up-needed"
+        }
+      ],
+      "metadata": {
+        "created": "2024-12-20",
+        "author": "Healthcare Templates",
+        "version": "1.0",
+        "estimatedRuntime": "90+ days",
+        "complexity": "medium",
+        "useCase": "Patient follow-up and care coordination"
+      }
+    },
+    {
+      "id": "annual-wellness-visit",
+      "name": "Annual Wellness Visit",
+      "description": "Standard wellness check workflow with pre-visit prep and follow-up",
+      "type": "patient",
+      "rating": 4.8,
+      "category": "Preventive Care",
+      "tags": ["wellness", "annual", "preventive", "screening"],
+      "blocks": [
+        {
+          "id": "block-1",
+          "type": "trigger-appointment-events",
+          "position": { "x": 160, "y": 80 },
+          "config": {
+            "title": "Wellness Visit Scheduled",
+            "description": "Triggered when annual wellness visit is scheduled",
+            "icon": "ri-calendar-event-line",
+            "color": "green"
+          },
+          "data": {
+            "triggerEvents": ["appointment-created"],
+            "conditions": {
+              "appointmentType": "annual-wellness",
+              "status": "scheduled"
+            }
+          }
+        },
+        {
+          "id": "block-2",
+          "type": "wait",
+          "position": { "x": 160, "y": 200 },
+          "config": {
+            "title": "Wait 7 Days Before",
+            "description": "Send prep materials one week before visit",
+            "icon": "ri-timer-line",
+            "color": "gray"
+          },
+          "data": {
+            "duration": -7,
+            "unit": "days",
+            "relativeTo": "appointment-date"
+          }
+        },
+        {
+          "id": "block-3",
+          "type": "document",
+          "position": { "x": 160, "y": 320 },
+          "config": {
+            "title": "Send Prep Materials",
+            "description": "Send pre-visit questionnaire and instructions",
+            "icon": "ri-file-text-line",
+            "color": "green"
+          },
+          "data": {
+            "documents": ["wellness-questionnaire", "prep-instructions"],
+            "deliveryMethod": "patient-portal"
+          }
+        }
+      ],
+      "connections": [
+        {
+          "from": "block-1",
+          "to": "block-2",
+          "type": "direct"
+        },
+        {
+          "from": "block-2",
+          "to": "block-3",
+          "type": "direct"
+        }
+      ],
+      "metadata": {
+        "created": "2024-12-20",
+        "author": "Healthcare Templates",
+        "version": "1.0",
+        "estimatedRuntime": "7-14 days",
+        "complexity": "simple",
+        "useCase": "Preventive care coordination"
+      }
+    },
+    {
+      "id": "diabetes-management",
+      "name": "Diabetes Management",
+      "description": "Comprehensive diabetes care plan with monitoring and follow-up",
+      "type": "patient",
+      "rating": 4.7,
+      "category": "Chronic Care",
+      "tags": ["diabetes", "monitoring", "medication", "chronic-care"],
+      "blocks": [
+        {
+          "id": "block-1",
+          "type": "trigger-patient-events",
+          "position": { "x": 160, "y": 80 },
+          "config": {
+            "title": "Diabetes Diagnosis",
+            "description": "Triggered when patient is diagnosed with diabetes",
+            "icon": "ri-user-heart-line",
+            "color": "blue"
+          },
+          "data": {
+            "triggerEvents": ["diagnosis-added"],
+            "conditions": {
+              "diagnosisCode": "E11",
+              "status": "active"
+            }
+          }
+        },
+        {
+          "id": "block-2",
+          "type": "task",
+          "position": { "x": 160, "y": 200 },
+          "config": {
+            "title": "Schedule Education Session",
+            "description": "Create task to schedule diabetes education",
+            "icon": "ri-task-line",
+            "color": "orange"
+          },
+          "data": {
+            "taskType": "scheduling",
+            "assignee": "care-coordinator",
+            "priority": "high",
+            "dueDate": "+3 days"
+          }
+        },
+        {
+          "id": "block-3",
+          "type": "wait",
+          "position": { "x": 160, "y": 320 },
+          "config": {
+            "title": "Wait 30 Days",
+            "description": "Wait for initial adjustment period",
+            "icon": "ri-timer-line",
+            "color": "gray"
+          },
+          "data": {
+            "duration": 30,
+            "unit": "days"
+          }
+        },
+        {
+          "id": "block-4",
+          "type": "send-message",
+          "position": { "x": 160, "y": 440 },
+          "config": {
+            "title": "Follow-up Check",
+            "description": "Send follow-up message for monitoring",
+            "icon": "ri-message-line",
+            "color": "blue"
+          },
+          "data": {
+            "messageType": "automated-call",
+            "template": "This is a follow-up call to check on your diabetes management. Please contact us if you have any concerns.",
+            "channels": ["phone", "sms"]
+          }
+        }
+      ],
+      "connections": [
+        {
+          "from": "block-1",
+          "to": "block-2",
+          "type": "direct"
+        },
+        {
+          "from": "block-2",
+          "to": "block-3",
+          "type": "status-based",
+          "condition": "task-completed"
+        },
+        {
+          "from": "block-3",
+          "to": "block-4",
+          "type": "direct"
+        }
+      ],
+      "metadata": {
+        "created": "2024-12-20",
+        "author": "Healthcare Templates",
+        "version": "1.0",
+        "estimatedRuntime": "30+ days",
+        "complexity": "high",
+        "useCase": "Chronic disease management"
+      }
+    }
+  ]
+}

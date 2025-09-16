@@ -396,6 +396,9 @@ Add Payment Method
 </div>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+// Load workflow templates
+loadWorkflowTemplates();
+
 // Handle practice mode radio buttons
 const personalModeRadio = document.getElementById('personal-mode');
 const sharedModeRadio = document.getElementById('shared-mode');
@@ -461,6 +464,96 @@ return closest;
 }
 }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
+
+// Workflow template loading functions
+async function loadWorkflowTemplates() {
+    try {
+        const response = await fetch('./workflow-templates.json');
+        const data = await response.json();
+        renderWorkflowTemplates(data.templates);
+    } catch (error) {
+        console.error('Error loading workflow templates:', error);
+        // Fallback to show static templates
+        showStaticTemplates();
+    }
+}
+
+function renderWorkflowTemplates(templates) {
+    const grid = document.getElementById('workflowTemplatesGrid');
+    if (!grid) return;
+
+    grid.innerHTML = templates.map(template => createTemplateCard(template)).join('');
+}
+
+function createTemplateCard(template) {
+    return `
+        <div class="border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-primary/5 transition-all duration-200">
+            <div class="flex items-start justify-between mb-4">
+                <div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center">
+                    <div class="w-5 h-5 flex items-center justify-center text-primary">
+                        <i class="ri-flow-chart"></i>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs text-gray-500">${template.rating}</span>
+                    <div class="flex items-center">
+                        <i class="ri-star-fill text-yellow-400 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+            <h3 class="text-sm font-medium text-gray-900 mb-1">${template.name}</h3>
+            <p class="text-xs text-gray-500 mb-3">${template.description}</p>
+            <div class="flex items-center justify-between">
+                <span class="text-xs px-2 py-1 bg-${template.type === 'patient' ? 'blue' : 'green'}-100 text-${template.type === 'patient' ? 'blue' : 'green'}-700 rounded-full">
+                    ${template.type === 'patient' ? 'Patient' : 'Practice'}
+                </span>
+                <button
+                    onclick="useWorkflowTemplate('${template.id}')"
+                    class="text-xs text-primary font-medium hover:text-primary/80 transition-colors"
+                >
+                    Use Template
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function showStaticTemplates() {
+    // Fallback static templates
+    const staticTemplates = [
+        {
+            id: 'annual-wellness-visit',
+            name: 'Annual Wellness Visit',
+            description: 'Standard wellness check workflow',
+            rating: 4.8,
+            type: 'patient'
+        },
+        {
+            id: 'diabetes-management',
+            name: 'Diabetes Management',
+            description: 'Comprehensive diabetes care plan',
+            rating: 4.7,
+            type: 'patient'
+        },
+        {
+            id: 'test-reminder-90day',
+            name: '90-Day Test Reminder',
+            description: 'Automated follow-up testing reminder',
+            rating: 4.6,
+            type: 'patient'
+        }
+    ];
+    renderWorkflowTemplates(staticTemplates);
+}
+
+function useWorkflowTemplate(templateId) {
+    // Store the template ID for the workflow composer
+    sessionStorage.setItem('selectedTemplate', templateId);
+
+    // Navigate to workflow composer
+    window.location.href = `workflow-composer.html?template=${templateId}`;
+}
+
 });
 </script>
 <!-- Refund Method Settings -->
@@ -1167,61 +1260,8 @@ Explore More
 </div>
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-6">
 </div>
-<div class="grid grid-cols-3 gap-4">
-<div class="border border-gray-200 rounded-lg p-4">
-<div class="flex items-start justify-between mb-4">
-<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center">
-<div class="w-5 h-5 flex items-center justify-center text-primary">
-<i class="ri-flow-chart"></i>
-</div>
-</div>
-<div class="flex items-center space-x-2">
-<span class="text-xs text-gray-500">4.8</span>
-<div class="flex items-center">
-<i class="ri-star-fill text-yellow-400 text-xs"></i>
-</div>
-</div>
-</div>
-<h3 class="text-sm font-medium text-gray-900 mb-1">Annual Wellness Visit</h3>
-<p class="text-xs text-gray-500 mb-3">Standard wellness check workflow</p>
-<button class="text-xs text-primary font-medium">Use Template</button>
-</div>
-<div class="border border-gray-200 rounded-lg p-4">
-<div class="flex items-start justify-between mb-4">
-<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center">
-<div class="w-5 h-5 flex items-center justify-center text-primary">
-<i class="ri-flow-chart"></i>
-</div>
-</div>
-<div class="flex items-center space-x-2">
-<span class="text-xs text-gray-500">4.7</span>
-<div class="flex items-center">
-<i class="ri-star-fill text-yellow-400 text-xs"></i>
-</div>
-</div>
-</div>
-<h3 class="text-sm font-medium text-gray-900 mb-1">Diabetes Management</h3>
-<p class="text-xs text-gray-500 mb-3">Comprehensive diabetes care plan</p>
-<button class="text-xs text-primary font-medium">Use Template</button>
-</div>
-<div class="border border-gray-200 rounded-lg p-4">
-<div class="flex items-start justify-between mb-4">
-<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center">
-<div class="w-5 h-5 flex items-center justify-center text-primary">
-<i class="ri-flow-chart"></i>
-</div>
-</div>
-<div class="flex items-center space-x-2">
-<span class="text-xs text-gray-500">4.6</span>
-<div class="flex items-center">
-<i class="ri-star-fill text-yellow-400 text-xs"></i>
-</div>
-</div>
-</div>
-<h3 class="text-sm font-medium text-gray-900 mb-1">Preventive Screening</h3>
-<p class="text-xs text-gray-500 mb-3">Routine health screening process</p>
-<button class="text-xs text-primary font-medium">Use Template</button>
-</div>
+<div id="workflowTemplatesGrid" class="grid grid-cols-3 gap-4">
+<!-- Templates will be loaded dynamically -->
 </div>
 </div>
 </div>

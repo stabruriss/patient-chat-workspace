@@ -1342,6 +1342,122 @@
         let currentInput = null;
         let currentWorkflowType = null;
 
+        // Template loading functionality
+        async function loadWorkflowTemplate() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const templateId = urlParams.get('template') || sessionStorage.getItem('selectedTemplate');
+
+            if (templateId) {
+                try {
+                    const response = await fetch('./workflow-templates.json');
+                    const data = await response.json();
+                    const template = data.templates.find(t => t.id === templateId);
+
+                    if (template) {
+                        await renderTemplate(template);
+
+                        // Update workflow name and description
+                        document.getElementById('workflowName').value = template.name;
+                        document.getElementById('workflowDescription').value = template.description;
+
+                        // Set workflow type
+                        currentWorkflowType = template.type;
+                        updateWorkflowTypeBadge(template.type);
+
+                        // Clear template from session storage
+                        sessionStorage.removeItem('selectedTemplate');
+
+                        console.log('Template loaded successfully:', template.name);
+                    }
+                } catch (error) {
+                    console.error('Error loading template:', error);
+                }
+            }
+        }
+
+        async function renderTemplate(template) {
+            // Clear existing blocks
+            workflowBlocks = [];
+            blockCounter = 0;
+
+            // Create a mapping for old IDs to new IDs
+            const idMapping = {};
+
+            // First pass: Create all blocks with new IDs
+            template.blocks.forEach((templateBlock, index) => {
+                blockCounter++;
+                const newId = `block-${blockCounter}`;
+                idMapping[templateBlock.id] = newId;
+
+                const block = {
+                    id: newId,
+                    type: templateBlock.type,
+                    config: { ...templateBlock.config },
+                    data: { ...templateBlock.data },
+                    parentId: null,
+                    parentIds: [],
+                    nextBlocks: [],
+                    position: { ...templateBlock.position },
+                    connectionPoints: {
+                        bottom: { x: 0, y: 0 }
+                    },
+                    children: templateBlock.type === 'condition' ? { paths: [] } :
+                             templateBlock.type === 'loop' ? { items: [] } : null,
+                    supportsMultipleInputs: templateBlock.type === 'condition'
+                };
+
+                workflowBlocks.push(block);
+            });
+
+            // Second pass: Establish connections using the ID mapping
+            template.connections.forEach(connection => {
+                const parentId = idMapping[connection.from];
+                const childId = idMapping[connection.to];
+
+                if (parentId && childId) {
+                    addFollowUpRelationship(parentId, childId);
+                }
+            });
+
+            // Update condition block paths with new IDs
+            template.blocks.forEach((templateBlock, index) => {
+                if (templateBlock.type === 'condition' && templateBlock.data && templateBlock.data.paths) {
+                    const correspondingBlock = workflowBlocks.find(b => b.id === idMapping[templateBlock.id]);
+                    if (correspondingBlock) {
+                        correspondingBlock.data.paths = templateBlock.data.paths.map(path => ({
+                            ...path,
+                            nextBlockId: idMapping[path.nextBlockId] || path.nextBlockId
+                        }));
+                    }
+                }
+            });
+
+            // Hide empty state and render the workflow
+            hideEmptyState();
+            renderWorkflow();
+
+            // Initialize block library to reflect any trigger restrictions
+            initializeBlockLibrary();
+        }
+
+        function updateWorkflowTypeBadge(type) {
+            const badge = document.getElementById('workflowTypeBadge');
+            const icon = badge.querySelector('i');
+            const text = badge.querySelector('span');
+
+            if (type === 'patient') {
+                badge.className = 'mb-1 px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wide self-start workflow-type-badge-patient';
+                icon.className = 'ri-user-heart-line mr-1';
+                text.textContent = 'Patient Workflow';
+            } else if (type === 'practice') {
+                badge.className = 'mb-1 px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wide self-start workflow-type-badge-practice';
+                icon.className = 'ri-building-line mr-1';
+                text.textContent = 'Practice Workflow';
+            }
+
+            badge.classList.remove('hidden');
+        }
+
         // Trigger restriction modal
         function showTriggerRestrictionModal() {
             const modal = document.getElementById('triggerRestrictionModal');
@@ -2208,27 +2324,34 @@
         };
 
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             // Get workflow type from URL parameter
             const urlParams = new URLSearchParams(window.location.search);
             const workflowType = urlParams.get('type');
-            
-            if (workflowType && (workflowType === 'patient' || workflowType === 'practice')) {
+            const templateId = urlParams.get('template');
+
+            // Initialize editor first
+            initializeEditor();
+            setupEventListeners();
+
+            // Check if loading a template
+            if (templateId) {
+                // Load template (this will set the workflow type automatically)
+                await loadWorkflowTemplate();
+
+                // Hide the selection modal since template sets the type
+                document.getElementById('workflowTypeModal').classList.add('hidden');
+            } else if (workflowType && (workflowType === 'patient' || workflowType === 'practice')) {
                 // Set workflow type directly from URL
                 selectWorkflowType(workflowType);
-                
+
                 // Hide the selection modal
                 document.getElementById('workflowTypeModal').classList.add('hidden');
-                
-                initializeEditor();
-                setupEventListeners();
             } else {
                 // Fallback to showing selection modal if no/invalid type parameter
                 showWorkflowTypeSelection();
-                initializeEditor();
-                setupEventListeners();
             }
-            
+
             // Initialize zoom and pan functionality
             initializeZoomAndPan();
         });
