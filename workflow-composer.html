@@ -340,6 +340,14 @@
             overflow: visible;
         }
 
+        .block-editor {
+            background:
+                linear-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            background-color: #f9fafb;
+        }
+
         .canvas-content {
             position: relative;
             transform-origin: top left;
@@ -2078,8 +2086,8 @@
                     const canvas = document.querySelector('.workflow-canvas');
                     if (canvas) {
                         const canvasRect = canvas.getBoundingClientRect();
-                        const dropX = e.clientX - canvasRect.left;
-                        const dropY = e.clientY - canvasRect.top;
+                        const dropX = (e.clientX - canvasRect.left) / currentZoom;
+                        const dropY = (e.clientY - canvasRect.top) / currentZoom;
                         
                         console.log('Creating new block at position:', dropX, dropY); // Debug log
                         
@@ -2270,8 +2278,8 @@
                 
                 isDragging = true;
                 const rect = wrapper.getBoundingClientRect();
-                offsetX = e.clientX - rect.left;
-                offsetY = e.clientY - rect.top;
+                offsetX = (e.clientX - rect.left) / currentZoom;
+                offsetY = (e.clientY - rect.top) / currentZoom;
                 document.body.style.userSelect = 'none';
                 wrapper.style.cursor = 'grabbing';
                 e.preventDefault();
@@ -2280,8 +2288,10 @@
             document.addEventListener('mousemove', (e) => {
                 if (!isDragging) return;
                 const canvasRect = wrapper.parentElement.getBoundingClientRect();
-                const x = e.clientX - canvasRect.left - offsetX;
-                const y = e.clientY - canvasRect.top - offsetY;
+                const scaledX = (e.clientX - canvasRect.left) / currentZoom;
+                const scaledY = (e.clientY - canvasRect.top) / currentZoom;
+                const x = scaledX - offsetX;
+                const y = scaledY - offsetY;
                 block.position.x = x;
                 block.position.y = y;
                 wrapper.style.left = `${x}px`;
@@ -3557,16 +3567,6 @@
                 width: 100%;
                 min-height: 800px;
                 box-sizing: border-box;
-                background: linear-gradient(
-                    rgba(99, 102, 241, 0.05) 1px, 
-                    transparent 1px
-                ), 
-                linear-gradient(
-                    90deg, 
-                    rgba(99, 102, 241, 0.05) 1px, 
-                    transparent 1px
-                );
-                background-size: 20px 20px;
                 transform-origin: top left;
             `;
             
@@ -6596,12 +6596,14 @@ if (block.type === 'trigger-manual') {
         let lastPanY = 0;
 
         function initializeZoomAndPan() {
-            const canvas = document.querySelector('.workflow-canvas');
-            if (!canvas || canvas.hasZoomPanListeners) return;
-            canvas.hasZoomPanListeners = true;
+            const viewport = document.querySelector('.canvas-viewport');
+            if (!viewport || viewport.hasZoomPanListeners) return;
+            viewport.hasZoomPanListeners = true;
             
             // Mouse wheel zoom with Ctrl key
-            canvas.addEventListener('wheel', (e) => {
+            viewport.addEventListener('wheel', (e) => {
+                const canvas = document.querySelector('.workflow-canvas');
+                if (!canvas) return;
                 if (e.ctrlKey || e.metaKey) {
                     e.preventDefault();
                     
@@ -6617,11 +6619,11 @@ if (block.type === 'trigger-manual') {
                         updateCanvasTransform();
                     }
                 }
-            });
+            }, { passive: false });
 
             // Pinch-to-zoom for trackpad
             let lastTouchDistance = 0;
-            canvas.addEventListener('touchstart', (e) => {
+            viewport.addEventListener('touchstart', (e) => {
                 if (e.touches.length === 2) {
                     e.preventDefault();
                     const touch1 = e.touches[0];
@@ -6631,9 +6633,9 @@ if (block.type === 'trigger-manual') {
                         touch2.clientY - touch1.clientY
                     );
                 }
-            });
+            }, { passive: false });
 
-            canvas.addEventListener('touchmove', (e) => {
+            viewport.addEventListener('touchmove', (e) => {
                 if (e.touches.length === 2) {
                     e.preventDefault();
                     const touch1 = e.touches[0];
@@ -6655,20 +6657,20 @@ if (block.type === 'trigger-manual') {
                     
                     lastTouchDistance = currentDistance;
                 }
-            });
+            }, { passive: false });
 
-            canvas.addEventListener('touchend', (e) => {
+            viewport.addEventListener('touchend', (e) => {
                 if (e.touches.length < 2) {
                     lastTouchDistance = 0;
                 }
             });
 
             // Add gesturestart/gesturechange for Safari trackpad pinch
-            canvas.addEventListener('gesturestart', (e) => {
+            viewport.addEventListener('gesturestart', (e) => {
                 e.preventDefault();
             });
 
-            canvas.addEventListener('gesturechange', (e) => {
+            viewport.addEventListener('gesturechange', (e) => {
                 e.preventDefault();
                 const newZoom = Math.max(0.1, Math.min(3, currentZoom * e.scale));
                 if (newZoom !== currentZoom) {
@@ -6677,29 +6679,34 @@ if (block.type === 'trigger-manual') {
                 }
             });
 
-            canvas.addEventListener('gestureend', (e) => {
+            viewport.addEventListener('gestureend', (e) => {
                 e.preventDefault();
             });
 
             // Pan functionality with direct drag on empty canvas areas
-            canvas.addEventListener('mousedown', (e) => {
-                // Only start panning if clicking directly on the canvas (not on blocks)
-                if (e.button === 0 && e.target === canvas) { // Left click on empty canvas
+            viewport.addEventListener('mousedown', (e) => {
+                const canvas = document.querySelector('.workflow-canvas');
+                if (!canvas) return;
+                const clickedBlock = e.target.closest('.workflow-block-wrapper');
+                const clickedHandle = e.target.closest('.connection-handle');
+                const clickedButton = e.target.closest('button');
+                
+                if (e.button === 0 && !clickedBlock && !clickedHandle && !clickedButton) {
                     e.preventDefault();
                     isPanning = true;
                     lastPanX = e.clientX;
                     lastPanY = e.clientY;
-                    canvas.style.cursor = 'grabbing';
+                    viewport.style.cursor = 'grabbing';
                 } else if (e.button === 1) { // Middle mouse button anywhere
                     e.preventDefault();
                     isPanning = true;
                     lastPanX = e.clientX;
                     lastPanY = e.clientY;
-                    canvas.style.cursor = 'grabbing';
+                    viewport.style.cursor = 'grabbing';
                 }
             });
 
-            canvas.addEventListener('mousemove', (e) => {
+            viewport.addEventListener('mousemove', (e) => {
                 if (isPanning) {
                     const deltaX = e.clientX - lastPanX;
                     const deltaY = e.clientY - lastPanY;
@@ -6715,20 +6722,22 @@ if (block.type === 'trigger-manual') {
                 }
             });
 
-            canvas.addEventListener('mouseup', (e) => {
+            viewport.addEventListener('mouseup', () => {
                 if (isPanning) {
                     isPanning = false;
-                    canvas.style.cursor = '';
+                    viewport.style.cursor = '';
                 }
             });
 
-            canvas.addEventListener('mouseleave', () => {
-                isPanning = false;
-                canvas.style.cursor = '';
+            viewport.addEventListener('mouseleave', () => {
+                if (isPanning) {
+                    isPanning = false;
+                    viewport.style.cursor = '';
+                }
             });
 
             // Reset zoom with double-click
-            canvas.addEventListener('dblclick', (e) => {
+            viewport.addEventListener('dblclick', (e) => {
                 if (e.ctrlKey || e.metaKey) {
                     currentZoom = 1;
                     currentPanX = 0;
@@ -6740,6 +6749,7 @@ if (block.type === 'trigger-manual') {
 
         function updateCanvasTransform() {
             const canvas = document.querySelector('.workflow-canvas');
+            if (!canvas) return;
             canvas.style.transform = `scale(${currentZoom}) translate(${currentPanX}px, ${currentPanY}px)`;
             canvas.style.transformOrigin = 'center center';
             
