@@ -297,6 +297,568 @@
         "complexity": "high",
         "useCase": "Chronic disease management"
       }
+    },
+    {
+      "id": "annual-wellness-reminder",
+      "name": "Annual Wellness Visit Reminder",
+      "description": "Automated reminder workflow for annual wellness visits with pre-visit preparation",
+      "type": "patient",
+      "rating": 4.9,
+      "category": "Preventive Care",
+      "tags": ["wellness", "annual", "reminder", "preparation"],
+      "blocks": [
+        {
+          "id": "block-1",
+          "type": "trigger-appointment-events",
+          "config": {
+            "title": "Wellness Visit Scheduled",
+            "description": "Triggered when annual wellness visit is scheduled",
+            "icon": "ri-calendar-check-line",
+            "color": "green"
+          },
+          "data": {
+            "triggerEvents": ["appointment-updated"],
+            "conditions": {
+              "appointmentType": "wellness-visit",
+              "status": "scheduled"
+            }
+          }
+        },
+        {
+          "id": "block-2",
+          "type": "wait",
+          "config": {
+            "title": "Wait 7 Days Before",
+            "description": "Send prep materials one week before visit",
+            "icon": "ri-timer-line",
+            "color": "gray"
+          },
+          "data": {
+            "duration": -7,
+            "unit": "days",
+            "relativeTo": "appointment-date"
+          }
+        },
+        {
+          "id": "block-3",
+          "type": "document",
+          "config": {
+            "title": "Send Prep Materials",
+            "description": "Send prep instructions and pre-visit questionnaire",
+            "icon": "ri-file-text-line",
+            "color": "blue"
+          },
+          "data": {
+            "documents": ["prep-instructions", "pre-visit-questionnaire"],
+            "deliveryMethod": "patient-portal"
+          }
+        }
+      ],
+      "connections": [
+        {
+          "from": "block-1",
+          "to": "block-2",
+          "type": "direct"
+        },
+        {
+          "from": "block-2",
+          "to": "block-3",
+          "type": "direct"
+        }
+      ],
+      "metadata": {
+        "created": "2024-12-20",
+        "author": "Healthcare Templates",
+        "version": "1.0",
+        "estimatedRuntime": "7 days",
+        "complexity": "simple",
+        "useCase": "Preventive care preparation"
+      }
+    },
+    {
+      "id": "new-patient-onboarding",
+      "name": "New Patient Onboarding",
+      "description": "Complete onboarding workflow for new patients with welcome materials and forms",
+      "type": "patient",
+      "rating": 4.8,
+      "category": "Patient Registration",
+      "tags": ["onboarding", "new-patient", "welcome", "intake"],
+      "blocks": [
+        {
+          "id": "block-1",
+          "type": "trigger-patient-events",
+          "config": {
+            "title": "New Patient Created",
+            "description": "Triggered when a new patient is added to the system",
+            "icon": "ri-user-add-line",
+            "color": "green"
+          },
+          "data": {
+            "triggerEvents": ["patient-created"],
+            "conditions": {
+              "status": "new"
+            }
+          }
+        },
+        {
+          "id": "block-2",
+          "type": "send-message",
+          "config": {
+            "title": "Welcome Message",
+            "description": "Send welcome message with portal guide",
+            "icon": "ri-message-line",
+            "color": "blue"
+          },
+          "data": {
+            "messageType": "email",
+            "template": "Welcome to our practice! Please find your patient portal guide attached. This will help you access your health records and communicate with our team.",
+            "channels": ["email", "sms"],
+            "priority": "high"
+          }
+        },
+        {
+          "id": "block-3",
+          "type": "document",
+          "config": {
+            "title": "Send Forms",
+            "description": "Auto-send intake and consent forms",
+            "icon": "ri-file-list-line",
+            "color": "orange"
+          },
+          "data": {
+            "documents": ["intake-form", "consent-form"],
+            "deliveryMethod": "patient-portal"
+          }
+        },
+        {
+          "id": "block-4",
+          "type": "send-message",
+          "config": {
+            "title": "Scheduling Link",
+            "description": "Send appointment scheduling link",
+            "icon": "ri-calendar-line",
+            "color": "purple"
+          },
+          "data": {
+            "messageType": "email",
+            "template": "Please use this link to schedule your first appointment with us: [SCHEDULING_LINK]",
+            "channels": ["email"],
+            "priority": "normal"
+          }
+        }
+      ],
+      "connections": [
+        {
+          "from": "block-1",
+          "to": "block-2",
+          "type": "direct"
+        },
+        {
+          "from": "block-2",
+          "to": "block-3",
+          "type": "direct"
+        },
+        {
+          "from": "block-3",
+          "to": "block-4",
+          "type": "direct"
+        }
+      ],
+      "metadata": {
+        "created": "2024-12-20",
+        "author": "Healthcare Templates",
+        "version": "1.0",
+        "estimatedRuntime": "1-2 days",
+        "complexity": "medium",
+        "useCase": "Patient onboarding and registration"
+      }
+    },
+    {
+      "id": "questionnaire-nudge",
+      "name": "Questionnaire Nudge",
+      "description": "Automated reminder for incomplete forms and questionnaires",
+      "type": "patient",
+      "rating": 4.6,
+      "category": "Form Management",
+      "tags": ["questionnaire", "forms", "reminders", "completion"],
+      "blocks": [
+        {
+          "id": "block-1",
+          "type": "trigger-document-events",
+          "config": {
+            "title": "Form Sent",
+            "description": "Triggered when a document or form is sent to patient",
+            "icon": "ri-file-send-line",
+            "color": "blue"
+          },
+          "data": {
+            "triggerEvents": ["document-sent"],
+            "conditions": {
+              "documentType": "questionnaire",
+              "status": "sent"
+            }
+          }
+        },
+        {
+          "id": "block-2",
+          "type": "wait",
+          "config": {
+            "title": "Wait 48 Hours",
+            "description": "Wait 48 hours for patient response",
+            "icon": "ri-timer-line",
+            "color": "gray"
+          },
+          "data": {
+            "duration": 48,
+            "unit": "hours"
+          }
+        },
+        {
+          "id": "block-3",
+          "type": "condition",
+          "config": {
+            "title": "Check Form Status",
+            "description": "Check if form has been completed",
+            "icon": "ri-git-branch-line",
+            "color": "purple"
+          },
+          "data": {
+            "prompt": "Check if the form status is not completed",
+            "paths": [
+              {
+                "prompt": "Send reminder if form is incomplete",
+                "nextBlockId": "block-4"
+              }
+            ]
+          }
+        },
+        {
+          "id": "block-4",
+          "type": "send-message",
+          "config": {
+            "title": "Form Reminder",
+            "description": "Send reminder to complete form",
+            "icon": "ri-notification-line",
+            "color": "orange"
+          },
+          "data": {
+            "messageType": "sms",
+            "template": "Friendly reminder: You have an incomplete form in your patient portal. Please complete it at your earliest convenience.",
+            "channels": ["sms", "email"],
+            "priority": "normal"
+          }
+        }
+      ],
+      "connections": [
+        {
+          "from": "block-1",
+          "to": "block-2",
+          "type": "direct"
+        },
+        {
+          "from": "block-2",
+          "to": "block-3",
+          "type": "direct"
+        },
+        {
+          "from": "block-3",
+          "to": "block-4",
+          "type": "conditional",
+          "condition": "form-incomplete"
+        }
+      ],
+      "metadata": {
+        "created": "2024-12-20",
+        "author": "Healthcare Templates",
+        "version": "1.0",
+        "estimatedRuntime": "2-3 days",
+        "complexity": "medium",
+        "useCase": "Form completion tracking"
+      }
+    },
+    {
+      "id": "insurance-expiry-reminder",
+      "name": "Insurance Expiry Reminder",
+      "description": "Automated reminder for insurance card renewal before expiration",
+      "type": "patient",
+      "rating": 4.7,
+      "category": "Insurance Management",
+      "tags": ["insurance", "expiry", "renewal", "reminders"],
+      "blocks": [
+        {
+          "id": "block-1",
+          "type": "trigger-patient-events",
+          "config": {
+            "title": "Insurance Expiry Recorded",
+            "description": "Triggered when insurance expiry date is recorded",
+            "icon": "ri-shield-line",
+            "color": "blue"
+          },
+          "data": {
+            "triggerEvents": ["profile-updated"],
+            "conditions": {
+              "field": "insurance-expiry-date",
+              "status": "updated"
+            }
+          }
+        },
+        {
+          "id": "block-2",
+          "type": "wait",
+          "config": {
+            "title": "Wait 30 Days Before Expiry",
+            "description": "Send reminder 30 days before expiration",
+            "icon": "ri-timer-line",
+            "color": "gray"
+          },
+          "data": {
+            "duration": -30,
+            "unit": "days",
+            "relativeTo": "insurance-expiry-date"
+          }
+        },
+        {
+          "id": "block-3",
+          "type": "send-message",
+          "config": {
+            "title": "Insurance Renewal Reminder",
+            "description": "Send reminder to upload new insurance card",
+            "icon": "ri-notification-line",
+            "color": "orange"
+          },
+          "data": {
+            "messageType": "email",
+            "template": "Your insurance card expires in 30 days. Please upload your new insurance card to avoid any delays in care.",
+            "channels": ["email", "sms"],
+            "priority": "high"
+          }
+        }
+      ],
+      "connections": [
+        {
+          "from": "block-1",
+          "to": "block-2",
+          "type": "direct"
+        },
+        {
+          "from": "block-2",
+          "to": "block-3",
+          "type": "direct"
+        }
+      ],
+      "metadata": {
+        "created": "2024-12-20",
+        "author": "Healthcare Templates",
+        "version": "1.0",
+        "estimatedRuntime": "30 days",
+        "complexity": "simple",
+        "useCase": "Insurance management"
+      }
+    },
+    {
+      "id": "critical-lab-alert",
+      "name": "Critical Lab Alert",
+      "description": "Urgent alert workflow for critical laboratory results requiring immediate attention",
+      "type": "practice",
+      "rating": 4.9,
+      "category": "Clinical Alerts",
+      "tags": ["critical", "lab-results", "urgent", "provider-alert"],
+      "blocks": [
+        {
+          "id": "block-1",
+          "type": "trigger-report-events",
+          "config": {
+            "title": "New Lab Result",
+            "description": "Triggered when new lab result is posted",
+            "icon": "ri-test-tube-line",
+            "color": "red"
+          },
+          "data": {
+            "triggerEvents": ["report-available"],
+            "conditions": {
+              "reportType": "lab-result",
+              "status": "available"
+            }
+          }
+        },
+        {
+          "id": "block-2",
+          "type": "condition",
+          "config": {
+            "title": "Critical Flag Check",
+            "description": "Check if critical flag is true",
+            "icon": "ri-alert-line",
+            "color": "red"
+          },
+          "data": {
+            "prompt": "Check if the lab result has a critical flag set to true",
+            "paths": [
+              {
+                "prompt": "Continue if critical flag is true",
+                "nextBlockId": "block-3"
+              }
+            ]
+          }
+        },
+        {
+          "id": "block-3",
+          "type": "send-message",
+          "config": {
+            "title": "Urgent Provider Alert",
+            "description": "Send urgent alert to healthcare provider",
+            "icon": "ri-alarm-warning-line",
+            "color": "red"
+          },
+          "data": {
+            "messageType": "urgent-alert",
+            "template": "CRITICAL LAB ALERT: Patient [PATIENT_NAME] has critical lab values requiring immediate attention. Please review immediately.",
+            "channels": ["email", "sms", "in-app"],
+            "priority": "urgent"
+          }
+        },
+        {
+          "id": "block-4",
+          "type": "task",
+          "config": {
+            "title": "Nurse Follow-up",
+            "description": "Assign nurse follow-up task",
+            "icon": "ri-user-heart-line",
+            "color": "blue"
+          },
+          "data": {
+            "taskType": "clinical-follow-up",
+            "assignee": "nursing-staff",
+            "priority": "urgent",
+            "dueDate": "immediate"
+          }
+        }
+      ],
+      "connections": [
+        {
+          "from": "block-1",
+          "to": "block-2",
+          "type": "direct"
+        },
+        {
+          "from": "block-2",
+          "to": "block-3",
+          "type": "conditional",
+          "condition": "critical-flag-true"
+        },
+        {
+          "from": "block-3",
+          "to": "block-4",
+          "type": "direct"
+        }
+      ],
+      "metadata": {
+        "created": "2024-12-20",
+        "author": "Healthcare Templates",
+        "version": "1.0",
+        "estimatedRuntime": "Immediate",
+        "complexity": "medium",
+        "useCase": "Critical result management"
+      }
+    },
+    {
+      "id": "overdue-payment-escalation",
+      "name": "Overdue Payment Escalation",
+      "description": "Automated escalation workflow for failed payments with reminder and billing follow-up",
+      "type": "practice",
+      "rating": 4.5,
+      "category": "Billing Management",
+      "tags": ["payment", "billing", "escalation", "reminders"],
+      "blocks": [
+        {
+          "id": "block-1",
+          "type": "trigger-order-events",
+          "config": {
+            "title": "Payment Failed",
+            "description": "Triggered when order payment fails",
+            "icon": "ri-error-warning-line",
+            "color": "red"
+          },
+          "data": {
+            "triggerEvents": ["order-updated"],
+            "conditions": {
+              "paymentStatus": "failed",
+              "orderStatus": "active"
+            }
+          }
+        },
+        {
+          "id": "block-2",
+          "type": "wait",
+          "config": {
+            "title": "Wait 24 Hours",
+            "description": "Allow 24-hour grace period",
+            "icon": "ri-timer-line",
+            "color": "gray"
+          },
+          "data": {
+            "duration": 24,
+            "unit": "hours"
+          }
+        },
+        {
+          "id": "block-3",
+          "type": "send-message",
+          "config": {
+            "title": "Payment Reminder",
+            "description": "Send payment reminder to patient",
+            "icon": "ri-money-dollar-circle-line",
+            "color": "orange"
+          },
+          "data": {
+            "messageType": "email",
+            "template": "Your recent payment was unsuccessful. Please update your payment method or contact our billing department to resolve this issue.",
+            "channels": ["email", "sms"],
+            "priority": "normal"
+          }
+        },
+        {
+          "id": "block-4",
+          "type": "task",
+          "config": {
+            "title": "Billing Follow-up",
+            "description": "Assign billing follow-up if still unpaid",
+            "icon": "ri-task-line",
+            "color": "blue"
+          },
+          "data": {
+            "taskType": "billing-follow-up",
+            "assignee": "billing-department",
+            "priority": "normal",
+            "dueDate": "+2 days"
+          }
+        }
+      ],
+      "connections": [
+        {
+          "from": "block-1",
+          "to": "block-2",
+          "type": "direct"
+        },
+        {
+          "from": "block-2",
+          "to": "block-3",
+          "type": "direct"
+        },
+        {
+          "from": "block-3",
+          "to": "block-4",
+          "type": "status-based",
+          "condition": "payment-still-failed"
+        }
+      ],
+      "metadata": {
+        "created": "2024-12-20",
+        "author": "Healthcare Templates",
+        "version": "1.0",
+        "estimatedRuntime": "1-3 days",
+        "complexity": "medium",
+        "useCase": "Payment and billing management"
+      }
     }
   ]
 }

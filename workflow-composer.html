@@ -346,6 +346,14 @@
                 linear-gradient(90deg, rgba(99, 102, 241, 0.05) 1px, transparent 1px);
             background-size: 20px 20px;
             background-color: #f9fafb;
+            position: relative;
+        }
+
+        .auto-layout-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            z-index: 30;
         }
 
         .canvas-content {
@@ -941,15 +949,16 @@
         </div>
         
         <!-- Block Editor -->
-        <div class="block-editor bg-gray-50 flex-1 overflow-auto">
+        <div class="block-editor bg-gray-50 flex-1 overflow-auto relative">
             
-            <div class="canvas-viewport relative">
-                <!-- Floating Auto Layout Button -->
-                <button id="autoLayoutBtn" class="absolute top-4 right-4 z-10 px-3 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg shadow-md hover:bg-gray-50 hover:shadow-lg transition-all duration-200 flex items-center">
-                    <i class="ri-layout-line mr-2"></i>
-                    Auto Layout
-                </button>
+            <!-- Floating Auto Layout Button -->
+            <button id="autoLayoutBtn" class="auto-layout-btn px-3 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg shadow-md hover:bg-gray-50 hover:shadow-lg transition-all duration-200 flex items-center">
+                <i class="ri-layout-line mr-2"></i>
+                Auto Layout
+            </button>
 
+            <div class="canvas-viewport relative">
+                
                 <div id="blockEditor" class="canvas-content w-full p-8">
                     <div id="workflowBlocks" class="flex flex-col items-stretch space-y-4 min-h-full w-full px-4">
                     <!-- Empty state -->
@@ -2122,7 +2131,7 @@
                 parentId: null, // Keep for backward compatibility
                 parentIds: [], // New: array of parent IDs for multi-input support
                 nextBlocks: [],
-                position: { x: x - 160, y: y - 40 }, // Offset to center block on cursor
+                position: { x, y },
                 connectionPoints: {
                     bottom: { x: 0, y: 0 }
                 },
@@ -2132,14 +2141,6 @@
             };
 
             workflowBlocks.push(block);
-
-            // If this is the first block or we have multiple disconnected blocks, apply auto-layout
-            if (workflowBlocks.length > 1) {
-                const rootBlocks = getRootBlocks();
-                if (rootBlocks.length > 1 || hasDisconnectedBlocks()) {
-                    applyAutoLayout();
-                }
-            }
 
             renderWorkflow();
             hideEmptyState();
@@ -2153,29 +2154,6 @@
                     showBlockConfiguration(block);
                 }, 100);
             }
-        }
-
-        // Check if there are disconnected blocks that could benefit from auto-layout
-        function hasDisconnectedBlocks() {
-            const rootBlocks = getRootBlocks();
-            const connectedBlocks = new Set();
-
-            // Mark all connected blocks starting from root blocks
-            rootBlocks.forEach(root => {
-                markConnectedBlocks(root, connectedBlocks);
-            });
-
-            // Return true if there are blocks not connected to any tree
-            return workflowBlocks.length > connectedBlocks.size;
-        }
-
-        function markConnectedBlocks(block, connectedSet) {
-            connectedSet.add(block.id);
-            block.nextBlocks.forEach(child => {
-                if (!connectedSet.has(child.id)) {
-                    markConnectedBlocks(child, connectedSet);
-                }
-            });
         }
 
         // Draw hierarchical connection lines between parent and child blocks
