@@ -935,7 +935,13 @@
         <!-- Block Editor -->
         <div class="block-editor bg-gray-50 flex-1 overflow-auto" style="background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px); background-size: 20px 20px;">
             
-            <div class="canvas-viewport">
+            <div class="canvas-viewport relative">
+                <!-- Floating Auto Layout Button -->
+                <button id="autoLayoutBtn" class="absolute top-4 right-4 z-10 px-3 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg shadow-md hover:bg-gray-50 hover:shadow-lg transition-all duration-200 flex items-center">
+                    <i class="ri-layout-line mr-2"></i>
+                    Auto Layout
+                </button>
+
                 <div id="blockEditor" class="canvas-content w-full p-8">
                     <div id="workflowBlocks" class="flex flex-col items-stretch space-y-4 min-h-full w-full px-4">
                     <!-- Empty state -->
@@ -1397,7 +1403,7 @@
                     parentId: null,
                     parentIds: [],
                     nextBlocks: [],
-                    position: { ...templateBlock.position },
+                    position: { x: 0, y: 0 }, // Will be set by auto-layout
                     connectionPoints: {
                         bottom: { x: 0, y: 0 }
                     },
@@ -1432,12 +1438,117 @@
                 }
             });
 
+            // Apply auto-layout to position blocks properly
+            console.log('Applying auto-layout to', workflowBlocks.length, 'blocks');
+            applyAutoLayout();
+
             // Hide empty state and render the workflow
             hideEmptyState();
             renderWorkflow();
+            console.log('Template rendered successfully');
 
             // Initialize block library to reflect any trigger restrictions
             initializeBlockLibrary();
+        }
+
+        // Auto-layout system for proper block positioning
+        function applyAutoLayout() {
+            try {
+                const BLOCK_WIDTH = 320;
+                const BLOCK_HEIGHT = 200; // Generous height to account for different block sizes
+                const VERTICAL_SPACING = 50;
+                const HORIZONTAL_SPACING = 100;
+                const START_X = 160;
+                const START_Y = 100;
+
+                console.log('Starting auto-layout with', workflowBlocks.length, 'blocks');
+
+                // Find root blocks (no parents)
+                const rootBlocks = getRootBlocks();
+                console.log('Found', rootBlocks.length, 'root blocks');
+
+                if (rootBlocks.length === 0) {
+                    console.warn('No root blocks found for auto-layout');
+                    return;
+                }
+
+                // Layout each root block and its descendants
+                rootBlocks.forEach((rootBlock, rootIndex) => {
+                    const startX = START_X + (rootIndex * (BLOCK_WIDTH + HORIZONTAL_SPACING));
+                    console.log(`Laying out root block ${rootBlock.config.title} starting at (${startX}, ${START_Y})`);
+                    layoutBlockTree(rootBlock, startX, START_Y, BLOCK_HEIGHT);
+                });
+
+                // Ensure canvas is large enough for all blocks
+                adjustCanvasSize();
+                console.log('Auto-layout completed successfully');
+            } catch (error) {
+                console.error('Error in applyAutoLayout:', error);
+            }
+        }
+
+        function layoutBlockTree(block, x, y, blockHeight = 200) {
+            // Set this block's position
+            block.position = { x, y };
+            console.log(`Positioning block ${block.config.title} at (${x}, ${y})`);
+
+            // Layout children below this block
+            if (block.nextBlocks && block.nextBlocks.length > 0) {
+                const childY = y + blockHeight + 50; // Vertical spacing
+
+                if (block.nextBlocks.length === 1) {
+                    // Single child - center it below parent
+                    layoutBlockTree(block.nextBlocks[0], x, childY, blockHeight);
+                } else {
+                    // Multiple children - spread them horizontally
+                    const totalWidth = (block.nextBlocks.length - 1) * (320 + 100);
+                    const startX = x - totalWidth / 2;
+
+                    block.nextBlocks.forEach((childBlock, index) => {
+                        const childX = startX + index * (320 + 100);
+                        layoutBlockTree(childBlock, childX, childY, blockHeight);
+                    });
+                }
+            }
+        }
+
+        function adjustCanvasSize() {
+            // Don't override the canvas if there are no blocks
+            if (workflowBlocks.length === 0) {
+                return;
+            }
+
+            // Find the bounds of all blocks
+            let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+
+            workflowBlocks.forEach(block => {
+                const blockRight = block.position.x + 320;
+                const blockBottom = block.position.y + 200;
+
+                minX = Math.min(minX, block.position.x);
+                maxX = Math.max(maxX, blockRight);
+                minY = Math.min(minY, block.position.y);
+                maxY = Math.max(maxY, blockBottom);
+            });
+
+            // Only adjust if we found valid positions
+            if (minX === Infinity) return;
+
+            // Add padding
+            const padding = 100;
+            maxX += padding;
+            maxY += padding;
+
+            // Ensure minimum canvas size
+            maxX = Math.max(maxX, 1200);
+            maxY = Math.max(maxY, 800);
+
+            // Update canvas container size
+            const canvas = document.querySelector('#blockEditor');
+            if (canvas) {
+                canvas.style.minHeight = maxY + 'px';
+                console.log('Canvas size adjusted:', maxX, 'x', maxY);
+            }
         }
 
         function updateWorkflowTypeBadge(type) {
@@ -1991,10 +2102,10 @@
                     return;
                 }
             }
-            
+
             blockCounter++;
             const config = blockConfigs[type];
-            
+
             const block = {
                 id: `block-${blockCounter}`,
                 type: type,
@@ -2007,16 +2118,24 @@
                 connectionPoints: {
                     bottom: { x: 0, y: 0 }
                 },
-                children: type === 'condition' ? { paths: [] } : 
+                children: type === 'condition' ? { paths: [] } :
                          type === 'loop' ? { items: [] } : null,
                 supportsMultipleInputs: type === 'condition' // Flag for multi-input support
             };
 
             workflowBlocks.push(block);
-            
+
+            // If this is the first block or we have multiple disconnected blocks, apply auto-layout
+            if (workflowBlocks.length > 1) {
+                const rootBlocks = getRootBlocks();
+                if (rootBlocks.length > 1 || hasDisconnectedBlocks()) {
+                    applyAutoLayout();
+                }
+            }
+
             renderWorkflow();
             hideEmptyState();
-            
+
             // Refresh block library to update trigger restrictions
             initializeBlockLibrary();
 
@@ -2026,6 +2145,29 @@
                     showBlockConfiguration(block);
                 }, 100);
             }
+        }
+
+        // Check if there are disconnected blocks that could benefit from auto-layout
+        function hasDisconnectedBlocks() {
+            const rootBlocks = getRootBlocks();
+            const connectedBlocks = new Set();
+
+            // Mark all connected blocks starting from root blocks
+            rootBlocks.forEach(root => {
+                markConnectedBlocks(root, connectedBlocks);
+            });
+
+            // Return true if there are blocks not connected to any tree
+            return workflowBlocks.length > connectedBlocks.size;
+        }
+
+        function markConnectedBlocks(block, connectedSet) {
+            connectedSet.add(block.id);
+            block.nextBlocks.forEach(child => {
+                if (!connectedSet.has(child.id)) {
+                    markConnectedBlocks(child, connectedSet);
+                }
+            });
         }
 
         // Draw hierarchical connection lines between parent and child blocks
@@ -2613,7 +2755,13 @@
 
             // Save and Preview
             document.getElementById('saveBtn').addEventListener('click', saveWorkflow);
-            
+
+            // Auto layout button
+            document.getElementById('autoLayoutBtn').addEventListener('click', () => {
+                applyAutoLayout();
+                renderWorkflow();
+            });
+
             // New action buttons
             document.getElementById('manageUsageBtn').addEventListener('click', manageWorkflowUsage);
             document.getElementById('copyWorkflowBtn').addEventListener('click', copyWorkflow);

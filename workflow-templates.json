@@ -30,7 +30,6 @@
         {
           "id": "block-1",
           "type": "trigger-order-events",
-          "position": { "x": 160, "y": 80 },
           "config": {
             "title": "Order Placed",
             "description": "Triggered when a new order is created",
@@ -48,7 +47,6 @@
         {
           "id": "block-2",
           "type": "wait",
-          "position": { "x": 160, "y": 200 },
           "config": {
             "title": "Wait 90 Days",
             "description": "Delay workflow execution for 90 days",
@@ -64,7 +62,6 @@
         {
           "id": "block-3",
           "type": "condition",
-          "position": { "x": 160, "y": 320 },
           "config": {
             "title": "Check Order Status",
             "description": "Verify if follow-up testing is still needed",
@@ -84,7 +81,6 @@
         {
           "id": "block-4",
           "type": "send-message",
-          "position": { "x": 160, "y": 440 },
           "config": {
             "title": "Send Test Reminder",
             "description": "Send reminder message to patient",
@@ -138,7 +134,6 @@
         {
           "id": "block-1",
           "type": "trigger-appointment-events",
-          "position": { "x": 160, "y": 80 },
           "config": {
             "title": "Wellness Visit Scheduled",
             "description": "Triggered when annual wellness visit is scheduled",
@@ -156,7 +151,6 @@
         {
           "id": "block-2",
           "type": "wait",
-          "position": { "x": 160, "y": 200 },
           "config": {
             "title": "Wait 7 Days Before",
             "description": "Send prep materials one week before visit",
@@ -172,7 +166,6 @@
         {
           "id": "block-3",
           "type": "document",
-          "position": { "x": 160, "y": 320 },
           "config": {
             "title": "Send Prep Materials",
             "description": "Send pre-visit questionnaire and instructions",
@@ -218,7 +211,6 @@
         {
           "id": "block-1",
           "type": "trigger-patient-events",
-          "position": { "x": 160, "y": 80 },
           "config": {
             "title": "Diabetes Diagnosis",
             "description": "Triggered when patient is diagnosed with diabetes",
@@ -236,7 +228,6 @@
         {
           "id": "block-2",
           "type": "task",
-          "position": { "x": 160, "y": 200 },
           "config": {
             "title": "Schedule Education Session",
             "description": "Create task to schedule diabetes education",
@@ -253,7 +244,6 @@
         {
           "id": "block-3",
           "type": "wait",
-          "position": { "x": 160, "y": 320 },
           "config": {
             "title": "Wait 30 Days",
             "description": "Wait for initial adjustment period",
@@ -268,7 +258,6 @@
         {
           "id": "block-4",
           "type": "send-message",
-          "position": { "x": 160, "y": 440 },
           "config": {
             "title": "Follow-up Check",
             "description": "Send follow-up message for monitoring",

@@ -468,8 +468,10 @@ return closest;
 // Workflow template loading functions
 async function loadWorkflowTemplates() {
     try {
+        console.log('Loading workflow templates...');
         const response = await fetch('./workflow-templates.json');
         const data = await response.json();
+        console.log('Templates loaded:', data.templates);
         renderWorkflowTemplates(data.templates);
     } catch (error) {
         console.error('Error loading workflow templates:', error);
@@ -480,14 +482,23 @@ async function loadWorkflowTemplates() {
 
 function renderWorkflowTemplates(templates) {
     const grid = document.getElementById('workflowTemplatesGrid');
-    if (!grid) return;
+    console.log('Grid element found:', grid);
+    console.log('Rendering templates:', templates);
+    if (!grid) {
+        console.error('workflowTemplatesGrid element not found!');
+        return;
+    }
 
     grid.innerHTML = templates.map(template => createTemplateCard(template)).join('');
+    console.log('Templates rendered, grid HTML:', grid.innerHTML.substring(0, 200) + '...');
 }
 
 function createTemplateCard(template) {
     return `
-        <div class="border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-primary/5 transition-all duration-200">
+        <div
+            class="border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-primary/5 transition-all duration-200 cursor-pointer"
+            onclick="useWorkflowTemplate('${template.id}')"
+        >
             <div class="flex items-start justify-between mb-4">
                 <div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center">
                     <div class="w-5 h-5 flex items-center justify-center text-primary">
@@ -507,12 +518,9 @@ function createTemplateCard(template) {
                 <span class="text-xs px-2 py-1 bg-${template.type === 'patient' ? 'blue' : 'green'}-100 text-${template.type === 'patient' ? 'blue' : 'green'}-700 rounded-full">
                     ${template.type === 'patient' ? 'Patient' : 'Practice'}
                 </span>
-                <button
-                    onclick="useWorkflowTemplate('${template.id}')"
-                    class="text-xs text-primary font-medium hover:text-primary/80 transition-colors"
-                >
-                    Use Template
-                </button>
+                <span class="text-xs text-primary font-medium">
+                    Use Template →
+                </span>
             </div>
         </div>
     `;
@@ -546,6 +554,9 @@ function showStaticTemplates() {
     renderWorkflowTemplates(staticTemplates);
 }
 
+});
+
+// Global function for template usage (needs to be outside DOMContentLoaded for onclick access)
 function useWorkflowTemplate(templateId) {
     // Store the template ID for the workflow composer
     sessionStorage.setItem('selectedTemplate', templateId);
@@ -553,8 +564,6 @@ function useWorkflowTemplate(templateId) {
     // Navigate to workflow composer
     window.location.href = `workflow-composer.html?template=${templateId}`;
 }
-
-});
 </script>
 <!-- Refund Method Settings -->
 <div class="mb-6">
