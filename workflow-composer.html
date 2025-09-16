@@ -337,7 +337,7 @@
             position: relative;
             width: 100%;
             height: 100%;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .canvas-content {
@@ -933,7 +933,7 @@
         </div>
         
         <!-- Block Editor -->
-        <div class="block-editor bg-gray-50 flex-1 overflow-auto" style="background-image: radial-gradient(circle, #e5e7eb 1px, transparent 1px); background-size: 20px 20px;">
+        <div class="block-editor bg-gray-50 flex-1 overflow-auto">
             
             <div class="canvas-viewport relative">
                 <!-- Floating Auto Layout Button -->
@@ -3601,7 +3601,7 @@
             }
             
             // Ensure parent container is properly set up
-            workflowBlocksContainer.style.overflow = 'hidden';
+            workflowBlocksContainer.style.overflow = 'visible';
             workflowBlocksContainer.appendChild(canvasContainer);
             
             // Draw connection lines after rendering and reinitialize zoom/pan
