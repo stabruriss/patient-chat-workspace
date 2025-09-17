@@ -11,6 +11,7 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/framer-motion@11/dist/framer-motion.js"></script>
+    <script src="workflow-templates-data.js"></script>
     <style>
         .primary { color: #4F46E5; }
         .bg-primary { background-color: #4F46E5; }
@@ -1377,25 +1378,44 @@
                     const template = data.templates.find(t => t.id === templateId);
 
                     if (template) {
-                        await renderTemplate(template);
-
-                        // Update workflow name and description
-                        document.getElementById('workflowName').value = template.name;
-                        document.getElementById('workflowDescription').value = template.description;
-
-                        // Set workflow type
-                        currentWorkflowType = template.type;
-                        updateWorkflowTypeBadge(template.type);
-
-                        // Clear template from session storage
-                        sessionStorage.removeItem('selectedTemplate');
-
-                        console.log('Template loaded successfully:', template.name);
+                        await applyTemplateToCanvas(template);
+                        return;
                     }
+                    console.warn('Template not found in JSON, checking fallback data');
                 } catch (error) {
                     console.error('Error loading template:', error);
                 }
+
+                const fallbackTemplate = findFallbackTemplate(templateId);
+                if (fallbackTemplate) {
+                    await applyTemplateToCanvas(fallbackTemplate);
+                } else {
+                    console.error('Unable to locate workflow template:', templateId);
+                }
             }
+        }
+
+        async function applyTemplateToCanvas(template) {
+            await renderTemplate(template);
+
+            // Update workflow name and description
+            document.getElementById('workflowName').value = template.name;
+            document.getElementById('workflowDescription').value = template.description;
+
+            // Set workflow type
+            currentWorkflowType = template.type;
+            updateWorkflowTypeBadge(template.type);
+
+            // Clear template from session storage
+            sessionStorage.removeItem('selectedTemplate');
+
+            console.log('Template loaded successfully:', template.name);
+        }
+
+        function findFallbackTemplate(templateId) {
+            const fallback = window.WORKFLOW_TEMPLATE_DATA?.templates;
+            if (!Array.isArray(fallback)) return null;
+            return fallback.find(t => t.id === templateId) || null;
         }
 
         async function renderTemplate(template) {
@@ -1646,7 +1666,6 @@
             sourceBlock.data = sourceBlock.data || {};
             sourceBlock.data.statusTriggers = selected;
             if (addFollowUpRelationship(sourceBlockId, targetBlockId)) {
-                workflowBlocks = workflowBlocks.filter(block => block.id !== targetBlockId);
                 modal.classList.add('hidden');
                 renderWorkflow();
             }
@@ -1924,9 +1943,6 @@
                     }
                 }
                 
-                // Remove from root level if it was there
-                workflowBlocks = workflowBlocks.filter(block => block.id !== nextBlockId);
-                
                 // Close modal
                 const modal = document.getElementById('blockConfigurationModal');
                 modal.classList.add('hidden');
@@ -1979,9 +1995,6 @@
                             console.log('Regular block - creating follow-up relationship');
                             // Create followUp relationship for regular blocks
                             if (addFollowUpRelationship(parentBlock.id, draggedBlock.id)) {
-                                // Remove from root level if it was there
-                                workflowBlocks = workflowBlocks.filter(block => block.id !== draggedBlock.id);
-                                
                                 // Re-render workflow
                                 renderWorkflow();
                             }
@@ -3897,7 +3910,6 @@
                 const targetBlock = findTargetBlockAtPosition(e.clientX, e.clientY);
                 if (targetBlock && canConnect(parentBlock, targetBlock)) {
                     createConnection(parentBlock, targetBlock);
-                    triggerAutoLayout();
                 }
                 
                 // Cleanup temporary connection line
@@ -4155,45 +4167,6 @@
         function getBlockTitle(block) {
             return block.config?.title || block.type || 'Block';
         }
-
-        function triggerAutoLayout() {
-            // Simple auto-layout: position blocks in a top-to-bottom flow
-            const rootBlocks = workflowBlocks.filter(block => 
-                !workflowBlocks.some(otherBlock => 
-                    otherBlock.nextBlocks && otherBlock.nextBlocks.some(nextBlock => nextBlock.id === block.id)
-                )
-            );
-            
-            layoutBlocksHierarchically(rootBlocks, { x: 400, y: 100 }, 0);
-            renderWorkflow();
-            
-            // Center blocks after auto layout
-            setTimeout(() => {
-                centerBlocks();
-            }, 100);
-        }
-
-        function layoutBlocksHierarchically(blocks, startPosition, level) {
-            const blockSpacing = { x: 320, y: 160 };
-            
-            blocks.forEach((block, index) => {
-                // Position block
-                block.position = {
-                    x: startPosition.x + (index - (blocks.length - 1) / 2) * blockSpacing.x,
-                    y: startPosition.y + level * blockSpacing.y
-                };
-                
-                // Layout next blocks
-                if (block.nextBlocks && block.nextBlocks.length > 0) {
-                    layoutBlocksHierarchically(
-                        block.nextBlocks, 
-                        { x: block.position.x, y: block.position.y + blockSpacing.y }, 
-                        level + 1
-                    );
-                }
-            });
-        }
-
 
         function renderLoopBlock(block, container, nestingLevel = 0, isLast = false) {
             const containerElement = document.createElement('div');

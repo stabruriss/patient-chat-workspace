@@ -12,6 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+<script src="workflow-templates-data.js"></script>
 <style>
 :where([class^="ri-"])::before { content: "\f3c2"; }
 body {
@@ -471,11 +472,17 @@ async function loadWorkflowTemplates() {
         console.log('Loading workflow templates...');
         const response = await fetch('./workflow-templates.json');
         const data = await response.json();
-        console.log('Templates loaded:', data.templates);
-        renderWorkflowTemplates(data.templates);
+        if (Array.isArray(data?.templates) && data.templates.length) {
+            console.log('Templates loaded:', data.templates);
+            renderWorkflowTemplates(data.templates);
+            return;
+        }
+        console.warn('Workflow templates JSON missing templates array, using fallback data');
     } catch (error) {
         console.error('Error loading workflow templates:', error);
-        // Fallback to show static templates
+    }
+
+    if (!renderFallbackTemplates()) {
         showStaticTemplates();
     }
 }
@@ -518,17 +525,24 @@ function createTemplateCard(template) {
                 <span class="text-xs px-2 py-1 bg-${template.type === 'patient' ? 'blue' : 'green'}-100 text-${template.type === 'patient' ? 'blue' : 'green'}-700 rounded-full">
                     ${template.type === 'patient' ? 'Patient' : 'Practice'}
                 </span>
-                <span class="text-xs text-primary font-medium">
-                    Use Template →
-                </span>
             </div>
         </div>
     `;
 }
 
+function renderFallbackTemplates() {
+    const fallback = window.WORKFLOW_TEMPLATE_DATA?.templates;
+    if (Array.isArray(fallback) && fallback.length) {
+        console.log('Rendering templates from embedded fallback data');
+        renderWorkflowTemplates(fallback);
+        return true;
+    }
+    return false;
+}
+
 function showStaticTemplates() {
-    // Fallback static templates
-    const staticTemplates = [
+    console.warn('Falling back to minimal static workflow templates');
+    renderWorkflowTemplates([
         {
             id: 'annual-wellness-visit',
             name: 'Annual Wellness Visit',
@@ -550,8 +564,7 @@ function showStaticTemplates() {
             rating: 4.6,
             type: 'patient'
         }
-    ];
-    renderWorkflowTemplates(staticTemplates);
+    ]);
 }
 
 });
@@ -1260,16 +1273,8 @@ Create Practice Workflow
 <h2 class="text-lg font-semibold text-gray-900">Popular Workflows</h2>
 <p class="text-sm text-gray-600 mt-1">Reusable workflow templates</p>
 </div>
-<button class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap">
-<div class="w-4 h-4 flex items-center justify-center mr-2">
-<i class="ri-arrow-right-line"></i>
 </div>
-Explore More
-</button>
-</div>
-<div class="bg-white rounded-lg border border-gray-200 overflow-hidden mb-6">
-</div>
-<div id="workflowTemplatesGrid" class="grid grid-cols-3 gap-4">
+<div id="workflowTemplatesGrid" class="grid grid-cols-3 gap-4 auto-rows-auto">
 <!-- Templates will be loaded dynamically -->
 </div>
 </div>
