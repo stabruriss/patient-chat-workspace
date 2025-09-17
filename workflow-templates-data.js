@@ -581,6 +581,64 @@ window.WORKFLOW_TEMPLATE_DATA = {
         "complexity": "medium",
         "useCase": "Payment and billing management"
       }
+    },
+    {
+      "id": "patient-birthday-greeting",
+      "name": "Patient Birthday Greeting",
+      "description": "Send a celebratory message on the patient's birthday",
+      "type": "patient",
+      "rating": 4.9,
+      "category": "Patient Engagement",
+      "tags": ["birthday", "celebration", "patient-engagement", "automations"],
+      "blocks": [
+        {
+          "id": "block-1",
+          "type": "trigger-patient-events",
+          "config": {
+            "title": "Patient Birthday",
+            "description": "Triggered on the patient's birthday",
+            "icon": "ri-cake-2-line",
+            "color": "pink"
+          },
+          "data": {
+            "triggerEvents": ["patient-birthday"],
+            "conditions": {
+              "status": "active"
+            }
+          }
+        },
+        {
+          "id": "block-2",
+          "type": "send-message",
+          "config": {
+            "title": "Send Birthday Message",
+            "description": "Deliver a personalized birthday greeting",
+            "icon": "ri-mail-send-line",
+            "color": "purple"
+          },
+          "data": {
+            "messageType": "email",
+            "template": "Happy Birthday, {{patient.first_name}}! We hope you have a wonderful day. Please reach out if there is anything we can do to support your health goals this year.",
+            "channels": ["email", "sms"],
+            "priority": "normal"
+          }
+        }
+      ],
+      "connections": [
+        {
+          "from": "block-1",
+          "to": "block-2",
+          "type": "direct"
+        }
+      ],
+      "metadata": {
+        "created": "2024-12-20",
+        "author": "Healthcare Templates",
+        "version": "1.0",
+        "estimatedRuntime": "Same day",
+        "complexity": "simple",
+        "useCase": "Celebrate patient birthdays automatically"
+      }
     }
   ]
 };
