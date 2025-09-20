@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
     <script src="demo-patient-data.js"></script>
+    <script src="note-autocomplete-data.js"></script>
+    <script src="note-mentions-data.js"></script>
     <style>
         :where([class^="ri-"])::before { content: "\f3c2"; }
         body {
@@ -50,6 +52,14 @@
         .note-card:hover {
             transform: translateY(-1px);
             transition: transform 0.2s ease;
+        }
+        #note-autocomplete-suggestion {
+            position: absolute;
+            pointer-events: none;
+            white-space: pre;
+            opacity: 0.65;
+            font-size: 0.875rem;
+            color: rgb(107 114 128);
         }
     </style>
 </head>
@@ -380,6 +390,19 @@
                                 Note Editor
                             </h3>
                             <div class="flex items-center space-x-3">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">Assist Mode</span>
+                                    <div class="inline-flex border border-gray-200 rounded-md overflow-hidden text-xs">
+                                        <button type="button" class="assist-mode-btn px-2 py-1 bg-custom-primary text-white flex items-center space-x-1" data-assist-mode="dropdown">
+                                            <i class="ri-hand-coin-line text-xs text-white"></i>
+                                            <span>Semi-Auto</span>
+                                        </button>
+                                        <button type="button" class="assist-mode-btn px-2 py-1 bg-white text-gray-600 flex items-center space-x-1" data-assist-mode="inline">
+                                            <i class="ri-sparkling-2-line text-xs text-gray-500"></i>
+                                            <span>Full-Auto</span>
+                                        </button>
+                                    </div>
+                                </div>
                                 <button class="template-button px-3 py-1 bg-gray-50 text-gray-600 hover:bg-gray-100 rounded text-sm flex items-center">
                                     <i class="ri-file-copy-line mr-1"></i>Templates
                                 </button>
@@ -408,7 +431,7 @@
                     </div>
                     
                     <!-- Editor Content -->
-                    <div class="flex-1 p-4">
+                    <div class="flex-1 p-4 relative">
                         <textarea id="note-editor" class="w-full h-full resize-none border-none focus:outline-none text-sm leading-relaxed" placeholder="Begin typing your encounter note here...
 
 You can use templates or voice-to-text to get started quickly.
@@ -447,6 +470,7 @@ ASSESSMENT & PLAN:
    - HbA1c due in 3 months
 
 3. Follow-up in 4 weeks to reassess BP control</textarea>
+                        <div id="note-autocomplete-suggestion" class="hidden"></div>
                     </div>
 
                     <!-- Editor Footer -->
@@ -850,8 +874,214 @@ ASSESSMENT & PLAN:
             const noteEditor = document.getElementById('note-editor');
             let currentDropdown = null;
             let currentCursorPosition = 0;
+            const autocompleteEntries = window.NOTE_AUTOCOMPLETE_SUGGESTIONS || [];
+            const mentionDirectory = window.NOTE_MENTIONS || { documents: [], team: [] };
+            const editorContainer = noteEditor ? noteEditor.parentElement : null;
+            const autocompleteEl = document.getElementById('note-autocomplete-suggestion');
+            const editorStyles = noteEditor ? window.getComputedStyle(noteEditor) : null;
+            const editorLineHeight = editorStyles ? parseInt(editorStyles.lineHeight) || 20 : 20;
+            const editorPaddingTop = editorStyles ? parseInt(editorStyles.paddingTop) || 0 : 0;
+            let activeAutocomplete = null;
+            let assistMode = 'dropdown';
 
             if (noteEditor) {
+                const assistModeButtons = document.querySelectorAll('.assist-mode-btn');
+
+                function updateAssistModeButtons() {
+                    assistModeButtons.forEach(btn => {
+                        const isActive = btn.dataset.assistMode === assistMode;
+                        const icon = btn.querySelector('i');
+                        if (isActive) {
+                            btn.classList.add('bg-custom-primary', 'text-white');
+                            btn.classList.remove('bg-white', 'text-gray-600');
+                            if (icon) {
+                                icon.classList.remove('text-gray-500', 'text-gray-600');
+                                icon.classList.add('text-white');
+                            }
+                        } else {
+                            btn.classList.remove('bg-custom-primary', 'text-white');
+                            btn.classList.add('bg-white', 'text-gray-600');
+                            if (icon) {
+                                icon.classList.remove('text-white');
+                                icon.classList.add('text-gray-500');
+                            }
+                        }
+                    });
+                }
+
+                function setAssistMode(mode) {
+                    if (!mode || mode === assistMode) return;
+                    assistMode = mode;
+                    updateAssistModeButtons();
+                    if (assistMode === 'inline') {
+                        hideDropdown();
+                        updateAutocompleteSuggestion();
+                    } else {
+                        hideAutocompleteSuggestion();
+                    }
+                }
+
+                assistModeButtons.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        setAssistMode(btn.dataset.assistMode);
+                    });
+                });
+
+                updateAssistModeButtons();
+
+                function showAutocompleteSuggestion(text) {
+                    if (!autocompleteEl || !text || assistMode !== 'inline') return;
+                    const coords = getCaretCoordinates();
+                    if (!coords) return;
+                    const containerRect = editorContainer.getBoundingClientRect();
+                    autocompleteEl.style.left = `${Math.max(0, coords.x - containerRect.left)}px`;
+                    autocompleteEl.style.top = `${Math.max(0, coords.y - containerRect.top - editorLineHeight + editorPaddingTop)}px`;
+                    autocompleteEl.textContent = text;
+                    autocompleteEl.dataset.completion = text;
+                    autocompleteEl.classList.remove('hidden');
+                    activeAutocomplete = text;
+                }
+
+                function hideAutocompleteSuggestion() {
+                    if (!autocompleteEl) return;
+                    autocompleteEl.classList.add('hidden');
+                    autocompleteEl.textContent = '';
+                    autocompleteEl.dataset.completion = '';
+                    activeAutocomplete = null;
+                }
+
+                function findAutocompleteSuggestion(textBeforeCursor, textAfterCursor) {
+                    const lowerBefore = textBeforeCursor.toLowerCase();
+                    for (const entry of autocompleteEntries) {
+                        if (!entry || !entry.trigger || !entry.completion) continue;
+                        const trigger = entry.trigger.toLowerCase();
+                        if (lowerBefore.endsWith(trigger)) {
+                            // Avoid suggesting if completion already present
+                            if (textAfterCursor.startsWith(entry.completion)) {
+                                continue;
+                            }
+                            return entry;
+                        }
+                    }
+                    return null;
+                }
+
+                function updateAutocompleteSuggestion() {
+                    if (!noteEditor || assistMode !== 'inline') {
+                        hideAutocompleteSuggestion();
+                        return;
+                    }
+                    const cursorPosition = noteEditor.selectionStart;
+                    const textBeforeCursor = noteEditor.value.substring(0, cursorPosition);
+                    const textAfterCursor = noteEditor.value.substring(cursorPosition);
+                    const suggestion = findAutocompleteSuggestion(textBeforeCursor, textAfterCursor);
+                    if (suggestion) {
+                        showAutocompleteSuggestion(suggestion.completion);
+                    } else {
+                        hideAutocompleteSuggestion();
+                    }
+                }
+
+                function acceptAutocompleteSuggestion() {
+                    if (assistMode !== 'inline' || !activeAutocomplete) return false;
+                    const completion = autocompleteEl?.dataset?.completion;
+                    if (!completion) return false;
+                    const start = noteEditor.selectionStart;
+                    const end = noteEditor.selectionEnd;
+                    const value = noteEditor.value;
+                    noteEditor.value = value.substring(0, start) + completion + value.substring(end);
+                    const newPos = start + completion.length;
+                    noteEditor.selectionStart = noteEditor.selectionEnd = newPos;
+                    updateWordCount();
+                    hideAutocompleteSuggestion();
+                    setTimeout(updateAutocompleteSuggestion, 0);
+                    return true;
+                }
+
+                function getMentionOptions(query) {
+                    const normalized = (query || '').trim().toLowerCase();
+                    const results = [];
+
+                    (mentionDirectory.documents || []).forEach(doc => {
+                        const matches = !normalized || doc.title.toLowerCase().includes(normalized) || (doc.summary || '').toLowerCase().includes(normalized);
+                        if (matches) {
+                            results.push({
+                                name: doc.title,
+                                icon: doc.icon || 'ri-file-text-line',
+                                subtitle: doc.summary || 'Patient document',
+                                isMention: true,
+                                mentionType: 'document',
+                                displayName: doc.title
+                            });
+                        }
+                    });
+
+                    (mentionDirectory.team || []).forEach(member => {
+                        const matches = !normalized || member.name.toLowerCase().includes(normalized) || (member.role || '').toLowerCase().includes(normalized);
+                        if (matches) {
+                            results.push({
+                                name: member.name,
+                                icon: member.icon || 'ri-user-line',
+                                subtitle: member.role || 'Team member',
+                                isMention: true,
+                                mentionType: 'team',
+                                displayName: member.name,
+                                memberData: member
+                            });
+                        }
+                    });
+
+                    return results.slice(0, 8);
+                }
+
+                function replaceCurrentMention(replacementText) {
+                    const cursor = noteEditor.selectionStart;
+                    const value = noteEditor.value;
+                    const mentionMatch = value.substring(0, cursor).match(/@([A-Za-z0-9\s\-]*)$/);
+                    if (!mentionMatch) {
+                        insertPlainTextAtCursor(replacementText);
+                        return;
+                    }
+                    const mentionStart = cursor - mentionMatch[0].length;
+                    noteEditor.value = value.substring(0, mentionStart) + replacementText + value.substring(cursor);
+                    const newPosition = mentionStart + replacementText.length;
+                    noteEditor.selectionStart = noteEditor.selectionEnd = newPosition;
+                    noteEditor.focus();
+                    updateWordCount();
+                }
+
+                function handleMentionSelection(item) {
+                    const mentionText = item.mentionType === 'document'
+                        ? `@[Document] ${item.displayName}`
+                        : `@${item.displayName}`;
+                    replaceCurrentMention(mentionText + ' ');
+                    hideDropdown();
+                    hideAutocompleteSuggestion();
+
+                    if (item.mentionType === 'document') {
+                        showNotification(`Attached ${item.displayName}`, 'success');
+                        createActionCard({
+                            name: item.displayName,
+                            icon: item.icon || 'ri-file-text-line',
+                            cardCategory: 'Document',
+                            actionName: 'Document'
+                        });
+                    } else if (item.mentionType === 'team') {
+                        showNotification(`Creating task for ${item.displayName}`, 'info');
+                        openTaskModal(null, null, { assignedTo: item.memberData || { name: item.displayName } });
+                    }
+                }
+
+                function insertPlainTextAtCursor(text) {
+                    const start = noteEditor.selectionStart;
+                    const end = noteEditor.selectionEnd;
+                    const value = noteEditor.value;
+                    noteEditor.value = value.substring(0, start) + text + value.substring(end);
+                    const newPosition = start + text.length;
+                    noteEditor.selectionStart = noteEditor.selectionEnd = newPosition;
+                    updateWordCount();
+                    noteEditor.focus();
+                }
                 function updateWordCount() {
                     const content = noteEditor.value;
                     const words = content.trim().split(/\s+/).filter(word => word.length > 0).length;
@@ -877,10 +1107,13 @@ ASSESSMENT & PLAN:
 
                     items.forEach((item, index) => {
                         const option = document.createElement('div');
-                        option.className = 'p-2 hover:bg-gray-100 cursor-pointer flex items-center text-sm border-b border-gray-100 last:border-b-0';
+                        option.className = 'dropdown-option p-2 hover:bg-gray-100 cursor-pointer flex items-start text-sm border-b border-gray-100 last:border-b-0 space-x-2';
                         option.innerHTML = `
-                            <i class="${item.icon} mr-2 text-gray-600"></i>
-                            <span>${item.name}</span>
+                            <i class="${item.icon} text-gray-600 mt-0.5"></i>
+                            <div class="flex-1">
+                                <div class="text-gray-800">${item.name}</div>
+                                ${item.subtitle ? `<div class="text-xs text-gray-500">${item.subtitle}</div>` : ''}
+                            </div>
                         `;
                         
                         // Store the full item data for keyboard navigation
@@ -911,6 +1144,10 @@ ASSESSMENT & PLAN:
                 }
 
                 function handleItemSelection(item) {
+                    if (item && item.isMention) {
+                            handleMentionSelection(item);
+                            return;
+                    }
                     // Check if this is a variable category
                     if (item.isVariableCategory) {
                         // Show variables for this category
@@ -1064,7 +1301,10 @@ ASSESSMENT & PLAN:
                     const cardsContainer = smartActionsContainer.querySelector('.space-y-4') || smartActionsContainer;
                     
                     // Determine card type and color based on item category
-                    const cardInfo = getCardInfo(item.name);
+                    const cardCategory = item.cardCategory || item.name;
+                    const displayName = item.displayName || item.name;
+                    const cardInfo = getCardInfo(cardCategory);
+                    const actionName = item.actionName || item.name;
                     
                     // Create unique ID for the card
                     const cardId = 'card-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
@@ -1084,7 +1324,7 @@ ASSESSMENT & PLAN:
                         </div>
                         <div class="space-y-2">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs ${cardInfo.textColor}">${item.name}</span>
+                                <span class="text-xs ${cardInfo.textColor}">${displayName}</span>
                                 <button class="px-2 py-0.5 ${cardInfo.buttonBg} ${cardInfo.buttonText} text-xs rounded hover:opacity-80 transition-opacity">
                                     ${cardInfo.actionText}
                                 </button>
@@ -1106,11 +1346,10 @@ ASSESSMENT & PLAN:
                     // Add click handler for action button
                     const actionButton = actionCard.querySelector('button:not(.remove-card)');
                     actionButton.addEventListener('click', function() {
-                        // Check if this is a note action that should open a modal
-                        if (noteActions.find(action => action.name === item.name)) {
-                            openActionModal(item.name);
+                        if (noteActions.find(action => action.name === actionName)) {
+                            openActionModal(actionName);
                         } else {
-                            showNotification(`${cardInfo.actionText} ${item.name}`, 'success');
+                            showNotification(`${cardInfo.actionText} ${displayName}`, 'success');
                         }
                     });
                     
@@ -1118,7 +1357,7 @@ ASSESSMENT & PLAN:
                     cardsContainer.appendChild(actionCard);
                     
                     // Show notification
-                    showNotification(`${item.name} added to Smart Actions`, 'success');
+                    showNotification(`${displayName} added to Smart Actions`, 'success');
                 }
 
                 function getCardInfo(itemName) {
@@ -1238,7 +1477,7 @@ ASSESSMENT & PLAN:
                     }
                 }
 
-                function openTaskModal(draftData = null, draftId = null) {
+                function openTaskModal(draftData = null, draftId = null, options = {}) {
                     const taskModal = document.createElement('div');
                     taskModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
                     taskModal.innerHTML = `
@@ -1292,6 +1531,11 @@ ASSESSMENT & PLAN:
                     `;
                     document.body.appendChild(taskModal);
                     
+                    if (options.assignedTo) {
+                        taskModal.dataset.assignedMemberId = options.assignedTo.id || '';
+                        taskModal.dataset.assignedMemberName = options.assignedTo.name || '';
+                    }
+
                     // Populate form with draft data if editing
                     if (draftData) {
                         taskModal.querySelector('input[type="text"]').value = draftData.title || '';
@@ -1307,6 +1551,21 @@ ASSESSMENT & PLAN:
                             taskModal.remove();
                         });
                     });
+
+                    if (options.assignedTo) {
+                        const titleInput = taskModal.querySelector('input[type="text"]');
+                        if (titleInput && !titleInput.value) {
+                            titleInput.value = `Task for ${options.assignedTo.name}`;
+                        }
+                        const selectElements = taskModal.querySelectorAll('select');
+                        if (selectElements.length > 1) {
+                            selectElements[1].value = 'team';
+                            const helper = document.createElement('p');
+                            helper.className = 'text-xs text-gray-500 mt-1';
+                            helper.textContent = `Assigning to ${options.assignedTo.name}${options.assignedTo.role ? ' • ' + options.assignedTo.role : ''}`;
+                            selectElements[1].parentElement.appendChild(helper);
+                        }
+                    }
                     
                     const form = taskModal.querySelector('#task-form');
                     form.addEventListener('submit', function(e) {
@@ -1321,7 +1580,9 @@ ASSESSMENT & PLAN:
                             priority: form.querySelector('select').value,
                             assignTo: form.querySelectorAll('select')[1].value,
                             description: form.querySelector('textarea').value,
-                            timestamp: new Date().toISOString()
+                            timestamp: new Date().toISOString(),
+                            assignedMemberId: taskModal.dataset.assignedMemberId || null,
+                            assignedMemberName: taskModal.dataset.assignedMemberName || null
                         };
                         
                         if (draftId) {
@@ -2049,6 +2310,7 @@ ASSESSMENT & PLAN:
                             insertText: action.name
                         }));
                         createDropdown(actions, coords.x, coords.y);
+                        hideAutocompleteSuggestion();
                         return;
                     }
                     
@@ -2076,13 +2338,29 @@ ASSESSMENT & PLAN:
                         }
                         
                         createDropdown(allVariables, coords.x, coords.y);
+                        hideAutocompleteSuggestion();
+                        return;
+                    }
+
+                    // Handle @ mentions for documents and team members
+                    const mentionMatch = textBeforeCursor.match(/@([A-Za-z0-9\s\-]*)$/);
+                    if (mentionMatch) {
+                        const mentionQuery = mentionMatch[1] || '';
+                        const mentionOptions = getMentionOptions(mentionQuery);
+                        if (mentionOptions.length > 0) {
+                            const coords = getCaretCoordinates();
+                            createDropdown(mentionOptions, coords.x, coords.y);
+                        } else {
+                            hideDropdown();
+                        }
+                        hideAutocompleteSuggestion();
                         return;
                     }
                     
 
                     
                     // Handle letter matching for note parts and variables
-                    if (lastChar && /[a-zA-Z]/.test(lastChar)) {
+                    if (assistMode === 'dropdown' && lastChar && /[a-zA-Z]/.test(lastChar)) {
                         const matches = [];
                         const lowerLastChar = lastChar.toLowerCase();
                         
@@ -2142,19 +2420,35 @@ ASSESSMENT & PLAN:
                         if (matches.length > 0) {
                             const coords = getCaretCoordinates();
                             createDropdown(matches, coords.x, coords.y);
+                            hideAutocompleteSuggestion();
                         } else {
                             hideDropdown();
                         }
                     } else {
                         hideDropdown();
                     }
+
+                    if (assistMode === 'inline') {
+                        updateAutocompleteSuggestion();
+                    } else {
+                        hideAutocompleteSuggestion();
+                    }
                 });
 
                 // Handle keyboard navigation in dropdown
                 noteEditor.addEventListener('keydown', function(e) {
+                    if (assistMode === 'inline' && e.key === 'Tab' && !currentDropdown) {
+                        if (acceptAutocompleteSuggestion()) {
+                            e.preventDefault();
+                            return;
+                        }
+                    }
+                    if (e.key === 'Escape') {
+                        hideAutocompleteSuggestion();
+                    }
                     if (!currentDropdown) return;
                     
-                    const options = currentDropdown.querySelectorAll('div');
+                    const options = currentDropdown.querySelectorAll('.dropdown-option');
                     const selected = currentDropdown.querySelector('.bg-gray-50');
                     let selectedIndex = Array.from(options).indexOf(selected);
                     
@@ -2178,21 +2472,22 @@ ASSESSMENT & PLAN:
                             break;
                             
                         case 'Enter':
+                        case 'Tab':
                             e.preventDefault();
                             if (selected) {
-                                const itemText = selected.querySelector('span').textContent;
-                                const itemIcon = selected.querySelector('i').className;
-                                
-                                // Get the stored item data from the dropdown option
                                 const storedItem = selected._itemData;
-                                const item = storedItem || { name: itemText, icon: itemIcon };
-                                
-                                handleItemSelection(item);
+                                const item = storedItem || null;
+                                if (item) {
+                                    handleItemSelection(item);
+                                }
                                 hideDropdown();
                             }
+                            if (e.key === 'Tab') {
+                                return;
+                            }
                             break;
-                            
-                        case 'Escape':
+                    
+                case 'Escape':
                             e.preventDefault();
                             hideDropdown();
                             break;
@@ -2204,6 +2499,26 @@ ASSESSMENT & PLAN:
                     if (!noteEditor.contains(e.target) && currentDropdown && !currentDropdown.contains(e.target)) {
                         hideDropdown();
                     }
+                });
+
+                noteEditor.addEventListener('keyup', function(e) {
+                    if (assistMode === 'inline' && ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End', 'Backspace', 'Delete'].includes(e.key)) {
+                        updateAutocompleteSuggestion();
+                    } else if (assistMode === 'dropdown') {
+                        hideAutocompleteSuggestion();
+                    }
+                });
+
+                noteEditor.addEventListener('click', function() {
+                    if (assistMode === 'inline') {
+                        updateAutocompleteSuggestion();
+                    } else {
+                        hideAutocompleteSuggestion();
+                    }
+                });
+
+                noteEditor.addEventListener('blur', function() {
+                    hideAutocompleteSuggestion();
                 });
 
                 noteEditor.addEventListener('input', updateWordCount);
