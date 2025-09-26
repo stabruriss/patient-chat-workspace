@@ -384,12 +384,13 @@ margin: 0;
 }
 
 
+
 .program-progress-card .bars {
-    display: flex;
-    align-items: flex-end;
-    gap: 0.1rem;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: end;
+    gap: 0.25rem;
     position: relative;
-    justify-content: center;
 }
 
 .program-progress-card .bars::after {
@@ -404,7 +405,6 @@ margin: 0;
 
 
 .program-progress-card .bar {
-    flex: 0 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -423,7 +423,7 @@ margin: 0;
 
 
 .program-progress-card .bar-inner {
-    width: calc(var(--duration, 7) * 0.09rem + 0.58rem);
+    width: 100%;
     border-radius: 999px 999px 6px 6px;
     background: #6366f1;
     height: calc(var(--engagement, 50) * 0.85%);
