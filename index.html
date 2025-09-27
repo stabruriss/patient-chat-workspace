@@ -15,10 +15,6 @@
 :where([class^="ri-"])::before { content: "\f3c2"; }
 body {
 font-family: 'Inter', sans-serif;
-overflow: hidden;
-position: fixed;
-width: 100%;
-height: 100%;
 }
 /* Ensure top navigation is always visible and properly positioned */
 #top-navigation {
@@ -1390,8 +1386,10 @@ Sign Out
 </div>
 </div>
 </div>
+<!-- Main Content Wrapper -->
+<div class="flex-1 min-h-0 h-0">
 <!-- Main Content Container -->
-<div class="flex flex-1 h-full">
+<div class="flex flex-nowrap h-full">
 <!-- Left Sidebar - Navigation and Patient List -->
 <div class="w-72 bg-white border-r border-gray-200 flex flex-col h-full">
 <!-- App Header -->
@@ -1582,7 +1580,9 @@ New Patient
 </div>
 </div>
 <!-- Main Content Area - Chat Interface -->
-<div class="flex-1 flex flex-col h-full relative">
+<div class="flex-1 flex flex-col h-full relative min-w-0">
+<div class="conversation-grid grid grid-cols-[minmax(0,1fr)_20rem] gap-6 h-full">
+<div class="conversation-column flex flex-col h-full min-w-0">
 <!-- Chat Header -->
 <div class="p-4 border-b border-gray-200 flex flex-col bg-white w-full">
 <div class="flex items-center justify-between mb-3">
@@ -2293,7 +2293,8 @@ Email
 </div>
 </div>
 <!-- Right Sidebar - Patient Profile -->
-<div class="w-80 bg-white border-l border-gray-200 flex flex-col h-full">
+</div>
+<div class="w-80 bg-white border-l border-gray-200 flex flex-col h-full corkboard-fixed">
 <!-- Profile Tabs -->
 <!-- Profile Content -->
 <div class="profile-panel flex-1 overflow-y-auto p-6" style="background-color: #F4D03F; background-image: linear-gradient(315deg, #F4D03F 0%, #D5A253 74%);">
@@ -2749,6 +2750,8 @@ Edit
 </div>
 </div>
 </div>
+</div>
+</div>
 <script id="pageTabsScript">
 document.addEventListener('DOMContentLoaded', function() {
 const headerTabs = document.querySelectorAll('.header-tab');
@@ -2844,8 +2847,7 @@ modalContent = `
         </div>
         <div class="text-right">
             <p class="text-[11px] uppercase tracking-wide font-medium text-gray-400">Progress</p>
-            <p class="text-sm font-semibold text-primary">66% complete</p>
-            <p class="text-xs text-gray-500">Next program check-in • Jun 18, 2025</p>
+            <p class="text-sm font-semibold text-primary">66% complete · Next check-in Jun 18, 2025</p>
         </div>
     </div>
         <div class="program-timeline">
@@ -2900,25 +2902,6 @@ modalContent = `
                 </div>
         </div>
     </div>
-    <div class="legend">
-        <div class="legend-item">
-            <span class="legend-swatch" style="background:#9ca3af;"></span>
-            <span>Diagnostics & testing</span>
-        </div>
-        <div class="legend-item">
-            <span class="legend-swatch" style="background:#3b82f6;"></span>
-            <span>Debrief & coaching</span>
-        </div>
-        <div class="legend-item">
-            <span class="legend-swatch" style="background:#10b981;"></span>
-            <span>Workout plan execution</span>
-        </div>
-        <div class="legend-item">
-            <span class="legend-swatch" style="background:#f97316;"></span>
-            <span>Supplement fulfillment</span>
-        </div>
-    </div>
-    <p class="mt-2 text-[11px] text-gray-500">Bar height = logged engagement actions (messages, check-ins, workout uploads) captured during each phase.</p>
 </div>
 <div>
 <h4 class="text-sm font-medium text-gray-900 mb-3">Current Medications</h4>
@@ -3533,6 +3516,13 @@ quickReplyBar.classList.add('hidden');
 });
 });
 });
+
+// Ensure profile panel is visible on page load
+const initialProfilePanel = document.querySelector('.w-80.bg-white.border-l');
+if(initialProfilePanel) {
+initialProfilePanel.style.display = 'flex';
+}
+
 // AI Assistant Chat Functionality
 const aiAssistantChat = document.getElementById('ai-assistant-chat');
 const chatHeader = document.querySelector('.p-4.border-b.border-gray-200.flex.items-center.justify-between');
