@@ -1366,6 +1366,358 @@
         let currentInput = null;
         let currentWorkflowType = null;
 
+        // WebSocket connection for AI workflow generation
+        let ws = null;
+        let wsReconnectAttempts = 0;
+        const WS_MAX_RECONNECT_ATTEMPTS = 5;
+
+        // Auto-detect WebSocket URL based on environment
+        const getWebSocketURL = () => {
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (isLocalhost) {
+                return 'ws://localhost:8000/ws/workflow-chat';
+            } else {
+                // Production: use environment variable or default Railway URL
+                const railwayBackend = 'YOUR_RAILWAY_BACKEND_URL'; // Replace after Railway deployment
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                return `${protocol}//${railwayBackend}/ws/workflow-chat`;
+            }
+        };
+        const WS_URL = getWebSocketURL();
+        let currentAIMessage = null;  // Accumulator for streaming AI messages
+
+        function initWebSocket() {
+            if (ws && (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING)) {
+                return; // Already connected or connecting
+            }
+
+            try {
+                ws = new WebSocket(WS_URL);
+
+                ws.onopen = () => {
+                    console.log('[WebSocket] Connected to workflow generation service');
+                    wsReconnectAttempts = 0;
+                    // Show connection status in UI
+                    showNotification('AI assistant connected', 'success');
+                };
+
+                ws.onmessage = (event) => {
+                    handleWebSocketMessage(JSON.parse(event.data));
+                };
+
+                ws.onerror = (error) => {
+                    console.error('[WebSocket] Error:', error);
+                    showNotification('Connection error - AI features may be limited', 'error');
+                };
+
+                ws.onclose = () => {
+                    console.log('[WebSocket] Connection closed');
+                    ws = null;
+
+                    // Auto-reconnect with exponential backoff
+                    if (wsReconnectAttempts < WS_MAX_RECONNECT_ATTEMPTS) {
+                        const delay = Math.min(1000 * Math.pow(2, wsReconnectAttempts), 10000);
+                        wsReconnectAttempts++;
+                        console.log(`[WebSocket] Reconnecting in ${delay}ms (attempt ${wsReconnectAttempts})`);
+                        setTimeout(initWebSocket, delay);
+                    }
+                };
+            } catch (error) {
+                console.error('[WebSocket] Failed to initialize:', error);
+            }
+        }
+
+        function handleWebSocketMessage(data) {
+            console.log('[WebSocket] Received:', data);
+
+            switch (data.type) {
+                case 'processing_started':
+                    // AI is processing the request
+                    showTypingIndicator();
+                    break;
+
+                case 'chat_message':
+                    // Streaming AI response
+                    hideTypingIndicator();
+                    if (!currentAIMessage) {
+                        currentAIMessage = data.content;
+                        addChatMessage(currentAIMessage, 'ai');
+                    } else {
+                        // Update the last AI message with accumulated text
+                        currentAIMessage += data.content;
+                        updateLastChatMessage(currentAIMessage);
+                    }
+                    break;
+
+                case 'workflow_created':
+                    // Agent created a complete workflow
+                    console.log('[WebSocket] workflow_created received:', data.workflow);
+                    if (data.workflow) {
+                        console.log('[Canvas] Loading workflow with', data.workflow.blocks ? data.workflow.blocks.length : 0, 'blocks');
+                        loadWorkflowFromJSON(data.workflow);
+                        const blockCount = data.workflow.blocks ? data.workflow.blocks.length : 0;
+                        addChatMessage(`✓ Created workflow with ${blockCount} blocks`, 'system');
+                        console.log('[Canvas] After load - workflowBlocks.length =', workflowBlocks.length);
+                    } else {
+                        console.error('[Canvas] No workflow data in workflow_created message');
+                    }
+                    break;
+
+                case 'block_created':
+                    // Agent created a single workflow block (fallback)
+                    if (data.block) {
+                        addBlockToCanvas(data.block);
+                        addChatMessage(`✓ Created ${data.block.type} block`, 'system');
+                        // Re-render canvas to show new block
+                        if (typeof renderWorkflow === 'function') {
+                            renderWorkflow();
+                        }
+                    }
+                    break;
+
+                case 'generation_complete':
+                    // AI finished generating workflow
+                    hideTypingIndicator();
+                    currentAIMessage = null;
+                    // Render workflow if blocks were created
+                    if (workflowBlocks.length > 0 && typeof renderWorkflow === 'function') {
+                        console.log('[Canvas] generation_complete - rendering', workflowBlocks.length, 'blocks');
+                        renderWorkflow();
+                    }
+                    break;
+
+                case 'error':
+                    // Error occurred
+                    hideTypingIndicator();
+                    currentAIMessage = null;
+                    addChatMessage(`Error: ${data.error}`, 'error');
+                    break;
+
+                case 'conversation_reset':
+                    addChatMessage('Conversation history cleared', 'system');
+                    break;
+
+                case 'pong':
+                    // Heartbeat response
+                    break;
+
+                default:
+                    console.warn('[WebSocket] Unknown message type:', data.type);
+            }
+        }
+
+        function sendToAI(message) {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                showNotification('AI assistant not connected. Attempting to reconnect...', 'warning');
+                initWebSocket();
+                setTimeout(() => sendToAI(message), 2000);
+                return;
+            }
+
+            const payload = {
+                type: 'chat_message',
+                message: message,
+                workflow_type: currentWorkflowType || 'patient',
+                existing_blocks: workflowBlocks
+            };
+
+            ws.send(JSON.stringify(payload));
+        }
+
+        function loadWorkflowFromJSON(workflowDef) {
+            console.log('[loadWorkflowFromJSON] START - Input:', workflowDef);
+
+            // Clear existing blocks
+            workflowBlocks = [];
+
+            const blocks = workflowDef.blocks || [];
+            const connections = workflowDef.connections || [];
+
+            console.log('[loadWorkflowFromJSON] Processing', blocks.length, 'blocks');
+
+            // Map smart-review to approval for frontend compatibility
+            const typeMapping = {
+                'smart-review': 'approval'
+            };
+
+            // First pass: Create all blocks
+            blocks.forEach((agentBlock, index) => {
+                let blockType = agentBlock.type;
+                const blockConfig = agentBlock.config || {};
+
+                // Map block type if needed
+                const mappedType = typeMapping[blockType] || blockType;
+
+                console.log(`[loadWorkflowFromJSON] Creating block ${index + 1}:`, blockType, '→', mappedType);
+
+                // Get block metadata from blockConfigs
+                const blockMeta = blockConfigs[mappedType] || {
+                    title: mappedType.charAt(0).toUpperCase() + mappedType.slice(1),
+                    icon: 'ri-settings-line',
+                    color: 'gray',
+                    description: 'Workflow block'
+                };
+
+                // Calculate position (vertical stacking with some spacing)
+                const x = 100;
+                const y = 50 + (index * 150);
+
+                const block = {
+                    id: agentBlock.id || `block_${index + 1}`,
+                    type: mappedType,
+                    config: {
+                        title: blockMeta.title,
+                        icon: blockMeta.icon,
+                        color: blockMeta.color,
+                        description: blockMeta.description
+                    },
+                    data: {
+                        ...blockConfig,
+                        configured: true
+                    },
+                    parentId: null,
+                    parentIds: [],
+                    nextBlocks: [],
+                    position: { x, y },
+                    connectionPoints: {
+                        bottom: { x: 0, y: 0 }
+                    },
+                    children: mappedType === 'condition' ? { paths: blockConfig.trueBranch || [] } :
+                             mappedType === 'loop' ? { items: blockConfig.blocks || [] } : null,
+                    supportsMultipleInputs: mappedType === 'condition'
+                };
+
+                workflowBlocks.push(block);
+            });
+
+            console.log('[loadWorkflowFromJSON] Created', workflowBlocks.length, 'blocks');
+
+            // Second pass: Apply connections
+            connections.forEach(conn => {
+                const fromBlock = workflowBlocks.find(b => b.id === conn.from);
+                const toBlock = workflowBlocks.find(b => b.id === conn.to);
+
+                if (fromBlock && toBlock) {
+                    // Add to nextBlocks
+                    if (!fromBlock.nextBlocks.includes(conn.to)) {
+                        fromBlock.nextBlocks.push(conn.to);
+                    }
+
+                    // Set parent relationship
+                    toBlock.parentId = conn.from;
+                    if (!toBlock.parentIds.includes(conn.from)) {
+                        toBlock.parentIds.push(conn.from);
+                    }
+
+                    // For condition blocks, add to appropriate path
+                    if (fromBlock.type === 'condition' && conn.condition) {
+                        if (!fromBlock.children) {
+                            fromBlock.children = { paths: [] };
+                        }
+                    }
+                }
+            });
+
+            console.log('[loadWorkflowFromJSON] Applied', connections.length, 'connections');
+            console.log('[loadWorkflowFromJSON] Final workflowBlocks:', workflowBlocks);
+
+            // Render the workflow
+            console.log('[loadWorkflowFromJSON] Calling renderWorkflow...');
+            if (typeof renderWorkflow === 'function') {
+                renderWorkflow();
+                console.log('[loadWorkflowFromJSON] renderWorkflow() called successfully');
+            } else {
+                console.error('[loadWorkflowFromJSON] renderWorkflow is not a function!');
+            }
+
+            // Hide empty state
+            console.log('[loadWorkflowFromJSON] Hiding empty state...');
+            if (typeof hideEmptyState === 'function') {
+                hideEmptyState();
+            } else {
+                console.warn('[loadWorkflowFromJSON] hideEmptyState is not available');
+            }
+
+            console.log('[loadWorkflowFromJSON] COMPLETE');
+        }
+
+        function addBlockToCanvas(agentBlock) {
+            console.log('Adding block from agent:', agentBlock);
+
+            // Convert agent block format to frontend block format
+            const blockType = agentBlock.type;
+            const blockConfig = agentBlock.config || {};
+
+            // Calculate position (stack blocks vertically)
+            const yOffset = workflowBlocks.length * 100 + 50;
+            const x = 100;
+            const y = yOffset;
+
+            // Create frontend-compatible block
+            const block = {
+                id: agentBlock.id || `block_${++blockCounter}`,
+                type: blockType,
+                data: {
+                    ...blockConfig,
+                    configured: true  // Mark as configured so it renders properly
+                },
+                parentId: null,
+                parentIds: [],
+                nextBlocks: [],
+                position: { x, y },
+                connectionPoints: {
+                    bottom: { x: 0, y: 0 }
+                },
+                children: blockType === 'condition' ? { paths: blockConfig.trueBranch || [] } :
+                         blockType === 'loop' ? { items: blockConfig.blocks || [] } : null,
+                supportsMultipleInputs: blockType === 'condition'
+            };
+
+            // Handle insertAfter logic
+            if (agentBlock.insertAfter) {
+                const insertIndex = workflowBlocks.findIndex(b => b.id === agentBlock.insertAfter);
+                if (insertIndex >= 0) {
+                    workflowBlocks.splice(insertIndex + 1, 0, block);
+                } else {
+                    workflowBlocks.push(block);
+                }
+            } else {
+                workflowBlocks.push(block);
+            }
+
+            console.log('Block added to canvas:', block);
+
+            // Hide empty state if showing
+            hideEmptyState();
+        }
+
+        function updateLastChatMessage(text) {
+            const chatMessages = document.getElementById('chatMessages');
+            const messages = chatMessages.querySelectorAll('.chat-message');
+            if (messages.length > 0) {
+                const lastMessage = messages[messages.length - 1];
+                if (lastMessage.classList.contains('text-left')) {
+                    // Update AI message content
+                    const contentDiv = lastMessage.querySelector('.bg-gray-100 > div > div:last-child');
+                    if (contentDiv) {
+                        contentDiv.textContent = text;
+                    }
+                }
+            }
+        }
+
+        // Initialize WebSocket when page loads
+        window.addEventListener('DOMContentLoaded', () => {
+            initWebSocket();
+
+            // Send heartbeat every 30 seconds
+            setInterval(() => {
+                if (ws && ws.readyState === WebSocket.OPEN) {
+                    ws.send(JSON.stringify({ type: 'ping' }));
+                }
+            }, 30000);
+        });
+
         // Template loading functionality
         async function loadWorkflowTemplate() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1741,16 +2093,30 @@
         }
 
         function getRootBlocks() {
+            console.log('[getRootBlocks] workflowBlocks:', workflowBlocks);
             // Return blocks that are not referenced as nextBlocks by any other block
-            return workflowBlocks.filter(block => {
+            const roots = workflowBlocks.filter(block => {
+                if (!block) {
+                    console.warn('[getRootBlocks] Found undefined block in workflowBlocks');
+                    return false;
+                }
                 // Check if this block is referenced as a nextBlock by any other block
-                const isReferencedAsNext = workflowBlocks.some(otherBlock => 
-                    otherBlock.nextBlocks && otherBlock.nextBlocks.some(nextBlock => nextBlock.id === block.id)
+                // nextBlocks array contains string IDs, not objects
+                const isReferencedAsNext = workflowBlocks.some(otherBlock =>
+                    otherBlock && otherBlock.nextBlocks && otherBlock.nextBlocks.some(nextBlockId => {
+                        // Handle both string IDs and object references
+                        const id = typeof nextBlockId === 'string' ? nextBlockId : nextBlockId?.id;
+                        return id === block.id;
+                    })
                 );
                 // Also check if block has parent references (for multi-input blocks)
                 const hasParents = (block.parentIds && block.parentIds.length > 0) || block.parentId;
-                return !isReferencedAsNext && !hasParents;
+                const isRoot = !isReferencedAsNext && !hasParents;
+                console.log(`[getRootBlocks] Block ${block.id}: isRoot=${isRoot}, isReferencedAsNext=${isReferencedAsNext}, hasParents=${hasParents}`);
+                return isRoot;
             });
+            console.log('[getRootBlocks] Found root blocks:', roots);
+            return roots;
         }
 
         function getChildBlocks(parentBlockId) {
@@ -3691,10 +4057,23 @@
                 renderBlock(block, blockWrapper, 0, false);
                 container.appendChild(blockWrapper);
                     makeBlockMovable(blockWrapper, block);
-                
+
                 // Recursively render follow-up blocks
                 if (block.nextBlocks && block.nextBlocks.length > 0) {
-                    renderHierarchicalBlocks(block.nextBlocks, container, level + 1, position, renderedBlocks);
+                    // Resolve nextBlocks IDs to actual block objects
+                    const nextBlockObjects = block.nextBlocks.map(nextBlockId => {
+                        // Handle both string IDs and object references
+                        const id = typeof nextBlockId === 'string' ? nextBlockId : nextBlockId?.id;
+                        const nextBlock = findBlockById(id);
+                        if (!nextBlock) {
+                            console.warn(`[renderHierarchicalBlocks] Could not find block with id: ${id}`);
+                        }
+                        return nextBlock;
+                    }).filter(b => b !== null && b !== undefined);
+
+                    if (nextBlockObjects.length > 0) {
+                        renderHierarchicalBlocks(nextBlockObjects, container, level + 1, position, renderedBlocks);
+                    }
                 }
             });
         }
@@ -3709,16 +4088,28 @@
             const blockElement = document.createElement('div');
             const indentClass = nestingLevel > 0 ? `ml-${nestingLevel * 4}` : '';
             
+            // Ensure block has required properties (CACHE BUST v2)
+            if (!block.data) {
+                console.warn('[renderBlock] block.data is undefined, initializing for block:', block.id);
+                block.data = {};
+            }
+            if (!block.config) {
+                console.warn('[renderBlock] block.config is undefined, initializing for block:', block.id);
+                block.config = { color: 'gray', icon: 'ri-settings-line', title: 'Block', description: '' };
+            }
+
+            console.log('[renderBlock] Rendering block:', block.id, 'type:', block.type, 'config:', block.config, 'data:', block.data);
+
             // Determine configuration status
             const isConfigured = Object.keys(block.data).length > 0 && block.data.configured !== false;
             const needsConfig = !isConfigured && !['trigger-manual'].includes(block.type);
-            
+
             const statusClass = isConfigured ? 'configured' : needsConfig ? 'needs-config' : '';
             const conditionClass = block.type === 'condition' ? 'condition-block' : '';
-            
+
             blockElement.className = `flowchart-block ${statusClass} ${conditionClass} ${indentClass}`;
             blockElement.dataset.blockId = block.id;
-            
+
             const colorClass = getColorClasses(block.config.color);
             
             // Create status indicator
@@ -5841,45 +6232,39 @@ if (block.type === 'trigger-manual') {
         function sendChatMessage() {
             const chatInput = document.getElementById('chatInput');
             const message = chatInput.value.trim();
-            
+
             if (!message) return;
-            
+
             // Add user message to chat
             addChatMessage(message, 'user');
-            
+
             // Clear input
             chatInput.value = '';
-            
-            // Show typing indicator
-            showTypingIndicator();
-            
-            // Simulate AI response (replace with actual API call)
-            setTimeout(() => {
-                hideTypingIndicator();
-                const hasExistingWorkflow = workflowBlocks.length > 0;
-                const aiResponse = generateAIResponse(message, hasExistingWorkflow);
-                addChatMessage(aiResponse, 'ai');
-            }, 1500);
+
+            // Reset AI message accumulator
+            currentAIMessage = null;
+
+            // Send to AI via WebSocket
+            sendToAI(message);
         }
         
         function addChatMessage(message, sender) {
             const chatMessages = document.getElementById('chatMessages');
-            
+
             // Remove empty state if it exists
             const emptyState = chatMessages.querySelector('.text-center');
             if (emptyState) {
                 emptyState.remove();
             }
-            
+
             const messageElement = document.createElement('div');
-            messageElement.className = `mb-4 chat-message ${sender === 'user' ? 'text-right' : 'text-left'}`;
-            
-            const time = new Date().toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
+            const time = new Date().toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
             });
-            
+
             if (sender === 'user') {
+                messageElement.className = 'mb-4 chat-message text-right';
                 messageElement.innerHTML = `
                     <div class="inline-block max-w-xs">
                         <div class="bg-purple-600 text-white px-4 py-2 rounded-lg rounded-br-sm">
@@ -5888,7 +6273,27 @@ if (block.type === 'trigger-manual') {
                         <div class="text-xs text-gray-400 mt-1">${time}</div>
                     </div>
                 `;
+            } else if (sender === 'system') {
+                messageElement.className = 'mb-4 chat-message text-center';
+                messageElement.innerHTML = `
+                    <div class="inline-block">
+                        <div class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs">
+                            ${message}
+                        </div>
+                    </div>
+                `;
+            } else if (sender === 'error') {
+                messageElement.className = 'mb-4 chat-message text-center';
+                messageElement.innerHTML = `
+                    <div class="inline-block">
+                        <div class="bg-red-50 text-red-700 px-3 py-2 rounded-lg text-sm">
+                            <i class="ri-error-warning-line mr-1"></i>${message}
+                        </div>
+                    </div>
+                `;
             } else {
+                // AI message
+                messageElement.className = 'mb-4 chat-message text-left';
                 messageElement.innerHTML = `
                     <div class="inline-block max-w-xs">
                         <div class="bg-gray-100 text-gray-900 px-4 py-2 rounded-lg rounded-bl-sm">
@@ -5901,9 +6306,9 @@ if (block.type === 'trigger-manual') {
                     </div>
                 `;
             }
-            
+
             chatMessages.appendChild(messageElement);
-            
+
             // Scroll to bottom
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }

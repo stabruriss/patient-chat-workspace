@@ -68,3 +68,27 @@ build/
 .cache/
 My-Practice-Dashboard.html.bak-20250819161936
 index.html.bak-20250819161352
+
+# Python backend
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/**/*.pyo
+backend/**/*.pyd
+backend/.Python
+backend/env/
+backend/venv/
+backend/.venv/
+backend/pip-log.txt
+backend/pip-delete-this-directory.txt
+backend/.pytest_cache/
+backend/.coverage
+backend/htmlcov/
+
+# API Keys (IMPORTANT: Never commit these!)
+backend/config/api_keys.json
+backend/.env
+
+# Logs
+backend/logs/
+backend/*.log

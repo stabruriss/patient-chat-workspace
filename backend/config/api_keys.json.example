@@ -1,0 +1,34 @@
+{
+  "comment": "This file stores API keys for the Workflow Composer product",
+  "comment2": "This is SEPARATE from Claude Code authentication",
+  "comment3": "Copy this file to api_keys.json and add your keys",
+
+  "claude_agent_sdk": {
+    "provider": "anthropic",
+    "api_key": "",
+    "model": "claude-sonnet-4-5-20250929",
+    "description": "API key for AI-powered workflow generation (end-user feature)"
+  },
+
+  "future_providers": {
+    "openai": {
+      "api_key": "",
+      "model": "gpt-4",
+      "enabled": false
+    },
+    "azure_openai": {
+      "endpoint": "",
+      "api_key": "",
+      "enabled": false
+    }
+  },
+
+  "key_source": "personal",
+  "allowed_key_sources": ["personal", "company", "user_provided"],
+
+  "usage_limits": {
+    "max_requests_per_minute": 60,
+    "max_tokens_per_request": 4096,
+    "enable_rate_limiting": true
+  }
+}
