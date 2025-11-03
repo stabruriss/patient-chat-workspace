@@ -1377,8 +1377,8 @@
             if (isLocalhost) {
                 return 'ws://localhost:8000/ws/workflow-chat';
             } else {
-                // Production: use environment variable or default Railway URL
-                const railwayBackend = 'YOUR_RAILWAY_BACKEND_URL'; // Replace after Railway deployment
+                // Production: Railway backend
+                const railwayBackend = 'web-production-c1100.up.railway.app';
                 const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
                 return `${protocol}//${railwayBackend}/ws/workflow-chat`;
             }
