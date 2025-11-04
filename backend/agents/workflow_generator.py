@@ -1,10 +1,10 @@
 """
 Workflow Generator Agent
 Converts natural language descriptions into workflow block structures
-Uses Anthropic SDK to generate workflows
+Uses MCP tools to create blocks on the canvas
 """
 from typing import List, Dict, Any, Optional, AsyncIterator
-import anthropic
+from claude_agent_sdk import query, ClaudeAgentOptions
 from backend.config.settings import settings
 from backend.config.key_manager import key_manager
 from backend.config.logging_config import get_agent_logger
@@ -68,84 +68,87 @@ class WorkflowGeneratorAgent:
         })
 
         try:
-            # Initialize Anthropic client
-            client = anthropic.AsyncAnthropic(api_key=api_key)
+            # Set API key in environment (Claude SDK reads from ANTHROPIC_API_KEY)
+            os.environ['ANTHROPIC_API_KEY'] = api_key
 
             accumulated_text = ""
             workflow_json_buffer = ""
             in_workflow_json = False
             blocks_created = []
 
-            logger.debug("Starting Anthropic API streaming")
+            logger.debug("Starting Claude Agent SDK query")
 
-            # Use Anthropic SDK streaming
-            async with client.messages.stream(
-                model=model,
-                max_tokens=4096,
-                system=system_prompt,
-                messages=[
-                    {"role": "user", "content": full_prompt}
-                ]
-            ) as stream:
-                async for text in stream.text_stream:
-                    accumulated_text += text
+            async for message in query(
+                prompt=full_prompt,
+                options=ClaudeAgentOptions(
+                    system_prompt=system_prompt,
+                    model=model,
+                    include_partial_messages=True
+                )
+            ):
+                # Handle text content
+                if hasattr(message, 'content') and message.content:
+                    for block in message.content:
+                        if hasattr(block, 'text') and block.text:
+                            text = block.text
+                            accumulated_text += text
 
-                    # Check for WORKFLOW_JSON start
-                    if 'WORKFLOW_JSON:' in text:
-                        in_workflow_json = True
-                        # Extract JSON part
-                        workflow_json_buffer = text.split('WORKFLOW_JSON:', 1)[1]
-                        # Send text before WORKFLOW_JSON to chat
-                        pre_json = text.split('WORKFLOW_JSON:', 1)[0]
-                        if pre_json.strip():
-                            yield {
-                                "type": "chat_message",
-                                "content": pre_json,
-                                "done": False
-                            }
-                    elif in_workflow_json:
-                        workflow_json_buffer += text
-                    else:
-                        # Regular chat message
-                        yield {
-                            "type": "chat_message",
-                            "content": text,
-                            "done": False
-                        }
+                            # Check for WORKFLOW_JSON start
+                            if 'WORKFLOW_JSON:' in text:
+                                in_workflow_json = True
+                                # Extract JSON part
+                                workflow_json_buffer = text.split('WORKFLOW_JSON:', 1)[1]
+                                # Send text before WORKFLOW_JSON to chat
+                                pre_json = text.split('WORKFLOW_JSON:', 1)[0]
+                                if pre_json.strip():
+                                    yield {
+                                        "type": "chat_message",
+                                        "content": pre_json,
+                                        "done": False
+                                    }
+                            elif in_workflow_json:
+                                workflow_json_buffer += text
+                            else:
+                                # Regular chat message
+                                yield {
+                                    "type": "chat_message",
+                                    "content": text,
+                                    "done": False
+                                }
 
-                    # Try to parse complete JSON
-                    if in_workflow_json and workflow_json_buffer.count('{') > 0:
-                        try:
-                            # Try parsing the accumulated JSON
-                            workflow_def = json.loads(workflow_json_buffer.strip())
+                            # Try to parse complete JSON
+                            if in_workflow_json and workflow_json_buffer.count('{') > 0:
+                                try:
+                                    # Try parsing the accumulated JSON
+                                    workflow_def = json.loads(workflow_json_buffer.strip())
 
-                            logger.info(f"Detected WORKFLOW_JSON with {len(workflow_def.get('blocks', []))} blocks")
+                                    logger.info(f"Detected WORKFLOW_JSON with {len(workflow_def.get('blocks', []))} blocks")
 
-                            # Send the complete workflow to frontend
-                            yield {
-                                "type": "workflow_created",
-                                "workflow": workflow_def,
-                                "done": False
-                            }
+                                    # Send the complete workflow to frontend
+                                    yield {
+                                        "type": "workflow_created",
+                                        "workflow": workflow_def,
+                                        "done": False
+                                    }
 
-                            blocks_created = workflow_def.get('blocks', [])
+                                    blocks_created = workflow_def.get('blocks', [])
 
-                            agent_logger.log_tool_call(
-                                tool_name="create_workflow",
-                                parameters=workflow_def,
-                                result={"success": True, "blocks_count": len(blocks_created)}
-                            )
+                                    agent_logger.log_tool_call(
+                                        tool_name="create_workflow",
+                                        parameters=workflow_def,
+                                        result={"success": True, "blocks_count": len(blocks_created)}
+                                    )
 
-                            logger.info(f"Workflow created with {len(blocks_created)} blocks")
+                                    logger.info(f"Workflow created with {len(blocks_created)} blocks")
 
-                            in_workflow_json = False
-                            workflow_json_buffer = ""
+                                    in_workflow_json = False
+                                    workflow_json_buffer = ""
 
-                        except json.JSONDecodeError:
-                            # Not complete yet, keep accumulating
-                            pass
+                                except json.JSONDecodeError:
+                                    # Not complete yet, keep accumulating
+                                    pass
 
-                    logger.debug(f"Streaming text: {text[:100]}...")
+                            logger.debug(f"Streaming text: {text[:100]}...")
 
             # Add to history
             self.conversation_history.append({
