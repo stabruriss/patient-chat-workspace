@@ -1381,6 +1381,10 @@
         let wsReconnectAttempts = 0;
         const WS_MAX_RECONNECT_ATTEMPTS = 5;
         let isAIGenerating = false;  // Track if AI is currently generating
+        let aiGenerationTimeout = null;  // Timeout to prevent hanging
+        let pendingMessageRetries = 0;  // Track sendToAI retry attempts
+        const MAX_MESSAGE_RETRIES = 3;  // Limit retries for sending messages
+        const AI_RESPONSE_TIMEOUT = 60000;  // 60 seconds max for AI response
 
         // Auto-detect WebSocket URL based on environment
         const getWebSocketURL = () => {
@@ -1488,6 +1492,7 @@
 
                 case 'generation_complete':
                     // AI finished generating workflow
+                    clearTimeout(aiGenerationTimeout);  // Clear timeout
                     hideTypingIndicator();
                     currentAIMessage = null;
                     setAIGeneratingState(false);  // Hide stop button
@@ -1500,6 +1505,7 @@
 
                 case 'error':
                     // Error occurred
+                    clearTimeout(aiGenerationTimeout);  // Clear timeout
                     hideTypingIndicator();
                     currentAIMessage = null;
                     setAIGeneratingState(false);  // Hide stop button
@@ -1520,25 +1526,57 @@
         }
 
         function sendToAI(message) {
+            // Check if WebSocket is ready
             if (!ws || ws.readyState !== WebSocket.OPEN) {
-                showNotification('AI assistant not connected. Attempting to reconnect...', 'warning');
+                // Limit retry attempts to prevent infinite loop
+                if (pendingMessageRetries >= MAX_MESSAGE_RETRIES) {
+                    showNotification('Failed to connect to AI assistant. Please try again later.', 'error');
+                    pendingMessageRetries = 0;
+                    setAIGeneratingState(false);
+                    return;
+                }
+
+                showNotification(`AI assistant not connected. Retrying... (${pendingMessageRetries + 1}/${MAX_MESSAGE_RETRIES})`, 'warning');
+                pendingMessageRetries++;
                 initWebSocket();
-                setTimeout(() => sendToAI(message), 2000);
+
+                // Retry with exponential backoff
+                const retryDelay = 1000 * Math.pow(2, pendingMessageRetries - 1);
+                setTimeout(() => sendToAI(message), retryDelay);
                 return;
             }
 
+            // Reset retry counter on successful connection
+            pendingMessageRetries = 0;
+
+            // Only send block count instead of entire workflow to reduce token usage
             const payload = {
                 type: 'chat_message',
                 message: message,
                 workflow_type: currentWorkflowType || 'patient',
-                existing_blocks: workflowBlocks
+                existing_blocks_count: workflowBlocks.length,
+                // Only send blocks if there are fewer than 10 (to avoid huge payloads)
+                existing_blocks: workflowBlocks.length < 10 ? workflowBlocks : []
             };
 
             ws.send(JSON.stringify(payload));
             setAIGeneratingState(true);  // Show stop button
+
+            // Set timeout for AI response
+            clearTimeout(aiGenerationTimeout);
+            aiGenerationTimeout = setTimeout(() => {
+                if (isAIGenerating) {
+                    console.warn('[AI] Response timeout - no response received');
+                    setAIGeneratingState(false);
+                    addChatMessage('AI response timed out. Please try again.', 'error');
+                }
+            }, AI_RESPONSE_TIMEOUT);
         }
 
         function stopAIGeneration() {
+            // Clear timeout
+            clearTimeout(aiGenerationTimeout);
+
             // Close WebSocket to stop streaming
             if (ws && ws.readyState === WebSocket.OPEN) {
                 ws.close();
@@ -1548,9 +1586,8 @@
             setAIGeneratingState(false);
             addChatMessage('Generation stopped by user', 'system');
 
-            // Reconnect for future messages
+            // Reconnect for future messages (but don't reset reconnect attempts aggressively)
             setTimeout(() => {
-                wsReconnectAttempts = 0;
                 initWebSocket();
             }, 1000);
         }
@@ -1759,9 +1796,10 @@
 
         // Initialize WebSocket when page loads
         window.addEventListener('DOMContentLoaded', () => {
-            initWebSocket();
+            // Don't auto-connect - only connect when user sends first message
+            // This saves unnecessary connections if user doesn't use AI features
 
-            // Send heartbeat every 30 seconds
+            // Send heartbeat every 30 seconds (only if connected)
             setInterval(() => {
                 if (ws && ws.readyState === WebSocket.OPEN) {
                     ws.send(JSON.stringify({ type: 'ping' }));
