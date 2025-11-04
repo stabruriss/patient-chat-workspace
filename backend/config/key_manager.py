@@ -65,8 +65,9 @@ class APIKeyManager:
 
         Priority order:
         1. User-provided key (if BYOK is enabled)
-        2. Company key (if configured)
-        3. Personal key (default)
+        2. Environment variable (ANTHROPIC_API_KEY)
+        3. Company key (if configured)
+        4. Personal key (default)
 
         Args:
             user_provided_key: Optional API key provided by end user (BYOK)
@@ -74,26 +75,31 @@ class APIKeyManager:
         Returns:
             API key string or None if not configured
         """
-        config = self._load_keys_config()
-        key_source = config.get("key_source", "personal")
-
         # Priority 1: User-provided key (BYOK)
         if user_provided_key:
             print("🔑 Using user-provided API key (BYOK)")
             return user_provided_key
 
-        # Priority 2: Check key source from config
+        # Priority 2: Environment variable (for Railway/production deployment)
+        env_api_key = os.getenv("ANTHROPIC_API_KEY")
+        if env_api_key:
+            print("🔑 Using API key from environment variable (ANTHROPIC_API_KEY)")
+            return env_api_key
+
+        # Priority 3 & 4: Config file (company or personal key)
+        config = self._load_keys_config()
+        key_source = config.get("key_source", "personal")
+
         if key_source == "user_provided":
             print("⚠️  Key source is 'user_provided' but no key was provided")
             return None
 
-        # Priority 3: Company or personal key from config file
         claude_config = config.get("claude_agent_sdk", {})
         api_key = claude_config.get("api_key", "")
 
         if not api_key:
             print("⚠️  No Claude Agent SDK API key configured")
-            print(f"📝 Add your key to: {self.keys_file}")
+            print(f"📝 Add your key to: {self.keys_file} OR set ANTHROPIC_API_KEY env var")
             print("   This is SEPARATE from your Claude Code authentication")
             return None
 
