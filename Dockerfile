@@ -15,5 +15,5 @@ COPY . .
 # Expose port (Railway will set PORT env var)
 EXPOSE 8000
 
-# Start command - use exec form with shell evaluation
-CMD ["sh", "-c", "uvicorn backend.app:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Start command - Railway sets PORT env var
+CMD uvicorn backend.app:app --host 0.0.0.0 --port ${PORT:-8000}
