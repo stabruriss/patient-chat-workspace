@@ -12,8 +12,12 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy the entire application
 COPY . .
 
+# Copy and set executable permission for start script
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
 # Expose port (Railway will set PORT env var)
 EXPOSE 8000
 
-# Start command - Railway sets PORT env var
-CMD uvicorn backend.app:app --host 0.0.0.0 --port ${PORT:-8000}
+# Start command - use bash script for proper env var handling
+CMD ["/app/start.sh"]
