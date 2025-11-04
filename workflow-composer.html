@@ -1009,14 +1009,24 @@
                             
                         ></textarea>
                     </div>
-                    <button 
-                        id="sendChatBtn" 
+                    <button
+                        id="sendChatBtn"
                         class="flex-shrink-0 h-12 w-12 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 flex items-center justify-center"
                     >
                         <i class="ri-send-plane-line text-lg"></i>
                     </button>
+                    <button
+                        id="stopChatBtn"
+                        class="flex-shrink-0 h-12 w-12 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 flex items-center justify-center hidden"
+                        title="Stop AI generation"
+                    >
+                        <i class="ri-stop-circle-line text-lg"></i>
+                    </button>
                 </div>
-                <div class="text-xs text-gray-500 mt-2">Press Shift+Enter for new line, Enter to send</div>
+                <div class="text-xs text-gray-500 mt-2">
+                    <span id="chatHint">Press Shift+Enter for new line, Enter to send</span>
+                    <span id="generatingHint" class="hidden text-orange-600">AI is generating... Click stop to cancel</span>
+                </div>
             </div>
         </div>
             </div>
@@ -1370,6 +1380,7 @@
         let ws = null;
         let wsReconnectAttempts = 0;
         const WS_MAX_RECONNECT_ATTEMPTS = 5;
+        let isAIGenerating = false;  // Track if AI is currently generating
 
         // Auto-detect WebSocket URL based on environment
         const getWebSocketURL = () => {
@@ -1479,6 +1490,7 @@
                     // AI finished generating workflow
                     hideTypingIndicator();
                     currentAIMessage = null;
+                    setAIGeneratingState(false);  // Hide stop button
                     // Render workflow if blocks were created
                     if (workflowBlocks.length > 0 && typeof renderWorkflow === 'function') {
                         console.log('[Canvas] generation_complete - rendering', workflowBlocks.length, 'blocks');
@@ -1490,6 +1502,7 @@
                     // Error occurred
                     hideTypingIndicator();
                     currentAIMessage = null;
+                    setAIGeneratingState(false);  // Hide stop button
                     addChatMessage(`Error: ${data.error}`, 'error');
                     break;
 
@@ -1522,6 +1535,44 @@
             };
 
             ws.send(JSON.stringify(payload));
+            setAIGeneratingState(true);  // Show stop button
+        }
+
+        function stopAIGeneration() {
+            // Close WebSocket to stop streaming
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.close();
+                ws = null;
+            }
+
+            setAIGeneratingState(false);
+            addChatMessage('Generation stopped by user', 'system');
+
+            // Reconnect for future messages
+            setTimeout(() => {
+                wsReconnectAttempts = 0;
+                initWebSocket();
+            }, 1000);
+        }
+
+        function setAIGeneratingState(generating) {
+            isAIGenerating = generating;
+            const sendBtn = document.getElementById('sendChatBtn');
+            const stopBtn = document.getElementById('stopChatBtn');
+            const chatHint = document.getElementById('chatHint');
+            const generatingHint = document.getElementById('generatingHint');
+
+            if (generating) {
+                sendBtn.classList.add('hidden');
+                stopBtn.classList.remove('hidden');
+                chatHint.classList.add('hidden');
+                generatingHint.classList.remove('hidden');
+            } else {
+                sendBtn.classList.remove('hidden');
+                stopBtn.classList.add('hidden');
+                chatHint.classList.remove('hidden');
+                generatingHint.classList.add('hidden');
+            }
         }
 
         function loadWorkflowFromJSON(workflowDef) {
@@ -3107,12 +3158,17 @@
 
             // AI Chat functionality
             const sendChatBtn = document.getElementById('sendChatBtn');
+            const stopChatBtn = document.getElementById('stopChatBtn');
             const chatInput = document.getElementById('chatInput');
-            
+
             sendChatBtn.addEventListener('click', () => {
                 sendChatMessage();
             });
-            
+
+            stopChatBtn.addEventListener('click', () => {
+                stopAIGeneration();
+            });
+
             chatInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
