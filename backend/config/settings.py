@@ -17,7 +17,13 @@ class Settings(BaseSettings):
     debug: bool = True
 
     # CORS Configuration
-    cors_origins: list = ["http://localhost:8000", "http://localhost:8080", "http://127.0.0.1:8000"]
+    cors_origins: list = [
+        "http://localhost:8000",
+        "http://localhost:8080",
+        "http://127.0.0.1:8000",
+        "https://stabruriss.github.io",  # GitHub Pages production
+        "*"  # Allow all origins for Railway deployment
+    ]
 
     # WebSocket Configuration
     ws_heartbeat_interval: int = 30  # seconds
