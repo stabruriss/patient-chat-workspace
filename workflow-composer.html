@@ -1646,9 +1646,9 @@
                     description: 'Workflow block'
                 };
 
-                // Calculate position (vertical stacking with some spacing)
+                // Calculate position (vertical stacking with generous spacing)
                 const x = 100;
-                const y = 50 + (index * 150);
+                const y = 50 + (index * 250); // Increased from 150 to 250 to prevent overlap
 
                 const block = {
                     id: agentBlock.id || `block_${index + 1}`,
@@ -1708,6 +1708,15 @@
 
             console.log('[loadWorkflowFromJSON] Applied', connections.length, 'connections');
             console.log('[loadWorkflowFromJSON] Final workflowBlocks:', workflowBlocks);
+
+            // Apply auto-layout to properly position blocks
+            console.log('[loadWorkflowFromJSON] Applying auto-layout...');
+            if (typeof applyAutoLayout === 'function') {
+                applyAutoLayout();
+                console.log('[loadWorkflowFromJSON] Auto-layout applied successfully');
+            } else {
+                console.warn('[loadWorkflowFromJSON] applyAutoLayout is not available');
+            }
 
             // Render the workflow
             console.log('[loadWorkflowFromJSON] Calling renderWorkflow...');
@@ -1968,23 +1977,42 @@
         function layoutBlockTree(block, x, y, blockHeight = 200) {
             // Set this block's position
             block.position = { x, y };
-            console.log(`Positioning block ${block.config.title} at (${x}, ${y})`);
+            console.log(`[layoutBlockTree] Positioning block ${block.config.title} (${block.id}) at (${x}, ${y})`);
 
             // Layout children below this block
             if (block.nextBlocks && block.nextBlocks.length > 0) {
                 const childY = y + blockHeight + 50; // Vertical spacing
 
+                console.log(`[layoutBlockTree] Block ${block.id} has ${block.nextBlocks.length} children:`, block.nextBlocks);
+
                 if (block.nextBlocks.length === 1) {
                     // Single child - center it below parent
-                    layoutBlockTree(block.nextBlocks[0], x, childY, blockHeight);
+                    const childBlockId = block.nextBlocks[0];
+                    const childBlock = workflowBlocks.find(b => b.id === childBlockId);
+
+                    if (childBlock) {
+                        console.log(`[layoutBlockTree] Laying out single child: ${childBlockId}`);
+                        layoutBlockTree(childBlock, x, childY, blockHeight);
+                    } else {
+                        console.error(`[layoutBlockTree] Child block not found: ${childBlockId}`);
+                    }
                 } else {
                     // Multiple children - spread them horizontally
                     const totalWidth = (block.nextBlocks.length - 1) * (320 + 100);
                     const startX = x - totalWidth / 2;
 
-                    block.nextBlocks.forEach((childBlock, index) => {
-                        const childX = startX + index * (320 + 100);
-                        layoutBlockTree(childBlock, childX, childY, blockHeight);
+                    console.log(`[layoutBlockTree] Laying out ${block.nextBlocks.length} children horizontally`);
+
+                    block.nextBlocks.forEach((childBlockId, index) => {
+                        const childBlock = workflowBlocks.find(b => b.id === childBlockId);
+
+                        if (childBlock) {
+                            const childX = startX + index * (320 + 100);
+                            console.log(`[layoutBlockTree] Laying out child ${index + 1}: ${childBlockId} at x=${childX}`);
+                            layoutBlockTree(childBlock, childX, childY, blockHeight);
+                        } else {
+                            console.error(`[layoutBlockTree] Child block not found: ${childBlockId}`);
+                        }
                     });
                 }
             }
