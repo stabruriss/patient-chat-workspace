@@ -220,25 +220,32 @@ ABSOLUTE REQUIREMENTS - NO EXCEPTIONS:
 
 WORKFLOW TYPE: {workflow_type}
 
-VALID BLOCK TYPES (use these exact type names):
-- send-message
-- appointment
-- task
-- document
-- order
-- note
-- wait
-- condition
-- loop
-- smart-review
-- ai-touch
+VALID BLOCK TYPES AND REQUIRED CONFIG FIELDS:
+
+1. wait - Must include: "type" (value: "time"), "duration" (number), "unit" (values: "minutes"|"hours"|"days"), "configured": true
+   Example: {{"id": "block_1", "type": "wait", "config": {{"type": "time", "duration": 24, "unit": "hours", "configured": true}}}}
+
+2. loop - Must include: "count" (number), "continueInstructions" (string), "exitInstructions" (string), "configured": true
+   Example: {{"id": "block_2", "type": "loop", "config": {{"count": 3, "continueInstructions": "Continue if patient hasn't responded", "exitInstructions": "Exit when patient confirms", "configured": true}}}}
+
+3. approval (smart-review) - Must include: "aiEnabled" (boolean), "primaryReviewer" (string), "enableEscalation" (boolean), "timeoutDuration" (string), "timeoutUnit" (string), "configured": true
+   Example: {{"id": "block_3", "type": "approval", "config": {{"aiEnabled": true, "primaryReviewer": "current-user", "enableEscalation": false, "timeoutDuration": "24", "timeoutUnit": "hours", "approvalInstructions": "Approve if forms complete", "rejectionInstructions": "Reject if missing data", "escalationInstructions": "Escalate if unclear", "configured": true}}}}
+
+4. ai-touch - Must include: "prompt" (string), "contextSteps" (values: "previous-1"|"previous-2"|"previous-3"|"previous-all"), "executionMode" (values: "execute-next"|"auto-generate"|"hybrid"), "requireApproval" (boolean), "configured": true
+   Example: {{"id": "block_4", "type": "ai-touch", "config": {{"prompt": "Analyze patient response and recommend next steps", "contextSteps": "previous-2", "executionMode": "execute-next", "requireApproval": false, "configured": true}}}}
+
+5. condition - Must include: "paths" (array of objects with "prompt" and "nextBlockId"), "configured": true
+   Example: {{"id": "block_5", "type": "condition", "config": {{"paths": [{{"prompt": "If patient confirmed appointment", "nextBlockId": "block_6"}}], "configured": true}}}}
+
+6. send-message, appointment, task, document, order, note - Generic blocks with "configured": true
+   Example: {{"id": "block_6", "type": "send-message", "config": {{"configured": true}}}}
 
 REQUIRED JSON STRUCTURE:
 WORKFLOW_JSON: {{
   "blocks": [
-    {{"id": "block_1", "type": "send-message", "config": {{"channel": "sms", "message": "text here"}}}},
-    {{"id": "block_2", "type": "wait", "config": {{"waitType": "time", "duration": "24 hours"}}}},
-    {{"id": "block_3", "type": "task", "config": {{"title": "Task name", "assignee": "nurse", "priority": "medium"}}}}
+    {{"id": "block_1", "type": "send-message", "config": {{"configured": true}}}},
+    {{"id": "block_2", "type": "wait", "config": {{"type": "time", "duration": 24, "unit": "hours", "configured": true}}}},
+    {{"id": "block_3", "type": "ai-touch", "config": {{"prompt": "Check patient response", "contextSteps": "previous-1", "executionMode": "execute-next", "requireApproval": false, "configured": true}}}}
   ],
   "connections": [
     {{"from": "block_1", "to": "block_2"}},
@@ -246,20 +253,22 @@ WORKFLOW_JSON: {{
   ]
 }}
 
-EXAMPLE USER REQUEST: "Create a patient intake workflow"
+EXAMPLE USER REQUEST: "Create a patient appointment reminder workflow"
 
 CORRECT RESPONSE:
-"Patient intake workflow with registration, document collection, and appointment scheduling."
+"Appointment reminder workflow with SMS, wait period, and AI follow-up analysis."
 
 WORKFLOW_JSON: {{
   "blocks": [
-    {{"id": "block_1", "type": "send-message", "config": {{"channel": "email", "message": "Welcome! Please complete your registration forms."}}}},
-    {{"id": "block_2", "type": "document", "config": {{"documentType": "form", "title": "Patient Registration", "requireSignature": true}}}},
-    {{"id": "block_3", "type": "appointment", "config": {{"type": "in-person", "duration": 30}}}}
+    {{"id": "block_1", "type": "send-message", "config": {{"configured": true}}}},
+    {{"id": "block_2", "type": "wait", "config": {{"type": "time", "duration": 24, "unit": "hours", "configured": true}}}},
+    {{"id": "block_3", "type": "ai-touch", "config": {{"prompt": "If patient didn't respond, send follow-up SMS", "contextSteps": "previous-2", "executionMode": "execute-next", "requireApproval": false, "configured": true}}}},
+    {{"id": "block_4", "type": "approval", "config": {{"aiEnabled": true, "primaryReviewer": "current-user", "enableEscalation": false, "timeoutDuration": "24", "timeoutUnit": "hours", "approvalInstructions": "Approve if patient confirmed", "rejectionInstructions": "Reject if patient cancelled", "escalationInstructions": "Escalate if unclear response", "configured": true}}}}
   ],
   "connections": [
     {{"from": "block_1", "to": "block_2"}},
-    {{"from": "block_2", "to": "block_3"}}
+    {{"from": "block_2", "to": "block_3"}},
+    {{"from": "block_3", "to": "block_4"}}
   ]
 }}
 
