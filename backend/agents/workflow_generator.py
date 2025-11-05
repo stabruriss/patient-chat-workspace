@@ -122,7 +122,21 @@ class WorkflowGeneratorAgent:
                                     # Try parsing the accumulated JSON
                                     workflow_def = json.loads(workflow_json_buffer.strip())
 
-                                    logger.info(f"Detected WORKFLOW_JSON with {len(workflow_def.get('blocks', []))} blocks")
+                                    logger.info(f"✅ WORKFLOW_JSON PARSED - Blocks: {len(workflow_def.get('blocks', []))}, Connections: {len(workflow_def.get('connections', []))}")
+
+                                    # Log detailed structure for debugging
+                                    blocks = workflow_def.get('blocks', [])
+                                    connections = workflow_def.get('connections', [])
+
+                                    logger.info(f"📦 BLOCKS STRUCTURE:")
+                                    for idx, block in enumerate(blocks):
+                                        logger.info(f"  Block {idx + 1}: id={block.get('id')}, type={block.get('type')}, config_keys={list(block.get('config', {}).keys())}")
+
+                                    logger.info(f"🔗 CONNECTIONS STRUCTURE:")
+                                    for idx, conn in enumerate(connections):
+                                        logger.info(f"  Connection {idx + 1}: {conn.get('from')} → {conn.get('to')}")
+
+                                    logger.info(f"📤 Sending to frontend: {json.dumps(workflow_def, indent=2)}")
 
                                     # Send the complete workflow to frontend
                                     yield {

@@ -2668,17 +2668,33 @@
             
             // Draw connections for each block with followUp relationships
             function drawConnectionsForBlock(block) {
+                console.log('[drawConnectionsForBlock] Processing block:', block.id, 'nextBlocks:', block.nextBlocks);
+
                 if (block.nextBlocks && block.nextBlocks.length > 0) {
-                    block.nextBlocks.forEach(childBlock => {
+                    block.nextBlocks.forEach(childBlockId => {
+                        console.log('[drawConnectionsForBlock] Looking for child block:', childBlockId, 'type:', typeof childBlockId);
+
+                        // Find the actual child block object by ID
+                        const childBlock = workflowBlocks.find(b => b.id === childBlockId);
+
+                        if (!childBlock) {
+                            console.error('[drawConnectionsForBlock] Child block not found:', childBlockId);
+                            return;
+                        }
+
+                        console.log('[drawConnectionsForBlock] Found child block:', childBlock.id, 'at position:', childBlock.position);
+
                         // Calculate connection points - center the blocks
                         const blockWidth = 320; // Standard block width
                         const blockHeight = 80; // Standard block height
-                        
+
                         const parentX = block.position.x + blockWidth / 2;
                         const parentY = block.position.y + blockHeight; // Bottom of parent block
                         const childX = childBlock.position.x + blockWidth / 2;
                         const childY = childBlock.position.y; // Top of child block
-                        
+
+                        console.log('[drawConnectionsForBlock] Drawing line from', parentX, parentY, 'to', childX, childY);
+
                         // Create curved path
                         const midY = parentY + (childY - parentY) / 2;
                         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -2688,9 +2704,9 @@
                         path.setAttribute('fill', 'none');
                         path.setAttribute('marker-end', 'url(#arrowhead)');
                         path.setAttribute('opacity', '0.8');
-                        
+
                         svg.appendChild(path);
-                        
+
                         // Recursively draw connections for child blocks
                         drawConnectionsForBlock(childBlock);
                     });
