@@ -1,0 +1,160 @@
+
+Scope: only cover the workflow for patient, workflow for clinic internal management is out of scope
+
+
+## Entry Points
+
+**From MyWorkbench**:
+Users access workflow composer from Their workbench page:
+
+- List of existing workflows (with status: draft/active, achieved workflow in the archieve tab)
+- "Create New Workflow" button
+- Workflow templates library
+
+The workflow template library is part of the Vibrant Intelligence library, which contains templates for Note blocks, forms, documents, workflows and programs. Detail requirement will be added in the MyWorkbench PRD.
+
+
+
+## Main Interface Layout
+
+### Header Section
+**Workflow Title Area** (Top-left):
+- **Workflow Name**: Inline editable text field with auto-save (2-second debounce) - required, must be unique across a practice. auto add -1/2/3/... if name exists
+- **Workflow Description**: Optional, inline editable text field below name, auto-save enabled
+**Status Indicators** (Top-right):
+- **Auto-save Indicator**: Shows "Saved" with timestamp when changes persist
+- **Assignment Indicator**: "Assigned to X patients" badge (visible only when workflow is assigned)
+- **Workflow Status**: "Draft" or "Active" badge
+
+
+**Action Buttons** (Top-right):
+- **Activate Workflow**: Primary button for draft workflows, triggers validation before activation
+- **Update Workflow**: Replaces Activate button after workflow is activated
+- **Manage Usage**: Opens modal for patient assignment/deassignment and status management
+- **Archive**: Available for editable workflows (not assigned and active)
+- **Copy to New**: Creates a duplicate workflow with new IDs and name (auto add -1/2/3/...)
+- **Error Details**: "Error" badge (visible only when workflow has errors)
+
+### Tab Navigation
+**Primary Tabs**:
+1. **Compose Tab** (Default active for editing):
+   - Three-panel layout: Block Library (left) | Canvas (center) | AI Assistant (right)
+   - All workflow building and configuration happens here
+
+2. **Test & Log Tab**:
+   - Full-width interface for testing and log viewing
+   - Sub-tabs: "Test Run" (default) | "Log View"
+   - Test Run shows execution controls and real-time results
+   - Log View has nested tabs: "Test Runs" | "Live Runs"
+   - Test Run has a "Run with Dummy Patient" button (primary action)
+   - For test run, trigger conditions are checked, thus a start button is needed to start the workflow
+   - The system shall inform the user that all waiting times are changed to 10 seconds for the test run.
+
+**Goal**: Tab structure separates creation workflow (Compose) from validation workflow (Test & Log), allowing users to iterate between building and testing without losing context.
+
+### Compose Tab - Three-Panel Layout
+
+**Left Panel: Block Library**:
+- **Goal**: Provide organized access to all workflow building blocks
+- **Categories** (collapsible sections):
+  - TRIGGERS
+  - ACTIONS
+  - LOGIC
+- **Block Cards** display:
+  - Icon (circular, color-coded by category)
+  - Block name (shortened for space)
+  - Brief description tooltip on hover
+- **Interaction**: Drag block to canvas. After placed, the card on canvas should have a "configure" button, the user can click to open the modal to configure the block. A configured block and an unconfigured block are different states, should be visually distinct.
+- **Trigger Restriction**: After first trigger added, all other triggers disabled with lock icon overlay
+
+**Center Panel: Workflow Canvas**:
+- **Goal**: Visual workspace for constructing workflow logic through block connections
+- **Canvas Background**: Grid pattern for spatial reference
+- **Zoom Controls** (top-right of canvas):
+  - Zoom Out button (−)
+  - Zoom percentage display (click to reset to 100%)
+  - Zoom In button (+)
+  - Range: 25% - 200%
+- **Auto-Layout Button** (floating, top-right): Re-applies hierarchical tree layout
+- **Empty State**: "Start building your workflow. Drag blocks from the left panel to begin. Or open a template from the template library."
+- **Block Rendering**:
+  - Standard blocks: Card format with icon, title, status badge, preview area, action buttons
+  - Condition blocks: Dome-shaped for visual distinction
+  - Connection handles: Red circular "+" buttons at bottom (center or right depending on connections)
+  - Connection lines: Curved Bézier paths with directional arrows
+  - For assigned workflows, the block should have an indicator showing the number of patients currently in each block, with click, open a modal to show the list of patients in that block.
+- **Block States** (visual feedback):
+  - Unconfigured: Orange indicator, pulsing glow, "⚙️ Needs Setup" badge
+  - Configured: Green checkmark "✓ Configured" badge
+  - Selected: Highlighted border, elevated
+  - Orphaned: Reduced opacity, "⚠️ DISCONNECTED" warning tag
+  - Dragging: Rotated, scaled up, elevated shadow
+
+**Right Panel: AI Assistant** (Fixed width, ~350px, collapsible):
+- **Goal**: Provide AI init workflow building assistance, and AI assistance iteration
+- **Header**: "AI Assistant" with purple icon
+- **Chat Interface**:
+  - Message history area (scrollable)
+  - Input field with send button
+  - Keyboard shortcuts: Enter to send, Shift+Enter for new line
+  - Support attachment of image and file.
+- **Message Types**:
+  - User messages (right-aligned)
+  - AI responses (left-aligned)
+
+### Test & Log Tab Interface
+
+**Test Run Sub-Tab**:
+
+- **Test Controls**:
+  - "Run with Dummy Patient" button (primary action)
+  - Test status area (shows progress, current block, timeline)
+  - Block-by-block execution trace with checkmarks/errors
+  - Interactive elements for approval blocks (Approve/Reject buttons)
+- **Test Results Summary**: Duration, blocks executed, success/failure status
+
+**Log View Sub-Tab**:
+- **Filter Controls**: Status dropdown, date range selector, patient search
+- **Log Table**: Timestamp | Patient | Status | Duration | Actions
+- **Detail Modal**: Opens on "View" click, shows full execution trace with error analysis
+
+### Template View Mode (Read-Only)
+**Goal**: Allow users to preview workflow templates from library before copying
+
+**Layout** (Canvas-only, no side panels):
+- Canvas showing template blocks and connections
+- With side note for brief introduction of the template
+- With information: x times used
+- With information: clickable thumb up with count
+- Zoom controls available
+- Top banner: "Template Preview - Read Only"
+- **Action Button**: "Copy to My Workbench" (opens editable copy in Compose tab)
+- **Blocks**: User can click and open the modal to view, but can't edit the configuration of the block.
+
+### Modal Function for Each Block and Button
+
+#### Blocks
+
+#### Buttons
+
+
+
+
+## Navigation Flow:
+1. User clicks "Create New Workflow" OR selects existing workflow to edit
+2. → Opens Workflow Composer in new view
+3. User builds/edits workflow
+4. Edit are auto saved, with a saved indicator on the top right corner
+5. There shall be an "Activate workflow" button for drafts
+6. to activate a workflow, user need to click the "Activate workflow" button, and then the system will validate the workflow, if there is any error, the system will show the error message, if there is no error, the system will activate the workflow, and the "Activate workflow" button will be replaced by "Update workflow".
+6. Activated workflow can be assigned to patients using "Manage usage" button. the button opens a modal with following functions:
+- manually switch between active and draft status, only unassigned workflows can be switched to draft
+- list of patients assigned to this workflow with single/batch assignment, deassign, pause, and resume features
+- if the workflow is assigned, the top right corner should have a assigned to X patients indicator, X is the number of patients assigned to this workflow.
+- An active and assigned workflow cannot be turn back to draft, update, or archived until all assigned patients are unassigned.
+- There shall also be a Archive button and a copy to new button for editable workflows.
+6. If user select to open from template library, the composer will open with the template content but view only(canvas only, no left and right panel), user can't edit or save, but this mode will have an button "copy to my workbench", which will open the template in editable mode; the user can then edit. 
+
+
+
+**End of Document**
