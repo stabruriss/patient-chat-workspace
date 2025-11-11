@@ -8266,48 +8266,64 @@ if (block.type === 'trigger-manual') {
             let completedSteps = 0; // Mock: for demo, assume 0 completed
 
             preview.innerHTML = `
-                <div class="relative bg-gray-50 p-4 rounded-lg">
+                <div class="relative bg-gray-50 p-6 rounded-lg">
                     <!-- Progress Header -->
-                    <div class="text-center mb-4">
-                        <div class="text-indigo-600 font-semibold text-sm mb-1">
+                    <div class="text-center mb-6">
+                        <div class="text-indigo-600 font-semibold text-sm">
                             ${Math.round((completedSteps / totalSteps) * 100)}% complete • Next check-in TBD
                         </div>
                     </div>
 
                     <!-- Milestone Timeline -->
-                    <div class="relative">
+                    <div class="relative" style="min-height: 280px;">
                         <!-- Y-Axis Label -->
-                        <div class="absolute left-0 top-0 bottom-0 flex items-center">
-                            <div class="transform -rotate-90 text-xs font-medium text-indigo-600 tracking-wide whitespace-nowrap" style="transform-origin: left center; margin-left: -20px;">
+                        <div class="absolute left-0 top-20 bottom-20 flex items-center justify-center" style="width: 40px;">
+                            <div class="transform -rotate-90 text-xs font-medium text-indigo-600 tracking-widest whitespace-nowrap">
                                 PATIENT INTERACTIONS
                             </div>
                         </div>
 
                         <!-- Milestone Sections -->
-                        <div class="ml-12 flex items-end relative" style="height: 120px;">
-                            ${milestonePhases.map((phase, index) => {
-                                const widthPercent = totalSteps > 0 ? (phase.steps / totalSteps) * 100 : 100 / milestonePhases.length;
-                                const color = colors[index % colors.length];
-                                return `
-                                    <div class="relative" style="width: ${widthPercent}%; margin-right: ${index < milestonePhases.length - 1 ? '2px' : '0'};">
-                                        <!-- Semi-circle shape -->
-                                        <div class="rounded-t-full" style="background-color: ${color}; height: ${60 + (index % 3) * 20}px;"></div>
-
-                                        <!-- Milestone Info -->
-                                        <div class="text-center mt-3">
-                                            <div class="font-semibold text-xs text-gray-900 mb-1">${phase.milestone.name}</div>
-                                            <div class="text-xs text-gray-600">${phase.steps} touchpoint${phase.steps !== 1 ? 's' : ''}</div>
-                                            <div class="text-xs text-gray-500 mt-1 font-medium">→ ${phase.nextMilestone.name}</div>
+                        <div class="ml-12 relative">
+                            <!-- Semi-circles Container -->
+                            <div class="flex items-end relative" style="height: 120px;">
+                                ${milestonePhases.map((phase, index) => {
+                                    const widthPercent = totalSteps > 0 ? (phase.steps / totalSteps) * 100 : 100 / milestonePhases.length;
+                                    const color = colors[index % colors.length];
+                                    return `
+                                        <div class="relative flex-shrink-0" style="width: ${widthPercent}%; margin-right: ${index < milestonePhases.length - 1 ? '4px' : '0'};">
+                                            <!-- Semi-circle shape -->
+                                            <div class="rounded-t-full" style="background-color: ${color}; height: ${60 + (index % 3) * 20}px;"></div>
                                         </div>
-                                    </div>
-                                `;
-                            }).join('')}
+                                    `;
+                                }).join('')}
+                            </div>
 
-                            <!-- Current Progress Indicator (sample at 66%) -->
-                            <div class="absolute bottom-0 left-2/3 transform -translate-x-1/2" style="height: 140px;">
-                                <div class="w-px bg-indigo-600 h-full"></div>
-                                <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-medium text-indigo-600 whitespace-nowrap">
-                                    Today • Week X
+                            <!-- Labels Below Semi-circles -->
+                            <div class="mt-4 space-y-3">
+                                ${milestonePhases.map((phase, index) => {
+                                    return `
+                                        <div class="flex items-start py-2 border-l-4 pl-3" style="border-color: ${colors[index % colors.length]};">
+                                            <div class="flex-1">
+                                                <div class="font-semibold text-sm text-gray-900">${phase.milestone.name}</div>
+                                                <div class="text-xs text-gray-600 mt-1">${phase.steps} touchpoint${phase.steps !== 1 ? 's' : ''}</div>
+                                            </div>
+                                            <div class="text-xs text-gray-500 flex items-center ml-2">
+                                                <i class="ri-arrow-right-line mr-1"></i>
+                                                <span>${phase.nextMilestone.name}</span>
+                                            </div>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+
+                            <!-- Current Progress Indicator -->
+                            <div class="absolute top-0 left-2/3 transform -translate-x-1/2" style="height: 100%; pointer-events: none;">
+                                <div class="relative h-full">
+                                    <div class="absolute top-0 bottom-0 w-0.5 bg-indigo-600"></div>
+                                    <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 text-xs font-medium text-indigo-600 whitespace-nowrap bg-white px-2 py-1 rounded border border-indigo-300">
+                                        Today • Week X
+                                    </div>
                                 </div>
                             </div>
                         </div>
