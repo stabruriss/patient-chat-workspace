@@ -2326,10 +2326,15 @@
 
         function updateWorkflowProgramBadge() {
             const badge = document.getElementById('workflowTypeBadge');
+            if (!badge) return; // Safety check
+
             const icon = badge.querySelector('i');
             const text = badge.querySelector('span');
 
-            if (programData && programData.isProgram) {
+            // Check if programData is defined and if it's a program
+            const isProgram = (typeof programData !== 'undefined' && programData && programData.isProgram);
+
+            if (isProgram) {
                 badge.className = 'mb-1 px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wide self-start bg-purple-100 text-purple-700';
                 icon.className = 'ri-vip-crown-line mr-1';
                 text.textContent = 'Program';
@@ -3250,15 +3255,12 @@
 
                 // Hide the selection modal since template sets the type
                 document.getElementById('workflowTypeModal').classList.add('hidden');
-            } else if (workflowType && (workflowType === 'patient' || workflowType === 'practice')) {
-                // Set workflow type directly from URL
-                selectWorkflowType(workflowType);
+            } else {
+                // Default to patient workflow type (no modal needed since we removed practice workflows)
+                selectWorkflowType('patient');
 
                 // Hide the selection modal
                 document.getElementById('workflowTypeModal').classList.add('hidden');
-            } else {
-                // Fallback to showing selection modal if no/invalid type parameter
-                showWorkflowTypeSelection();
             }
 
             // Initialize zoom and pan functionality
