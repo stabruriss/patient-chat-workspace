@@ -1436,25 +1436,21 @@
                     <!-- Milestone Configuration -->
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                         <h3 class="text-lg font-semibold text-gray-900 mb-4">Program Milestones</h3>
-                        <p class="text-sm text-gray-600 mb-4">Select workflow steps to use as program milestones for progress tracking.</p>
+                        <p class="text-sm text-gray-600 mb-4">Insert milestone markers to divide your program into phases. Default milestones at start and end are automatically created.</p>
 
-                        <!-- Milestone Selection Area -->
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 mb-4">
-                            <div class="text-center text-gray-500 mb-4">
-                                <i class="ri-map-pin-line text-3xl mb-2"></i>
-                                <p class="text-sm">Click on workflow blocks below to add them as milestones</p>
-                            </div>
-
-                            <!-- Selected Milestones List -->
-                            <div id="selectedMilestonesList" class="space-y-2">
-                                <!-- Milestones will be added here -->
+                        <!-- Milestones List -->
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Milestones</label>
+                            <div id="milestonesList" class="space-y-2">
+                                <!-- Milestones will be listed here with rename capability -->
                             </div>
                         </div>
 
-                        <!-- Embedded Workflow Canvas for Milestone Selection -->
+                        <!-- Embedded Workflow Canvas for Milestone Insertion -->
                         <div class="border border-gray-300 rounded-lg p-4 bg-gray-50 max-h-96 overflow-auto">
-                            <div id="milestoneWorkflowCanvas" class="space-y-2">
-                                <!-- Simplified workflow blocks will be rendered here -->
+                            <div class="text-xs text-gray-500 mb-3 text-center">Click "+ Insert Milestone" between workflow steps</div>
+                            <div id="milestoneWorkflowCanvas" class="space-y-1">
+                                <!-- Simplified workflow blocks with insert buttons will be rendered here -->
                             </div>
                         </div>
 
@@ -8052,7 +8048,10 @@ if (block.type === 'trigger-manual') {
             const canvas = document.getElementById('milestoneWorkflowCanvas');
             if (!canvas) return;
 
-            // Render simplified workflow blocks for milestone selection
+            // Initialize default milestones if none exist
+            initializeDefaultMilestones();
+
+            // Render simplified workflow blocks with insert buttons
             const blocks = workflowBlocks || [];
 
             if (blocks.length === 0) {
@@ -8062,76 +8061,153 @@ if (block.type === 'trigger-manual') {
                         <p class="text-sm">No workflow blocks yet. Add blocks in the Compose tab first.</p>
                     </div>
                 `;
+                // Still render milestones list with defaults
+                renderMilestonesList();
                 return;
             }
 
-            canvas.innerHTML = blocks.map((block, index) => {
-                const isSelected = programData.milestones.some(m => m.stepIds.includes(block.id));
-                return `
-                    <div class="milestone-block-item p-3 border rounded-lg cursor-pointer transition-all ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-300 hover:bg-gray-100'}"
-                         data-block-id="${block.id}"
-                         onclick="toggleMilestoneBlock('${block.id}', '${block.type}')">
-                        <div class="flex items-center">
-                            <i class="${getBlockIcon(block.type)} mr-2 ${isSelected ? 'text-blue-600' : 'text-gray-600'}"></i>
+            let html = '';
+
+            blocks.forEach((block, index) => {
+                // Insert milestone button before first block
+                if (index === 0) {
+                    html += renderInsertMilestoneButton(0);
+                }
+
+                // Workflow block
+                html += `
+                    <div class="p-2 border border-gray-300 rounded bg-white">
+                        <div class="flex items-center text-sm">
+                            <i class="${getBlockIcon(block.type)} mr-2 text-gray-600"></i>
                             <div class="flex-1">
-                                <div class="font-medium text-sm ${isSelected ? 'text-blue-900' : 'text-gray-900'}">
+                                <div class="font-medium text-gray-900">
                                     ${block.type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}
                                 </div>
-                                <div class="text-xs ${isSelected ? 'text-blue-700' : 'text-gray-500'}">
-                                    Step ${index + 1}
-                                </div>
                             </div>
-                            ${isSelected ? '<i class="ri-checkbox-circle-fill text-blue-600"></i>' : ''}
+                            <span class="text-xs text-gray-500">Step ${index + 1}</span>
                         </div>
                     </div>
                 `;
-            }).join('');
+
+                // Insert milestone button after each block
+                html += renderInsertMilestoneButton(index + 1);
+            });
+
+            canvas.innerHTML = html;
+            renderMilestonesList();
         }
 
-        function toggleMilestoneBlock(blockId, blockType) {
-            const existingIndex = programData.milestones.findIndex(m => m.stepIds.includes(blockId));
+        function renderInsertMilestoneButton(position) {
+            // Check if milestone already exists at this position
+            const existingMilestone = programData.milestones.find(m => m.position === position);
 
-            if (existingIndex !== -1) {
-                // Remove milestone
-                programData.milestones.splice(existingIndex, 1);
-            } else {
-                // Add milestone
-                const blockIndex = workflowBlocks.findIndex(b => b.id === blockId);
-                const milestoneName = `Milestone ${programData.milestones.length + 1}: ${blockType.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}`;
+            if (existingMilestone) {
+                return `
+                    <div class="flex items-center justify-center py-1">
+                        <div class="flex items-center px-3 py-1 bg-purple-100 border border-purple-300 rounded-full text-xs">
+                            <i class="ri-flag-fill text-purple-600 mr-1"></i>
+                            <span class="font-medium text-purple-700">${existingMilestone.name}</span>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Skip insert buttons at position 0 (start) and last position (end) as they have defaults
+            const blocks = workflowBlocks || [];
+            if (position === 0 || position === blocks.length) {
+                return '';
+            }
+
+            return `
+                <div class="flex items-center justify-center py-1">
+                    <button onclick="insertMilestone(${position})" class="flex items-center px-2 py-1 text-xs text-blue-600 hover:bg-blue-50 border border-dashed border-blue-300 rounded hover:border-blue-400 transition-colors">
+                        <i class="ri-add-line mr-1"></i>
+                        Insert Milestone
+                    </button>
+                </div>
+            `;
+        }
+
+        function initializeDefaultMilestones() {
+            // Check if default milestones already exist
+            const hasStart = programData.milestones.some(m => m.position === 0);
+            const blocks = workflowBlocks || [];
+            const endPosition = blocks.length;
+            const hasEnd = programData.milestones.some(m => m.position === endPosition);
+
+            if (!hasStart) {
                 programData.milestones.push({
-                    name: milestoneName,
-                    stepIds: [blockId]
+                    name: 'Program Start',
+                    position: 0,
+                    isDefault: true
                 });
             }
 
+            if (!hasEnd && blocks.length > 0) {
+                programData.milestones.push({
+                    name: 'Program End',
+                    position: endPosition,
+                    isDefault: true
+                });
+            }
+
+            // Sort milestones by position
+            programData.milestones.sort((a, b) => a.position - b.position);
+        }
+
+        function insertMilestone(position) {
+            // Count non-default milestones for numbering
+            const nonDefaultCount = programData.milestones.filter(m => !m.isDefault).length;
+            const newMilestoneName = `Milestone ${nonDefaultCount + 1}`;
+
+            programData.milestones.push({
+                name: newMilestoneName,
+                position: position,
+                isDefault: false
+            });
+
+            // Sort by position
+            programData.milestones.sort((a, b) => a.position - b.position);
+
             renderMilestoneCanvas();
-            updateSelectedMilestonesList();
             updateProgressChartPreview();
         }
 
-        function updateSelectedMilestonesList() {
-            const list = document.getElementById('selectedMilestonesList');
+        function renderMilestonesList() {
+            const list = document.getElementById('milestonesList');
             if (!list) return;
 
             if (programData.milestones.length === 0) {
-                list.innerHTML = '';
+                list.innerHTML = '<div class="text-sm text-gray-500 text-center py-4">No milestones yet</div>';
                 return;
             }
 
-            list.innerHTML = programData.milestones.map((milestone, index) => `
-                <div class="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div class="flex items-center flex-1">
-                        <i class="ri-map-pin-fill text-blue-600 mr-2"></i>
-                        <input type="text"
-                               value="${milestone.name}"
-                               class="flex-1 bg-transparent border-none focus:outline-none text-sm font-medium text-blue-900"
-                               onchange="updateMilestoneName(${index}, this.value)">
+            list.innerHTML = programData.milestones.map((milestone, index) => {
+                const isDefault = milestone.isDefault;
+                const bgColor = isDefault ? 'bg-gray-50' : 'bg-blue-50';
+                const borderColor = isDefault ? 'border-gray-200' : 'border-blue-200';
+                const iconColor = isDefault ? 'text-gray-600' : 'text-blue-600';
+                const textColor = isDefault ? 'text-gray-900' : 'text-blue-900';
+
+                return `
+                    <div class="flex items-center justify-between p-3 ${bgColor} border ${borderColor} rounded-lg">
+                        <div class="flex items-center flex-1">
+                            <i class="ri-flag-fill ${iconColor} mr-2"></i>
+                            <input type="text"
+                                   value="${milestone.name}"
+                                   class="flex-1 bg-transparent border-none focus:outline-none text-sm font-medium ${textColor}"
+                                   onchange="updateMilestoneName(${index}, this.value)"
+                                   placeholder="Milestone name">
+                            <span class="text-xs text-gray-500 ml-2">Position: ${milestone.position}</span>
+                        </div>
+                        ${!isDefault ? `
+                            <button onclick="removeMilestone(${index})" class="text-red-600 hover:text-red-800 ml-2">
+                                <i class="ri-delete-bin-line"></i>
+                            </button>
+                        ` : ''}
                     </div>
-                    <button onclick="removeMilestone(${index})" class="text-red-600 hover:text-red-800">
-                        <i class="ri-close-circle-line"></i>
-                    </button>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function updateMilestoneName(index, newName) {
@@ -8141,10 +8217,12 @@ if (block.type === 'trigger-manual') {
         }
 
         function removeMilestone(index) {
-            programData.milestones.splice(index, 1);
-            renderMilestoneCanvas();
-            updateSelectedMilestonesList();
-            updateProgressChartPreview();
+            // Don't remove default milestones
+            if (programData.milestones[index] && !programData.milestones[index].isDefault) {
+                programData.milestones.splice(index, 1);
+                renderMilestoneCanvas();
+                updateProgressChartPreview();
+            }
         }
 
         function updateProgressChartPreview() {
@@ -8163,7 +8241,22 @@ if (block.type === 'trigger-manual') {
 
             // Medical History style chart preview
             const colors = ['#94a3b8', '#60a5fa', '#34d399', '#fb923c', '#c084fc', '#f472b6'];
-            const totalSteps = programData.milestones.reduce((sum, m) => sum + m.stepIds.length, 0);
+            const blocks = workflowBlocks || [];
+            const totalSteps = blocks.length;
+
+            // Calculate steps per milestone phase
+            const milestonePhases = [];
+            for (let i = 0; i < programData.milestones.length - 1; i++) {
+                const startPos = programData.milestones[i].position;
+                const endPos = programData.milestones[i + 1].position;
+                const stepsInPhase = endPos - startPos;
+                milestonePhases.push({
+                    milestone: programData.milestones[i],
+                    steps: stepsInPhase,
+                    nextMilestone: programData.milestones[i + 1]
+                });
+            }
+
             let completedSteps = 0; // Mock: for demo, assume 0 completed
 
             preview.innerHTML = `
@@ -8186,19 +8279,19 @@ if (block.type === 'trigger-manual') {
 
                         <!-- Milestone Sections -->
                         <div class="ml-12 flex items-end relative" style="height: 120px;">
-                            ${programData.milestones.map((milestone, index) => {
-                                const widthPercent = (milestone.stepIds.length / totalSteps) * 100;
+                            ${milestonePhases.map((phase, index) => {
+                                const widthPercent = totalSteps > 0 ? (phase.steps / totalSteps) * 100 : 100 / milestonePhases.length;
                                 const color = colors[index % colors.length];
                                 return `
-                                    <div class="relative" style="width: ${widthPercent}%; margin-right: ${index < programData.milestones.length - 1 ? '2px' : '0'};">
+                                    <div class="relative" style="width: ${widthPercent}%; margin-right: ${index < milestonePhases.length - 1 ? '2px' : '0'};">
                                         <!-- Semi-circle shape -->
                                         <div class="rounded-t-full" style="background-color: ${color}; height: ${60 + (index % 3) * 20}px;"></div>
 
                                         <!-- Milestone Info -->
                                         <div class="text-center mt-3">
-                                            <div class="font-semibold text-xs text-gray-900 mb-1">${milestone.name.split(':')[1] || milestone.name}</div>
-                                            <div class="text-xs text-gray-600">${milestone.stepIds.length} touchpoints</div>
-                                            <div class="text-xs text-gray-500 mt-1 font-medium">STEP ${index + 1}</div>
+                                            <div class="font-semibold text-xs text-gray-900 mb-1">${phase.milestone.name}</div>
+                                            <div class="text-xs text-gray-600">${phase.steps} touchpoint${phase.steps !== 1 ? 's' : ''}</div>
+                                            <div class="text-xs text-gray-500 mt-1 font-medium">→ ${phase.nextMilestone.name}</div>
                                         </div>
                                     </div>
                                 `;

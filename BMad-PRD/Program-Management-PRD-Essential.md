@@ -45,11 +45,13 @@ Program Management transforms active workflows into billable care programs with 
 ### 3. Program Monitor Settings
 
 #### Milestone Configuration
-- **Milestone Selection Interface**:
-  - Embedded simplified workflow canvas showing current workflow structure
-  - User clicks workflow steps/blocks to add as milestones
-  - Manual selection only (no auto-suggestions)
-- **Milestone Data Structure**: `{milestones: [{name: string, stepIds: string[]}]}`
+- **Milestone Interaction Model**:
+  - **Insert Milestones**: User inserts milestone markers between workflow steps (not selecting steps themselves)
+  - **Default Milestones**: "Program Start" and "Program End" milestones automatically created at beginning and end
+  - **Rename Capability**: All milestones (including defaults) can be renamed inline
+  - **Visual Workflow Canvas**: Embedded simplified workflow view showing blocks with "Insert Milestone" buttons between blocks
+- **Milestone Data Structure**: `{milestones: [{name: string, position: number}]}`
+  - `position`: Indicates where in the workflow timeline the milestone sits (e.g., between block 2 and 3)
 
 #### Progress Chart (Preview)
 - **Chart Design**: Match the Medical History chart from My Patient page (see reference screenshot)
