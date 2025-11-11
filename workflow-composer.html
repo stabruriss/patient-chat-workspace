@@ -4850,7 +4850,7 @@
             if (!sourceBlock.nextBlocks) {
                 sourceBlock.nextBlocks = [];
             }
-            sourceBlock.nextBlocks.push(targetBlock);
+            sourceBlock.nextBlocks.push(targetBlock.id);
             
             // Add backward connection (target parent tracking)
             const isTargetMulti = !!(targetBlock.supportsMultipleInputs || targetBlock.type === 'condition');
