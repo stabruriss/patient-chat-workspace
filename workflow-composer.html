@@ -2320,18 +2320,23 @@
         }
 
         function updateWorkflowTypeBadge(type) {
+            // Changed to show Workflow vs Program instead of Patient vs Practice
+            updateWorkflowProgramBadge();
+        }
+
+        function updateWorkflowProgramBadge() {
             const badge = document.getElementById('workflowTypeBadge');
             const icon = badge.querySelector('i');
             const text = badge.querySelector('span');
 
-            if (type === 'patient') {
-                badge.className = 'mb-1 px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wide self-start workflow-type-badge-patient';
-                icon.className = 'ri-user-heart-line mr-1';
-                text.textContent = 'Patient Workflow';
-            } else if (type === 'practice') {
-                badge.className = 'mb-1 px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wide self-start workflow-type-badge-practice';
-                icon.className = 'ri-building-line mr-1';
-                text.textContent = 'Practice Workflow';
+            if (programData && programData.isProgram) {
+                badge.className = 'mb-1 px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wide self-start bg-purple-100 text-purple-700';
+                icon.className = 'ri-vip-crown-line mr-1';
+                text.textContent = 'Program';
+            } else {
+                badge.className = 'mb-1 px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wide self-start bg-blue-100 text-blue-700';
+                icon.className = 'ri-flow-chart mr-1';
+                text.textContent = 'Workflow';
             }
 
             badge.classList.remove('hidden');
@@ -7879,6 +7884,7 @@ if (block.type === 'trigger-manual') {
             loadProgramData();
             renderMilestoneCanvas();
             syncProgramNameDescription();
+            updateWorkflowProgramBadge(); // Update badge on load
 
             // Add listeners to workflow name/description to sync with program
             const workflowNameInput = document.getElementById('workflowName');
@@ -7980,6 +7986,8 @@ if (block.type === 'trigger-manual') {
                 // Sync program name and description with workflow
                 syncProgramNameDescription();
                 calculateSuggestedAmount();
+                // Update badge to show "Program"
+                updateWorkflowProgramBadge();
             } else {
                 // Revert to workflow
                 if (confirm('Are you sure you want to revert this program back to a workflow? All program settings will be lost.')) {
@@ -7988,6 +7996,8 @@ if (block.type === 'trigger-manual') {
                     programData.milestones = [];
                     configForm.classList.add('hidden');
                     saveProgramDataToStorage();
+                    // Update badge to show "Workflow"
+                    updateWorkflowProgramBadge();
                 } else {
                     e.target.checked = true;
                 }
