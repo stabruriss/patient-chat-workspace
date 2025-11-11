@@ -31,6 +31,7 @@ from backend.models.workflow_context import (
 from backend.agents.workflow_generator import workflow_generator
 from backend.agents.condition_evaluator import condition_evaluator
 from backend.agents.loop_controller import loop_controller
+from backend.agents.practice_insights import practice_insights_agent
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -275,6 +276,98 @@ async def get_block_types(workflow_type: str = "patient"):
     }
 
     return block_types.get(workflow_type, {})
+
+
+@app.post("/api/practice-insights")
+async def generate_practice_insights(request: Dict[str, Any]):
+    """
+    Generate AI-powered insights from practice operational data.
+
+    Request body:
+    {
+        "practice_data": {
+            "current_period": {...},
+            "previous_period": {...},
+            "period_comparison": {...},
+            "top_services": [...],
+            "peak_hours": [...],
+            "provider_performance": [...]
+        }
+    }
+
+    Returns:
+    {
+        "insights": [
+            {
+                "type": "positive|negative|neutral|warning",
+                "title": "Insight title",
+                "description": "Detailed description",
+                "recommendation": "Optional recommendation"
+            }
+        ]
+    }
+    """
+    try:
+        practice_data = request.get("practice_data", {})
+
+        if not practice_data:
+            raise HTTPException(status_code=400, detail="practice_data is required")
+
+        insights = await practice_insights_agent.generate_insights(practice_data)
+
+        return {
+            "insights": insights,
+            "timestamp": datetime.now().isoformat()
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to generate practice insights: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/practice-ask")
+async def ask_practice_question(request: Dict[str, Any]):
+    """
+    Answer a specific question about practice data.
+
+    Request body:
+    {
+        "question": "What's our patient growth trend?",
+        "practice_data": {
+            "current_period": {...},
+            "previous_period": {...},
+            ...
+        }
+    }
+
+    Returns:
+    {
+        "answer": "AI-generated answer",
+        "question": "Original question",
+        "timestamp": "ISO timestamp"
+    }
+    """
+    try:
+        question = request.get("question", "")
+        practice_data = request.get("practice_data", {})
+
+        if not question:
+            raise HTTPException(status_code=400, detail="question is required")
+
+        if not practice_data:
+            raise HTTPException(status_code=400, detail="practice_data is required")
+
+        answer = await practice_insights_agent.answer_question(question, practice_data)
+
+        return {
+            "answer": answer,
+            "question": question,
+            "timestamp": datetime.now().isoformat()
+        }
+
+    except Exception as e:
+        logger.error(f"Failed to answer practice question: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.exception_handler(Exception)
