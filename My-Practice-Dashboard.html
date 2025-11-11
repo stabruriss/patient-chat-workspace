@@ -4509,8 +4509,9 @@ echarts.getInstanceByDom(document.getElementById('revenueChart')).resize();
 });
 
 // AI Insights functionality
-const PRACTICE_INSIGHTS_API = 'http://localhost:8000/api/practice-insights';
-const PRACTICE_ASK_API = 'http://localhost:8000/api/practice-ask';
+const RAILWAY_BACKEND = 'https://web-production-c1100.up.railway.app';
+const PRACTICE_INSIGHTS_API = `${RAILWAY_BACKEND}/api/practice-insights`;
+const PRACTICE_ASK_API = `${RAILWAY_BACKEND}/api/practice-ask`;
 
 // Generate fake practice data
 function generatePracticeData() {
