@@ -3308,24 +3308,6 @@
             updateAIAssistantContext(type);
         }
 
-        function updateWorkflowTypeBadge(type) {
-            const badge = document.getElementById('workflowTypeBadge');
-            const icon = badge.querySelector('i');
-            const text = badge.querySelector('span');
-            
-            if (type === 'patient') {
-                badge.className = 'mb-1 px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wide self-start workflow-type-badge-patient';
-                icon.className = 'ri-user-heart-line mr-1';
-                text.textContent = 'Patient Workflow';
-            } else if (type === 'practice') {
-                badge.className = 'mb-1 px-2 py-1 rounded-md text-xs font-semibold uppercase tracking-wide self-start workflow-type-badge-practice';
-                icon.className = 'ri-building-line mr-1';
-                text.textContent = 'Practice Workflow';
-            }
-            
-            badge.classList.remove('hidden');
-        }
-
         function updateAIAssistantContext(type) {
             // Update AI assistant header and context
             const chatHeader = document.querySelector('#aiChatPanel .p-4.border-b.border-gray-200 p');
