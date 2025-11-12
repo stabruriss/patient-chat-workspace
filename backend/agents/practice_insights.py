@@ -18,7 +18,7 @@ class PracticeInsightsAgent:
     def __init__(self, user_api_key: Optional[str] = None):
         self.user_api_key = user_api_key
         self.cache = {}  # Simple in-memory cache: {data_hash: (insights, timestamp)}
-        self.cache_duration = 3600  # 1 hour in seconds
+        self.cache_duration = 604800  # 1 week in seconds (7 * 24 * 60 * 60)
 
     def _get_data_hash(self, practice_data: Dict[str, Any]) -> str:
         """Generate hash of practice data for caching"""
