@@ -50,14 +50,87 @@ class PracticeInsightsAgent:
                 return cached_insights
 
         api_key = key_manager.get_claude_api_key(user_api_key or self.user_api_key)
+
+        # If no API key, return fallback insights immediately
         if not api_key:
+            print("[INFO] No API key found, returning fallback insights")
+            curr = practice_data.get('current_period', {})
+            prev = practice_data.get('previous_period', {})
+            comp = practice_data.get('period_comparison', {})
+
+            rev_change = curr.get('total_revenue', 0) - prev.get('total_revenue', 0)
+            pat_change = curr.get('total_patients', 0) - prev.get('total_patients', 0)
+
             return [
                 {
-                    "type": "neutral",
-                    "title": "API Key Required",
-                    "value": None,
-                    "change": None,
-                    "description": "Configure your Claude API key"
+                    "type": "positive" if comp.get('revenue_change', 0) > 0 else "negative",
+                    "title": "Revenue",
+                    "value": f"+{comp.get('revenue_change', 0):.1f}%",
+                    "change": f"+${rev_change/1000:.1f}K",
+                    "trend": "up" if comp.get('revenue_change', 0) > 0 else "down"
+                },
+                {
+                    "type": "positive" if comp.get('total_patients_change', 0) > 0 else "negative",
+                    "title": "Patients",
+                    "value": f"+{comp.get('total_patients_change', 0):.1f}%",
+                    "change": f"+{pat_change}",
+                    "trend": "up" if comp.get('total_patients_change', 0) > 0 else "down"
+                },
+                {
+                    "type": "positive" if comp.get('wait_time_change', 0) < 0 else "warning",
+                    "title": "Wait Time",
+                    "value": f"{comp.get('wait_time_change', 0):.1f}%",
+                    "change": f"{curr.get('average_wait_time', 0)}min",
+                    "trend": "down" if comp.get('wait_time_change', 0) < 0 else "up"
+                },
+                {
+                    "type": "positive" if comp.get('engagement_change', 0) > 0 else "warning",
+                    "title": "Engagement",
+                    "value": f"{curr.get('patient_engagement', 0)}%",
+                    "change": f"+{comp.get('engagement_change', 0):.1f}%",
+                    "trend": "up" if comp.get('engagement_change', 0) > 0 else "down"
+                },
+                {
+                    "type": "positive" if comp.get('no_show_change', 0) < 0 else "warning",
+                    "title": "No-Shows",
+                    "value": f"{curr.get('no_show_rate', 0):.1f}%",
+                    "change": f"{comp.get('no_show_change', 0):.1f}%",
+                    "trend": "down" if comp.get('no_show_change', 0) < 0 else "up"
+                },
+                {
+                    "type": "positive",
+                    "title": "Completed",
+                    "value": f"{curr.get('appointments_completed', 0)}",
+                    "change": f"+{curr.get('appointments_completed', 0) - prev.get('appointments_completed', 0)}",
+                    "trend": "up"
+                },
+                {
+                    "type": "positive" if comp.get('new_patients_change', 0) > 0 else "warning",
+                    "title": "New Patients",
+                    "value": f"+{comp.get('new_patients_change', 0):.1f}%",
+                    "change": f"{curr.get('new_patients', 0)}",
+                    "trend": "up" if comp.get('new_patients_change', 0) > 0 else "down"
+                },
+                {
+                    "type": "positive" if comp.get('utilization_change', 0) > 0 else "warning",
+                    "title": "Utilization",
+                    "value": f"{curr.get('provider_utilization', 0)}%",
+                    "change": f"+{comp.get('utilization_change', 0):.1f}%",
+                    "trend": "up" if comp.get('utilization_change', 0) > 0 else "down"
+                },
+                {
+                    "type": "positive",
+                    "title": "Scheduled",
+                    "value": f"{curr.get('appointments_scheduled', 0)}",
+                    "change": f"+{curr.get('appointments_scheduled', 0) - prev.get('appointments_scheduled', 0)}",
+                    "trend": "up"
+                },
+                {
+                    "type": "warning",
+                    "title": "Cancelled",
+                    "value": f"{curr.get('appointments_cancelled', 0)}",
+                    "change": f"+{curr.get('appointments_cancelled', 0) - prev.get('appointments_cancelled', 0)}",
+                    "trend": "up"
                 }
             ]
 

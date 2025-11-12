@@ -4512,9 +4512,11 @@ echarts.getInstanceByDom(document.getElementById('revenueChart')).resize();
 });
 
 // AI Insights functionality
-const RAILWAY_BACKEND = 'https://web-production-c1100.up.railway.app';
-const PRACTICE_INSIGHTS_API = `${RAILWAY_BACKEND}/api/practice-insights`;
-const PRACTICE_ASK_API = `${RAILWAY_BACKEND}/api/practice-ask`;
+const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8000'
+  : 'https://web-production-c1100.up.railway.app';
+const PRACTICE_INSIGHTS_API = `${BACKEND_URL}/api/practice-insights`;
+const PRACTICE_ASK_API = `${BACKEND_URL}/api/practice-ask`;
 
 // Click-to-swap state management
 let allInsights = [];
@@ -4531,27 +4533,35 @@ async function loadAIInsights() {
 
   try {
     const practiceData = PRACTICE_DATA_FAKE;
+    console.log('[AI Insights] Fetching from:', PRACTICE_INSIGHTS_API);
+
     const response = await fetch(PRACTICE_INSIGHTS_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ practice_data: practiceData })
     });
 
+    console.log('[AI Insights] Response status:', response.status);
+
     if (!response.ok) {
-      throw new Error('Failed to generate insights');
+      const errorText = await response.text();
+      console.error('[AI Insights] Error response:', errorText);
+      throw new Error(`Failed to generate insights: ${response.status} ${errorText}`);
     }
 
     const data = await response.json();
+    console.log('[AI Insights] Received insights:', data.insights?.length);
     displayInsights(data.insights);
   } catch (error) {
-    console.error('Error loading AI insights:', error);
+    console.error('[AI Insights] Error:', error);
     contentEl.innerHTML = `
       <div class="p-4 bg-red-50 border border-red-100 rounded-lg">
         <div class="flex items-start">
           <i class="ri-error-warning-line text-red-600 mr-3"></i>
           <div>
             <h3 class="text-sm font-medium text-red-900">Unable to load insights</h3>
-            <p class="text-sm text-red-700 mt-1">Make sure the backend server is running</p>
+            <p class="text-sm text-red-700 mt-1">${error.message}</p>
+            <p class="text-xs text-red-600 mt-1">Backend: ${BACKEND_URL}</p>
           </div>
         </div>
       </div>
