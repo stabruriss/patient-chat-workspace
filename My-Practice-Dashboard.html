@@ -2398,16 +2398,24 @@ sharedMode.addEventListener('change', toggleMode);
 </div>
 <div>
 <h2 class="text-lg font-semibold text-gray-900">AI Insights</h2>
-<p class="text-xs text-gray-500">Cached • Refreshes weekly</p>
+<p class="text-xs text-gray-500">10 insights • <span id="insightCounter">1-3</span> of 10</p>
 </div>
 </div>
-<button id="refreshInsights" class="px-3 py-1.5 text-sm text-gray-600 border border-gray-200 rounded-button hover:bg-gray-50 flex items-center">
+<div class="flex items-center space-x-2">
+<button id="prevInsights" class="p-2 text-gray-600 border border-gray-200 rounded-button hover:bg-gray-50">
+<i class="ri-arrow-left-s-line"></i>
+</button>
+<button id="nextInsights" class="p-2 text-gray-600 border border-gray-200 rounded-button hover:bg-gray-50">
+<i class="ri-arrow-right-s-line"></i>
+</button>
+<button id="refreshInsights" class="px-3 py-1.5 text-sm text-gray-600 border border-gray-200 rounded-button hover:bg-gray-50 flex items-center ml-2">
 <i class="ri-refresh-line mr-1"></i>
-Refresh
+New
 </button>
 </div>
+</div>
 
-<!-- Insights Display - Card Grid -->
+<!-- Insights Display - 3 Card Carousel -->
 <div id="insightsContent" class="mb-4">
 <!-- Loading state -->
 <div id="insightsLoading" class="flex items-center justify-center py-8">
@@ -4514,6 +4522,10 @@ const RAILWAY_BACKEND = 'https://web-production-c1100.up.railway.app';
 const PRACTICE_INSIGHTS_API = `${RAILWAY_BACKEND}/api/practice-insights`;
 const PRACTICE_ASK_API = `${RAILWAY_BACKEND}/api/practice-ask`;
 
+// Carousel state management
+let allInsights = [];
+let currentPosition = 0;
+
 // Load AI Insights
 async function loadAIInsights() {
   const loadingEl = document.getElementById('insightsLoading');
@@ -4544,7 +4556,7 @@ async function loadAIInsights() {
           <i class="ri-error-warning-line text-red-600 mr-3"></i>
           <div>
             <h3 class="text-sm font-medium text-red-900">Unable to load insights</h3>
-            <p class="text-sm text-red-700 mt-1">Make sure the backend server is running at http://localhost:8000</p>
+            <p class="text-sm text-red-700 mt-1">Make sure the backend server is running</p>
           </div>
         </div>
       </div>
@@ -4552,14 +4564,23 @@ async function loadAIInsights() {
   }
 }
 
-// Display insights in visual card format
+// Display insights in visual card format (initial setup)
 function displayInsights(insights) {
+  allInsights = insights || [];
+  currentPosition = 0;
+  renderCurrentInsights();
+}
+
+// Render current 3 insights based on carousel position
+function renderCurrentInsights() {
   const contentEl = document.getElementById('insightsContent');
 
-  if (!insights || insights.length === 0) {
+  if (!allInsights || allInsights.length === 0) {
     contentEl.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No insights available</p>';
     return;
   }
+
+  const visibleInsights = allInsights.slice(currentPosition, currentPosition + 3);
 
   const insightStyles = {
     'positive': { icon: 'ri-arrow-up-circle-fill', iconColor: 'text-green-500', valueColor: 'text-green-600' },
@@ -4569,7 +4590,7 @@ function displayInsights(insights) {
 
   contentEl.innerHTML = `
     <div class="grid grid-cols-3 gap-4">
-      ${insights.map(insight => {
+      ${visibleInsights.map(insight => {
         const style = insightStyles[insight.type] || insightStyles['positive'];
         return `
           <div class="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
@@ -4578,15 +4599,44 @@ function displayInsights(insights) {
               <i class="${style.icon} ${style.iconColor} text-lg"></i>
             </div>
             <div class="mb-1">
-              <div class="text-2xl font-bold ${style.valueColor}">${insight.value || 'N/A'}</div>
+              <div class="text-2xl font-bold ${style.valueColor}">${insight.value}</div>
               ${insight.change ? `<div class="text-xs text-gray-500 mt-0.5">${insight.change}</div>` : ''}
             </div>
-            <p class="text-xs text-gray-600 mt-2">${insight.description}</p>
           </div>
         `;
       }).join('')}
     </div>
   `;
+
+  // Update counter
+  const counterEl = document.getElementById('insightCounter');
+  if (counterEl) {
+    counterEl.textContent = `${currentPosition + 1}-${Math.min(currentPosition + 3, allInsights.length)} of ${allInsights.length}`;
+  }
+
+  // Enable/disable navigation buttons
+  const prevBtn = document.getElementById('prevInsights');
+  const nextBtn = document.getElementById('nextInsights');
+
+  if (prevBtn) {
+    if (currentPosition === 0) {
+      prevBtn.disabled = true;
+      prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+      prevBtn.disabled = false;
+      prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+  }
+
+  if (nextBtn) {
+    if (currentPosition + 3 >= allInsights.length) {
+      nextBtn.disabled = true;
+      nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    } else {
+      nextBtn.disabled = false;
+      nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+    }
+  }
 }
 
 // Ask AI function
@@ -4629,6 +4679,21 @@ async function askAI(question) {
 
 // Event listeners
 document.getElementById('refreshInsights')?.addEventListener('click', loadAIInsights);
+
+// Carousel navigation
+document.getElementById('prevInsights')?.addEventListener('click', () => {
+  if (currentPosition >= 3) {
+    currentPosition -= 3;
+    renderCurrentInsights();
+  }
+});
+
+document.getElementById('nextInsights')?.addEventListener('click', () => {
+  if (currentPosition + 3 < allInsights.length) {
+    currentPosition += 3;
+    renderCurrentInsights();
+  }
+});
 
 document.getElementById('askAIButton')?.addEventListener('click', () => {
   const input = document.getElementById('aiQuestionInput');

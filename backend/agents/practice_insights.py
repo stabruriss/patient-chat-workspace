@@ -61,32 +61,34 @@ class PracticeInsightsAgent:
                 }
             ]
 
-        prompt = f"""You are a healthcare practice operations analyst. Analyze the following practice data and generate exactly 3 concise insights.
+        prompt = f"""You are a healthcare practice operations analyst. Analyze the following practice data and generate exactly 10 diverse insights.
 
-IMPORTANT: Be extremely concise. Each insight should be ONE SHORT SENTENCE only.
+IMPORTANT: Be extremely concise. Each insight should have minimal text.
 
 Practice Data:
 {json.dumps(practice_data, indent=2)}
 
-Return exactly 3 insights as a JSON array with this EXACT format:
+Return exactly 10 insights as a JSON array with this EXACT format:
 [
   {{
     "type": "positive|negative|warning",
-    "title": "Revenue Growth" (2-3 words max),
-    "value": "+8.9%" (the key number),
-    "change": "+$7,270" (optional, the actual change),
-    "description": "One SHORT sentence only, max 10 words"
+    "title": "Revenue" (1-2 words only),
+    "value": "+8.9%" (the main metric - NEVER use "N/A"),
+    "change": "+$7.3K" (use K for thousands, optional),
+    "trend": "up" (up|down|stable)
   }}
 ]
 
 Rules:
-- EXACTLY 3 insights
-- Each description must be ONE sentence, max 10 words
-- Include specific numbers in value/change
-- Focus on: revenue, patient growth, operational efficiency
-- Use positive for good trends, negative for bad trends, warning for concerns
+- EXACTLY 10 different insights covering different metrics
+- NO descriptions - visual only
+- value must ALWAYS be a real number (never "N/A" or null)
+- Use K for thousands (e.g., "$7.3K" not "$7,270")
+- Mix of: revenue, patients, appointments, wait time, utilization, engagement, services
+- Use positive for improvements, negative for declines, warning for concerns
+- trend must be: "up", "down", or "stable"
 
-Return ONLY the JSON array, no additional text."""
+Return ONLY the JSON array, no additional text.
 
         try:
             os.environ['ANTHROPIC_API_KEY'] = api_key
@@ -119,27 +121,83 @@ Return ONLY the JSON array, no additional text."""
         except Exception as e:
             print(f"[ERROR] Failed to generate insights: {e}")
             # Return fallback insights based on actual data
+            curr = practice_data.get('current_period', {})
+            prev = practice_data.get('previous_period', {})
+            comp = practice_data.get('period_comparison', {})
+
+            rev_change = curr.get('total_revenue', 0) - prev.get('total_revenue', 0)
+            pat_change = curr.get('total_patients', 0) - prev.get('total_patients', 0)
+
             return [
                 {
-                    "type": "positive",
-                    "title": "Revenue Growth",
-                    "value": f"+{practice_data.get('period_comparison', {}).get('revenue_change', 0):.1f}%",
-                    "change": f"+${practice_data.get('current_period', {}).get('total_revenue', 0) - practice_data.get('previous_period', {}).get('total_revenue', 0):,.0f}",
-                    "description": "Revenue increased compared to last period"
+                    "type": "positive" if comp.get('revenue_change', 0) > 0 else "negative",
+                    "title": "Revenue",
+                    "value": f"+{comp.get('revenue_change', 0):.1f}%",
+                    "change": f"+${rev_change/1000:.1f}K",
+                    "trend": "up" if comp.get('revenue_change', 0) > 0 else "down"
                 },
                 {
-                    "type": "positive",
-                    "title": "Patient Growth",
-                    "value": f"+{practice_data.get('period_comparison', {}).get('total_patients_change', 0):.1f}%",
-                    "change": f"+{practice_data.get('current_period', {}).get('total_patients', 0) - practice_data.get('previous_period', {}).get('total_patients', 0)} patients",
-                    "description": "Patient base growing steadily"
+                    "type": "positive" if comp.get('total_patients_change', 0) > 0 else "negative",
+                    "title": "Patients",
+                    "value": f"+{comp.get('total_patients_change', 0):.1f}%",
+                    "change": f"+{pat_change}",
+                    "trend": "up" if comp.get('total_patients_change', 0) > 0 else "down"
                 },
                 {
-                    "type": "positive",
+                    "type": "positive" if comp.get('wait_time_change', 0) < 0 else "warning",
                     "title": "Wait Time",
-                    "value": f"{practice_data.get('period_comparison', {}).get('wait_time_change', 0):.1f}%",
-                    "change": f"{practice_data.get('current_period', {}).get('average_wait_time', 0) - practice_data.get('previous_period', {}).get('average_wait_time', 0)} min",
-                    "description": "Average wait time improved"
+                    "value": f"{comp.get('wait_time_change', 0):.1f}%",
+                    "change": f"{curr.get('average_wait_time', 0)}min",
+                    "trend": "down" if comp.get('wait_time_change', 0) < 0 else "up"
+                },
+                {
+                    "type": "positive" if comp.get('engagement_change', 0) > 0 else "warning",
+                    "title": "Engagement",
+                    "value": f"{curr.get('patient_engagement', 0)}%",
+                    "change": f"+{comp.get('engagement_change', 0):.1f}%",
+                    "trend": "up" if comp.get('engagement_change', 0) > 0 else "down"
+                },
+                {
+                    "type": "positive" if comp.get('no_show_change', 0) < 0 else "warning",
+                    "title": "No-Shows",
+                    "value": f"{curr.get('no_show_rate', 0):.1f}%",
+                    "change": f"{comp.get('no_show_change', 0):.1f}%",
+                    "trend": "down" if comp.get('no_show_change', 0) < 0 else "up"
+                },
+                {
+                    "type": "positive",
+                    "title": "Completed",
+                    "value": f"{curr.get('appointments_completed', 0)}",
+                    "change": f"+{curr.get('appointments_completed', 0) - prev.get('appointments_completed', 0)}",
+                    "trend": "up"
+                },
+                {
+                    "type": "positive" if comp.get('new_patients_change', 0) > 0 else "warning",
+                    "title": "New Patients",
+                    "value": f"+{comp.get('new_patients_change', 0):.1f}%",
+                    "change": f"{curr.get('new_patients', 0)}",
+                    "trend": "up" if comp.get('new_patients_change', 0) > 0 else "down"
+                },
+                {
+                    "type": "positive" if comp.get('utilization_change', 0) > 0 else "warning",
+                    "title": "Utilization",
+                    "value": f"{curr.get('provider_utilization', 0)}%",
+                    "change": f"+{comp.get('utilization_change', 0):.1f}%",
+                    "trend": "up" if comp.get('utilization_change', 0) > 0 else "down"
+                },
+                {
+                    "type": "positive",
+                    "title": "Scheduled",
+                    "value": f"{curr.get('appointments_scheduled', 0)}",
+                    "change": f"+{curr.get('appointments_scheduled', 0) - prev.get('appointments_scheduled', 0)}",
+                    "trend": "up"
+                },
+                {
+                    "type": "warning",
+                    "title": "Cancelled",
+                    "value": f"{curr.get('appointments_cancelled', 0)}",
+                    "change": f"+{curr.get('appointments_cancelled', 0) - prev.get('appointments_cancelled', 0)}",
+                    "trend": "up"
                 }
             ]
 
