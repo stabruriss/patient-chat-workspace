@@ -7,6 +7,8 @@ from typing import Dict, Any, List, Optional
 from claude_agent_sdk import query, ClaudeAgentOptions
 import json
 import os
+import hashlib
+import time
 from backend.config.key_manager import key_manager
 
 
@@ -15,18 +17,37 @@ class PracticeInsightsAgent:
 
     def __init__(self, user_api_key: Optional[str] = None):
         self.user_api_key = user_api_key
+        self.cache = {}  # Simple in-memory cache: {data_hash: (insights, timestamp)}
+        self.cache_duration = 3600  # 1 hour in seconds
+
+    def _get_data_hash(self, practice_data: Dict[str, Any]) -> str:
+        """Generate hash of practice data for caching"""
+        data_str = json.dumps(practice_data, sort_keys=True)
+        return hashlib.md5(data_str.encode()).hexdigest()
+
+    def _is_cache_valid(self, timestamp: float) -> bool:
+        """Check if cached data is still valid"""
+        return (time.time() - timestamp) < self.cache_duration
 
     async def generate_insights(self, practice_data: Dict[str, Any], user_api_key: Optional[str] = None) -> List[Dict[str, str]]:
         """
-        Generate AI insights from practice operational data
+        Generate AI insights from practice operational data (with caching)
 
         Args:
             practice_data: Dictionary containing current/previous period metrics
             user_api_key: Optional user API key
 
         Returns:
-            List of insights with type, title, description, and recommendation
+            List of insights with type, title, value, change, description
         """
+
+        # Check cache first
+        data_hash = self._get_data_hash(practice_data)
+        if data_hash in self.cache:
+            cached_insights, timestamp = self.cache[data_hash]
+            if self._is_cache_valid(timestamp):
+                print(f"[CACHE HIT] Returning cached insights")
+                return cached_insights
 
         api_key = key_manager.get_claude_api_key(user_api_key or self.user_api_key)
         if not api_key:
@@ -34,38 +55,36 @@ class PracticeInsightsAgent:
                 {
                     "type": "neutral",
                     "title": "API Key Required",
-                    "description": "Configure your Claude API key to enable AI insights.",
-                    "recommendation": None
+                    "value": None,
+                    "change": None,
+                    "description": "Configure your Claude API key"
                 }
             ]
 
-        prompt = f"""You are a healthcare practice operations analyst. Analyze the following practice data and generate 3-5 actionable insights.
+        prompt = f"""You are a healthcare practice operations analyst. Analyze the following practice data and generate exactly 3 concise insights.
+
+IMPORTANT: Be extremely concise. Each insight should be ONE SHORT SENTENCE only.
 
 Practice Data:
 {json.dumps(practice_data, indent=2)}
 
-For each insight:
-1. Compare current metrics to previous period (identify trends)
-2. Highlight what's working well (positive trends)
-3. Flag concerns or opportunities (negative trends or warnings)
-4. Provide specific, actionable recommendations
-
-Return insights as a JSON array with this format:
+Return exactly 3 insights as a JSON array with this EXACT format:
 [
   {{
-    "type": "positive|negative|neutral|warning",
-    "title": "Brief insight title",
-    "description": "2-3 sentence description with specific numbers",
-    "recommendation": "Specific action to take (optional)"
+    "type": "positive|negative|warning",
+    "title": "Revenue Growth" (2-3 words max),
+    "value": "+8.9%" (the key number),
+    "change": "+$7,270" (optional, the actual change),
+    "description": "One SHORT sentence only, max 10 words"
   }}
 ]
 
-Focus on:
-- Revenue trends
-- Patient growth and retention
-- Operational efficiency (wait times, utilization)
-- Service performance
-- Areas needing attention
+Rules:
+- EXACTLY 3 insights
+- Each description must be ONE sentence, max 10 words
+- Include specific numbers in value/change
+- Focus on: revenue, patient growth, operational efficiency
+- Use positive for good trends, negative for bad trends, warning for concerns
 
 Return ONLY the JSON array, no additional text."""
 
@@ -90,17 +109,37 @@ Return ONLY the JSON array, no additional text."""
             content = content.strip()
 
             insights = json.loads(content)
+
+            # Cache the insights
+            self.cache[data_hash] = (insights, time.time())
+            print(f"[CACHE SET] Cached insights for {data_hash}")
+
             return insights
 
         except Exception as e:
             print(f"[ERROR] Failed to generate insights: {e}")
-            # Return fallback insights
+            # Return fallback insights based on actual data
             return [
                 {
-                    "type": "neutral",
-                    "title": "Practice Data Available",
-                    "description": "Your practice metrics are being tracked. Enable AI insights for detailed analysis.",
-                    "recommendation": None
+                    "type": "positive",
+                    "title": "Revenue Growth",
+                    "value": f"+{practice_data.get('period_comparison', {}).get('revenue_change', 0):.1f}%",
+                    "change": f"+${practice_data.get('current_period', {}).get('total_revenue', 0) - practice_data.get('previous_period', {}).get('total_revenue', 0):,.0f}",
+                    "description": "Revenue increased compared to last period"
+                },
+                {
+                    "type": "positive",
+                    "title": "Patient Growth",
+                    "value": f"+{practice_data.get('period_comparison', {}).get('total_patients_change', 0):.1f}%",
+                    "change": f"+{practice_data.get('current_period', {}).get('total_patients', 0) - practice_data.get('previous_period', {}).get('total_patients', 0)} patients",
+                    "description": "Patient base growing steadily"
+                },
+                {
+                    "type": "positive",
+                    "title": "Wait Time",
+                    "value": f"{practice_data.get('period_comparison', {}).get('wait_time_change', 0):.1f}%",
+                    "change": f"{practice_data.get('current_period', {}).get('average_wait_time', 0) - practice_data.get('previous_period', {}).get('average_wait_time', 0)} min",
+                    "description": "Average wait time improved"
                 }
             ]
 

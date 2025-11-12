@@ -2391,24 +2391,24 @@ sharedMode.addEventListener('change', toggleMode);
 <!-- AI Insights -->
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
 <div class="p-6">
-<div class="flex items-center justify-between mb-6">
+<div class="flex items-center justify-between mb-4">
 <div class="flex items-center">
 <div class="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
 <i class="ri-brain-line text-purple-600"></i>
 </div>
 <div>
 <h2 class="text-lg font-semibold text-gray-900">AI Insights</h2>
-<p class="text-xs text-gray-500">Powered by Claude</p>
+<p class="text-xs text-gray-500">Cached • Refreshes hourly</p>
 </div>
 </div>
-<button id="refreshInsights" class="px-3 py-1.5 text-sm text-primary border border-primary/20 bg-primary/5 rounded-button hover:bg-primary/10 flex items-center">
+<button id="refreshInsights" class="px-3 py-1.5 text-sm text-gray-600 border border-gray-200 rounded-button hover:bg-gray-50 flex items-center">
 <i class="ri-refresh-line mr-1"></i>
 Refresh
 </button>
 </div>
 
-<!-- Insights Display -->
-<div id="insightsContent" class="space-y-4 mb-6">
+<!-- Insights Display - Card Grid -->
+<div id="insightsContent" class="mb-4">
 <!-- Loading state -->
 <div id="insightsLoading" class="flex items-center justify-center py-8">
 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -2423,7 +2423,7 @@ Refresh
 <input
 type="text"
 id="aiQuestionInput"
-placeholder="Ask a question about your practice data..."
+placeholder="Ask AI about your practice metrics..."
 class="w-full px-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20"
 />
 </div>
@@ -4552,7 +4552,7 @@ async function loadAIInsights() {
   }
 }
 
-// Display insights
+// Display insights in visual card format
 function displayInsights(insights) {
   const contentEl = document.getElementById('insightsContent');
 
@@ -4561,30 +4561,32 @@ function displayInsights(insights) {
     return;
   }
 
-  const insightTypes = {
-    'positive': { icon: 'ri-arrow-up-circle-line', bgColor: 'bg-green-50', borderColor: 'border-green-100', iconColor: 'text-green-600', textColor: 'text-green-900' },
-    'negative': { icon: 'ri-arrow-down-circle-line', bgColor: 'bg-red-50', borderColor: 'border-red-100', iconColor: 'text-red-600', textColor: 'text-red-900' },
-    'neutral': { icon: 'ri-information-line', bgColor: 'bg-blue-50', borderColor: 'border-blue-100', iconColor: 'text-blue-600', textColor: 'text-blue-900' },
-    'warning': { icon: 'ri-alert-line', bgColor: 'bg-yellow-50', borderColor: 'border-yellow-100', iconColor: 'text-yellow-600', textColor: 'text-yellow-900' }
+  const insightStyles = {
+    'positive': { icon: 'ri-arrow-up-circle-fill', iconColor: 'text-green-500', valueColor: 'text-green-600' },
+    'negative': { icon: 'ri-arrow-down-circle-fill', iconColor: 'text-red-500', valueColor: 'text-red-600' },
+    'warning': { icon: 'ri-error-warning-fill', iconColor: 'text-yellow-500', valueColor: 'text-yellow-600' }
   };
 
-  contentEl.innerHTML = insights.map(insight => {
-    const style = insightTypes[insight.type] || insightTypes['neutral'];
-    return `
-      <div class="p-4 ${style.bgColor} border ${style.borderColor} rounded-lg">
-        <div class="flex items-start">
-          <div class="w-6 h-6 flex items-center justify-center flex-shrink-0 mt-0.5">
-            <i class="${style.icon} ${style.iconColor}"></i>
+  contentEl.innerHTML = `
+    <div class="grid grid-cols-3 gap-4">
+      ${insights.map(insight => {
+        const style = insightStyles[insight.type] || insightStyles['positive'];
+        return `
+          <div class="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-medium text-gray-600 uppercase tracking-wide">${insight.title}</span>
+              <i class="${style.icon} ${style.iconColor} text-lg"></i>
+            </div>
+            <div class="mb-1">
+              <div class="text-2xl font-bold ${style.valueColor}">${insight.value || 'N/A'}</div>
+              ${insight.change ? `<div class="text-xs text-gray-500 mt-0.5">${insight.change}</div>` : ''}
+            </div>
+            <p class="text-xs text-gray-600 mt-2">${insight.description}</p>
           </div>
-          <div class="ml-3 flex-1">
-            <h3 class="text-sm font-medium ${style.textColor}">${insight.title}</h3>
-            <p class="text-sm ${style.textColor.replace('900', '700')} mt-1">${insight.description}</p>
-            ${insight.recommendation ? `<p class="text-xs ${style.textColor.replace('900', '600')} mt-2"><strong>Recommendation:</strong> ${insight.recommendation}</p>` : ''}
-          </div>
-        </div>
-      </div>
-    `;
-  }).join('');
+        `;
+      }).join('')}
+    </div>
+  `;
 }
 
 // Ask AI function
