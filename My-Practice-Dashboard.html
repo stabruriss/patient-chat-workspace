@@ -2398,17 +2398,11 @@ sharedMode.addEventListener('change', toggleMode);
 </div>
 <div>
 <h2 class="text-lg font-semibold text-gray-900">AI Insights</h2>
-<p class="text-xs text-gray-500">10 insights • <span id="insightCounter">1-3</span> of 10</p>
+<p class="text-xs text-gray-500"><span id="insightCounter">0 of 10</span> • Click cards to swap</p>
 </div>
 </div>
 <div class="flex items-center space-x-2">
-<button id="prevInsights" class="p-2 text-gray-600 border border-gray-200 rounded-button hover:bg-gray-50">
-<i class="ri-arrow-left-s-line"></i>
-</button>
-<button id="nextInsights" class="p-2 text-gray-600 border border-gray-200 rounded-button hover:bg-gray-50">
-<i class="ri-arrow-right-s-line"></i>
-</button>
-<button id="refreshInsights" class="px-3 py-1.5 text-sm text-gray-600 border border-gray-200 rounded-button hover:bg-gray-50 flex items-center ml-2">
+<button id="refreshInsights" class="px-3 py-1.5 text-sm text-gray-600 border border-gray-200 rounded-button hover:bg-gray-50 flex items-center">
 <i class="ri-refresh-line mr-1"></i>
 New
 </button>
@@ -4522,9 +4516,10 @@ const RAILWAY_BACKEND = 'https://web-production-c1100.up.railway.app';
 const PRACTICE_INSIGHTS_API = `${RAILWAY_BACKEND}/api/practice-insights`;
 const PRACTICE_ASK_API = `${RAILWAY_BACKEND}/api/practice-ask`;
 
-// Carousel state management
+// Click-to-swap state management
 let allInsights = [];
-let currentPosition = 0;
+let displayedInsights = []; // Currently showing 3
+let unusedInsights = []; // Pool of unused insights
 
 // Load AI Insights
 async function loadAIInsights() {
@@ -4564,23 +4559,39 @@ async function loadAIInsights() {
   }
 }
 
-// Display insights in visual card format (initial setup)
+// Display insights - setup initial state
 function displayInsights(insights) {
   allInsights = insights || [];
-  currentPosition = 0;
-  renderCurrentInsights();
+  displayedInsights = allInsights.slice(0, 3);
+  unusedInsights = allInsights.slice(3);
+  renderInsights();
 }
 
-// Render current 3 insights based on carousel position
-function renderCurrentInsights() {
+// Swap individual card
+function swapInsight(index) {
+  if (unusedInsights.length === 0) {
+    // All used, reset pool
+    unusedInsights = allInsights.filter(
+      insight => !displayedInsights.includes(insight)
+    );
+  }
+
+  if (unusedInsights.length > 0) {
+    const removedInsight = displayedInsights[index];
+    const newInsight = unusedInsights.shift();
+    displayedInsights[index] = newInsight;
+    renderInsights();
+  }
+}
+
+// Render insights with click handlers
+function renderInsights() {
   const contentEl = document.getElementById('insightsContent');
 
-  if (!allInsights || allInsights.length === 0) {
+  if (!displayedInsights || displayedInsights.length === 0) {
     contentEl.innerHTML = '<p class="text-sm text-gray-500 text-center py-4">No insights available</p>';
     return;
   }
-
-  const visibleInsights = allInsights.slice(currentPosition, currentPosition + 3);
 
   const insightStyles = {
     'positive': { icon: 'ri-arrow-up-circle-fill', iconColor: 'text-green-500', valueColor: 'text-green-600' },
@@ -4588,12 +4599,14 @@ function renderCurrentInsights() {
     'warning': { icon: 'ri-error-warning-fill', iconColor: 'text-yellow-500', valueColor: 'text-yellow-600' }
   };
 
+  const usedCount = allInsights.length - unusedInsights.length;
+
   contentEl.innerHTML = `
     <div class="grid grid-cols-3 gap-4">
-      ${visibleInsights.map(insight => {
+      ${displayedInsights.map((insight, index) => {
         const style = insightStyles[insight.type] || insightStyles['positive'];
         return `
-          <div class="border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors">
+          <div onclick="swapInsight(${index})" class="border border-gray-200 rounded-lg p-4 hover:border-purple-300 hover:shadow-md transition-all cursor-pointer active:scale-95">
             <div class="flex items-center justify-between mb-2">
               <span class="text-xs font-medium text-gray-600 uppercase tracking-wide">${insight.title}</span>
               <i class="${style.icon} ${style.iconColor} text-lg"></i>
@@ -4601,6 +4614,10 @@ function renderCurrentInsights() {
             <div class="mb-1">
               <div class="text-2xl font-bold ${style.valueColor}">${insight.value}</div>
               ${insight.change ? `<div class="text-xs text-gray-500 mt-0.5">${insight.change}</div>` : ''}
+            </div>
+            <div class="text-xs text-gray-400 mt-2 flex items-center">
+              <i class="ri-refresh-line mr-1"></i>
+              Click to swap
             </div>
           </div>
         `;
@@ -4611,31 +4628,7 @@ function renderCurrentInsights() {
   // Update counter
   const counterEl = document.getElementById('insightCounter');
   if (counterEl) {
-    counterEl.textContent = `${currentPosition + 1}-${Math.min(currentPosition + 3, allInsights.length)} of ${allInsights.length}`;
-  }
-
-  // Enable/disable navigation buttons
-  const prevBtn = document.getElementById('prevInsights');
-  const nextBtn = document.getElementById('nextInsights');
-
-  if (prevBtn) {
-    if (currentPosition === 0) {
-      prevBtn.disabled = true;
-      prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
-    } else {
-      prevBtn.disabled = false;
-      prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-    }
-  }
-
-  if (nextBtn) {
-    if (currentPosition + 3 >= allInsights.length) {
-      nextBtn.disabled = true;
-      nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
-    } else {
-      nextBtn.disabled = false;
-      nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-    }
+    counterEl.textContent = `${usedCount} of ${allInsights.length} viewed`;
   }
 }
 
@@ -4679,21 +4672,6 @@ async function askAI(question) {
 
 // Event listeners
 document.getElementById('refreshInsights')?.addEventListener('click', loadAIInsights);
-
-// Carousel navigation
-document.getElementById('prevInsights')?.addEventListener('click', () => {
-  if (currentPosition >= 3) {
-    currentPosition -= 3;
-    renderCurrentInsights();
-  }
-});
-
-document.getElementById('nextInsights')?.addEventListener('click', () => {
-  if (currentPosition + 3 < allInsights.length) {
-    currentPosition += 3;
-    renderCurrentInsights();
-  }
-});
 
 document.getElementById('askAIButton')?.addEventListener('click', () => {
   const input = document.getElementById('aiQuestionInput');
