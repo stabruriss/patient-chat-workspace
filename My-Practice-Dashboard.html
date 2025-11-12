@@ -4604,30 +4604,81 @@ function renderInsights() {
   }
 
   const insightStyles = {
-    'positive': { icon: 'ri-arrow-up-circle-fill', iconColor: 'text-green-500', valueColor: 'text-green-600' },
-    'negative': { icon: 'ri-arrow-down-circle-fill', iconColor: 'text-red-500', valueColor: 'text-red-600' },
-    'warning': { icon: 'ri-error-warning-fill', iconColor: 'text-yellow-500', valueColor: 'text-yellow-600' }
+    'positive': {
+      icon: 'ri-arrow-up-circle-fill',
+      iconColor: 'text-green-500',
+      valueColor: 'text-green-600',
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-200',
+      label: 'Improved',
+      labelColor: 'text-green-700'
+    },
+    'negative': {
+      icon: 'ri-arrow-down-circle-fill',
+      iconColor: 'text-red-500',
+      valueColor: 'text-red-600',
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-200',
+      label: 'Declined',
+      labelColor: 'text-red-700'
+    },
+    'warning': {
+      icon: 'ri-error-warning-fill',
+      iconColor: 'text-yellow-500',
+      valueColor: 'text-yellow-600',
+      bgColor: 'bg-yellow-50',
+      borderColor: 'border-yellow-200',
+      label: 'Watch',
+      labelColor: 'text-yellow-700'
+    }
   };
 
   const usedCount = allInsights.length - unusedInsights.length;
 
+  // Get metric descriptions
+  const metricDescriptions = {
+    'Revenue': 'Total practice revenue compared to previous period',
+    'Patients': 'Total active patients in your practice',
+    'Wait Time': 'Average patient wait time for appointments',
+    'Engagement': 'Patient engagement rate with practice communications',
+    'No-Shows': 'Percentage of missed appointments',
+    'Completed': 'Number of completed appointments',
+    'New Patients': 'New patient acquisitions this period',
+    'Utilization': 'Provider schedule utilization rate',
+    'Scheduled': 'Total appointments scheduled',
+    'Cancelled': 'Number of cancelled appointments'
+  };
+
   contentEl.innerHTML = `
-    <div class="grid grid-cols-3 gap-4">
+    <div class="space-y-3">
       ${displayedInsights.map((insight, index) => {
         const style = insightStyles[insight.type] || insightStyles['positive'];
+        const description = metricDescriptions[insight.title] || 'Practice performance metric';
+        const trendIcon = insight.trend === 'up' ? 'ri-arrow-up-line' : insight.trend === 'down' ? 'ri-arrow-down-line' : 'ri-subtract-line';
+
         return `
-          <div onclick="swapInsight(${index})" class="border border-gray-200 rounded-lg p-4 hover:border-purple-300 hover:shadow-md transition-all cursor-pointer active:scale-95">
-            <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-medium text-gray-600 uppercase tracking-wide">${insight.title}</span>
-              <i class="${style.icon} ${style.iconColor} text-lg"></i>
-            </div>
-            <div class="mb-1">
-              <div class="text-2xl font-bold ${style.valueColor}">${insight.value}</div>
-              ${insight.change ? `<div class="text-xs text-gray-500 mt-0.5">${insight.change}</div>` : ''}
-            </div>
-            <div class="text-xs text-gray-400 mt-2 flex items-center">
-              <i class="ri-refresh-line mr-1"></i>
-              Click to swap
+          <div onclick="swapInsight(${index})" class="border ${style.borderColor} ${style.bgColor} rounded-lg p-4 hover:shadow-lg transition-all cursor-pointer active:scale-[0.98] group">
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="text-xs font-semibold ${style.labelColor} uppercase tracking-wide px-2 py-0.5 ${style.bgColor} rounded">${style.label}</span>
+                  <span class="text-sm font-medium text-gray-700">${insight.title}</span>
+                </div>
+                <p class="text-xs text-gray-600 mb-3">${description}</p>
+                <div class="flex items-end gap-4">
+                  <div>
+                    <div class="text-3xl font-bold ${style.valueColor}">${insight.value}</div>
+                    ${insight.change ? `<div class="text-sm text-gray-600 mt-1 flex items-center gap-1"><i class="${trendIcon} text-xs"></i>${insight.change}</div>` : ''}
+                  </div>
+                </div>
+              </div>
+              <div class="flex flex-col items-end gap-2">
+                <i class="${style.icon} ${style.iconColor} text-2xl"></i>
+                <div class="text-xs text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                  <i class="ri-refresh-line"></i>
+                  Swap
+                </div>
+              </div>
             </div>
           </div>
         `;
