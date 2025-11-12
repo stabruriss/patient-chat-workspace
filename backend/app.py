@@ -313,12 +313,10 @@ async def generate_practice_insights(request: Dict[str, Any]):
         if not practice_data:
             raise HTTPException(status_code=400, detail="practice_data is required")
 
-        insights = await practice_insights_agent.generate_insights(practice_data)
+        result = await practice_insights_agent.generate_insights(practice_data)
 
-        return {
-            "insights": insights,
-            "timestamp": datetime.now().isoformat()
-        }
+        # Return the full result (summary + insights)
+        return result
 
     except Exception as e:
         logger.error(f"Failed to generate practice insights: {e}")
