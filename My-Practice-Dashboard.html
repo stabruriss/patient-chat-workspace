@@ -4552,7 +4552,17 @@ async function loadAIInsights() {
 
     const data = await response.json();
     console.log('[AI Insights] Received:', data);
-    displayInsights(data.summary, data.insights);
+
+    // Handle both old array format and new object format
+    if (data.insights && Array.isArray(data.insights)) {
+      // New format: {summary: "...", insights: [...]}
+      displayInsights(data.summary || "", data.insights);
+    } else if (Array.isArray(data)) {
+      // Old format: just array of insights (backward compatibility)
+      displayInsights("", data);
+    } else {
+      throw new Error('Invalid response format from backend');
+    }
   } catch (error) {
     console.error('[AI Insights] Error:', error);
     contentEl.innerHTML = `
