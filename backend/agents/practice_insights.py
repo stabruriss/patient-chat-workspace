@@ -29,7 +29,7 @@ class PracticeInsightsAgent:
         """Check if cached data is still valid"""
         return (time.time() - timestamp) < self.cache_duration
 
-    async def generate_insights(self, practice_data: Dict[str, Any], user_api_key: Optional[str] = None) -> List[Dict[str, str]]:
+    async def generate_insights(self, practice_data: Dict[str, Any], user_api_key: Optional[str] = None) -> Dict[str, Any]:
         """
         Generate AI insights from practice operational data (with caching)
 
@@ -38,16 +38,16 @@ class PracticeInsightsAgent:
             user_api_key: Optional user API key
 
         Returns:
-            List of insights with type, title, value, change, description
+            Dictionary with 'summary' (string) and 'insights' (list of dicts)
         """
 
         # Check cache first
         data_hash = self._get_data_hash(practice_data)
         if data_hash in self.cache:
-            cached_insights, timestamp = self.cache[data_hash]
+            cached_data, timestamp = self.cache[data_hash]
             if self._is_cache_valid(timestamp):
                 print(f"[CACHE HIT] Returning cached insights")
-                return cached_insights
+                return cached_data
 
         api_key = key_manager.get_claude_api_key(user_api_key or self.user_api_key)
 
@@ -61,7 +61,10 @@ class PracticeInsightsAgent:
             rev_change = curr.get('total_revenue', 0) - prev.get('total_revenue', 0)
             pat_change = curr.get('total_patients', 0) - prev.get('total_patients', 0)
 
-            return [
+            # Generate summary
+            summary = f"Your practice is showing strong growth with revenue up {comp.get('revenue_change', 0):.1f}% and {pat_change} new patients. Patient engagement has increased to {curr.get('patient_engagement', 0)}%, while wait times have improved by {abs(comp.get('wait_time_change', 0)):.1f}%. Provider utilization is at {curr.get('provider_utilization', 0)}% with {curr.get('appointments_completed', 0)} completed appointments. No-show rate has decreased to {curr.get('no_show_rate', 0):.1f}%, indicating better patient commitment."
+
+            insights = [
                 {
                     "type": "positive" if comp.get('revenue_change', 0) > 0 else "negative",
                     "title": "Revenue",
@@ -134,34 +137,40 @@ class PracticeInsightsAgent:
                 }
             ]
 
-        prompt = f"""You are a healthcare practice operations analyst. Analyze the following practice data and generate exactly 10 diverse insights.
+            return {
+                "summary": summary,
+                "insights": insights
+            }
 
-IMPORTANT: Be extremely concise. Each insight should have minimal text.
+        prompt = f"""You are a healthcare practice operations analyst. Analyze the following practice data and generate a summary and exactly 10 diverse insights.
 
 Practice Data:
 {json.dumps(practice_data, indent=2)}
 
-Return exactly 10 insights as a JSON array with this EXACT format:
-[
-  {{
-    "type": "positive|negative|warning",
-    "title": "Revenue" (1-2 words only),
-    "value": "+8.9%" (the main metric - NEVER use "N/A"),
-    "change": "+$7.3K" (use K for thousands, optional),
-    "trend": "up" (up|down|stable)
-  }}
-]
+Return a JSON object with this EXACT format:
+{{
+  "summary": "5-sentence executive summary covering overall performance, key wins, areas of concern, and forward-looking projection. Each sentence should be substantial and informative.",
+  "insights": [
+    {{
+      "type": "positive|negative|warning",
+      "title": "Revenue" (1-2 words only),
+      "value": "+8.9%" (the main metric - NEVER use "N/A"),
+      "change": "+$7.3K" (use K for thousands, optional),
+      "trend": "up" (up|down|stable)
+    }}
+  ]
+}}
 
 Rules:
+- Summary: Exactly 5 sentences covering performance overview, revenue/growth, operational efficiency, patient satisfaction, and future outlook
 - EXACTLY 10 different insights covering different metrics
-- NO descriptions - visual only
 - value must ALWAYS be a real number (never "N/A" or null)
 - Use K for thousands (e.g., "$7.3K" not "$7,270")
 - Mix of: revenue, patients, appointments, wait time, utilization, engagement, services
 - Use positive for improvements, negative for declines, warning for concerns
 - trend must be: "up", "down", or "stable"
 
-Return ONLY the JSON array, no additional text.
+Return ONLY the JSON object, no additional text.
 """
 
         try:
@@ -184,13 +193,13 @@ Return ONLY the JSON array, no additional text.
                 content = content[:-3]
             content = content.strip()
 
-            insights = json.loads(content)
+            result = json.loads(content)
 
-            # Cache the insights
-            self.cache[data_hash] = (insights, time.time())
+            # Cache the result
+            self.cache[data_hash] = (result, time.time())
             print(f"[CACHE SET] Cached insights for {data_hash}")
 
-            return insights
+            return result
 
         except Exception as e:
             print(f"[ERROR] Failed to generate insights: {e}")
@@ -202,7 +211,9 @@ Return ONLY the JSON array, no additional text.
             rev_change = curr.get('total_revenue', 0) - prev.get('total_revenue', 0)
             pat_change = curr.get('total_patients', 0) - prev.get('total_patients', 0)
 
-            return [
+            summary = f"Your practice is showing strong growth with revenue up {comp.get('revenue_change', 0):.1f}% and {pat_change} new patients. Patient engagement has increased to {curr.get('patient_engagement', 0)}%, while wait times have improved by {abs(comp.get('wait_time_change', 0)):.1f}%. Provider utilization is at {curr.get('provider_utilization', 0)}% with {curr.get('appointments_completed', 0)} completed appointments. No-show rate has decreased to {curr.get('no_show_rate', 0):.1f}%, indicating better patient commitment. Continue focusing on patient engagement and operational efficiency for sustained growth."
+
+            insights = [
                 {
                     "type": "positive" if comp.get('revenue_change', 0) > 0 else "negative",
                     "title": "Revenue",
@@ -274,6 +285,11 @@ Return ONLY the JSON array, no additional text.
                     "trend": "up"
                 }
             ]
+
+            return {
+                "summary": summary,
+                "insights": insights
+            }
 
     async def answer_question(self, question: str, practice_data: Dict[str, Any], user_api_key: Optional[str] = None) -> str:
         """

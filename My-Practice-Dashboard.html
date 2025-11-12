@@ -4519,6 +4519,7 @@ const PRACTICE_INSIGHTS_API = `${BACKEND_URL}/api/practice-insights`;
 const PRACTICE_ASK_API = `${BACKEND_URL}/api/practice-ask`;
 
 // Click-to-swap state management
+let insightsSummary = "";
 let allInsights = [];
 let displayedInsights = []; // Currently showing 3
 let unusedInsights = []; // Pool of unused insights
@@ -4550,8 +4551,8 @@ async function loadAIInsights() {
     }
 
     const data = await response.json();
-    console.log('[AI Insights] Received insights:', data.insights?.length);
-    displayInsights(data.insights);
+    console.log('[AI Insights] Received:', data);
+    displayInsights(data.summary, data.insights);
   } catch (error) {
     console.error('[AI Insights] Error:', error);
     contentEl.innerHTML = `
@@ -4570,7 +4571,8 @@ async function loadAIInsights() {
 }
 
 // Display insights - setup initial state
-function displayInsights(insights) {
+function displayInsights(summary, insights) {
+  insightsSummary = summary || "";
   allInsights = insights || [];
   displayedInsights = allInsights.slice(0, 3);
   unusedInsights = allInsights.slice(3);
@@ -4651,6 +4653,19 @@ function renderInsights() {
 
   contentEl.innerHTML = `
     <div class="space-y-3">
+      ${insightsSummary ? `
+        <div class="bg-gradient-to-r from-purple-50 to-blue-50 border border-purple-200 rounded-lg p-5 mb-4">
+          <div class="flex items-start gap-3">
+            <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
+              <i class="ri-brain-line text-purple-600 text-xl"></i>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-sm font-semibold text-purple-900 mb-2">Executive Summary</h3>
+              <p class="text-base leading-relaxed text-gray-700">${insightsSummary}</p>
+            </div>
+          </div>
+        </div>
+      ` : ''}
       ${displayedInsights.map((insight, index) => {
         const style = insightStyles[insight.type] || insightStyles['positive'];
         const description = metricDescriptions[insight.title] || 'Practice performance metric';
