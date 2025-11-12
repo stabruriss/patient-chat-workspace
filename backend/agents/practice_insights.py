@@ -149,7 +149,7 @@ Practice Data:
 
 Return a JSON object with this EXACT format:
 {{
-  "summary": "5-sentence executive summary covering overall performance, key wins, areas of concern, and forward-looking projection. Each sentence should be substantial and informative.",
+  "summary": "3-sentence executive summary (less than 100 words) covering overall performance, key wins, areas of concern, and forward-looking projection. Each sentence should be substantial and informative.",
   "insights": [
     {{
       "type": "positive|negative|warning",
