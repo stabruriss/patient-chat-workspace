@@ -89,6 +89,7 @@ Rules:
 - trend must be: "up", "down", or "stable"
 
 Return ONLY the JSON array, no additional text.
+"""
 
         try:
             os.environ['ANTHROPIC_API_KEY'] = api_key
@@ -206,7 +207,7 @@ Return ONLY the JSON array, no additional text.
         Answer a specific question about practice data
 
         Args:
-            question: User's question
+            question: User question
             practice_data: Dictionary containing practice metrics
             user_api_key: Optional user API key
 
