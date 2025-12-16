@@ -466,25 +466,10 @@ return closest;
 }, { offset: Number.NEGATIVE_INFINITY }).element;
 }
 
-// Workflow template loading functions
+// Workflow template loading functions - simplified to show only 3 curated templates
 async function loadWorkflowTemplates() {
-    try {
-        console.log('Loading workflow templates...');
-        const response = await fetch('./workflow-templates.json');
-        const data = await response.json();
-        if (Array.isArray(data?.templates) && data.templates.length) {
-            console.log('Templates loaded:', data.templates);
-            renderWorkflowTemplates(data.templates);
-            return;
-        }
-        console.warn('Workflow templates JSON missing templates array, using fallback data');
-    } catch (error) {
-        console.error('Error loading workflow templates:', error);
-    }
-
-    if (!renderFallbackTemplates()) {
-        showStaticTemplates();
-    }
+    // Always use the curated static templates for demo
+    showStaticTemplates();
 }
 
 function renderWorkflowTemplates(templates) {
@@ -501,26 +486,27 @@ function renderWorkflowTemplates(templates) {
 }
 
 function createTemplateCard(template) {
+    const isProgram = template.type === 'program';
+    const iconClass = isProgram ? 'ri-heart-pulse-line' : 'ri-flow-chart';
+    const bgColor = isProgram ? 'bg-rose-50' : 'bg-blue-50';
+    const iconColor = isProgram ? 'text-rose-600' : 'text-blue-600';
+    const typeLabel = isProgram ? 'Program' : 'Workflow';
+    const typeBgColor = isProgram ? 'bg-rose-100 text-rose-700' : 'bg-blue-100 text-blue-700';
+
     return `
         <div
             class="border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-primary/5 transition-all duration-200 cursor-pointer"
-            onclick="useWorkflowTemplate('${template.id}')"
+            onclick="openTemplatePreview('${template.id}')"
         >
-            <div class="flex items-start justify-between mb-4">
-                <div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center">
-                    <div class="w-5 h-5 flex items-center justify-center text-primary">
-                        <i class="ri-flow-chart"></i>
-                    </div>
+            <div class="flex items-start justify-between mb-3">
+                <div class="w-10 h-10 ${bgColor} rounded-lg flex items-center justify-center">
+                    <i class="${iconClass} ${iconColor}"></i>
                 </div>
-                <div class="flex items-center space-x-2">
-                    <span class="text-xs text-gray-500">${template.rating}</span>
-                    <div class="flex items-center">
-                        <i class="ri-star-fill text-yellow-400 text-xs"></i>
-                    </div>
-                </div>
+                <span class="text-xs font-medium px-2 py-0.5 rounded ${typeBgColor}">${typeLabel}</span>
             </div>
             <h3 class="text-sm font-medium text-gray-900 mb-1">${template.name}</h3>
-            <p class="text-xs text-gray-500 mb-3">${template.description}</p>
+            <p class="text-xs text-gray-500 mb-2 line-clamp-2">${template.description}</p>
+            <div class="text-xs text-gray-400">${template.category || 'General'}</div>
         </div>
     `;
 }
@@ -539,38 +525,42 @@ function showStaticTemplates() {
     console.warn('Falling back to minimal static workflow templates');
     renderWorkflowTemplates([
         {
-            id: 'annual-wellness-visit',
-            name: 'Annual Wellness Visit',
-            description: 'Standard wellness check workflow',
-            rating: 4.8,
-            type: 'patient'
-        },
-        {
-            id: 'diabetes-management',
-            name: 'Diabetes Management',
-            description: 'Comprehensive diabetes care plan',
-            rating: 4.7,
-            type: 'patient'
+            id: 'new-patient-onboarding',
+            name: 'New Patient Onboarding',
+            description: 'Complete onboarding workflow for new patients with welcome materials and forms',
+            type: 'patient',
+            category: 'Patient Registration'
         },
         {
             id: 'test-reminder-90day',
             name: '90-Day Test Reminder',
-            description: 'Automated follow-up testing reminder',
-            rating: 4.6,
-            type: 'patient'
+            description: 'Automated reminder workflow for follow-up testing after order placement',
+            type: 'patient',
+            category: 'Follow-up Care'
+        },
+        {
+            id: 'weight-management-program',
+            name: 'Weight Management Program',
+            description: '12-week comprehensive weight loss program with weekly check-ins and milestone tracking',
+            type: 'program',
+            category: 'Health Programs'
         }
     ]);
 }
 
 });
 
-// Global function for template usage (needs to be outside DOMContentLoaded for onclick access)
+// Global functions for template usage (needs to be outside DOMContentLoaded for onclick access)
 function useWorkflowTemplate(templateId) {
     // Store the template ID for the workflow composer
     sessionStorage.setItem('selectedTemplate', templateId);
 
     // Navigate to workflow composer
     window.location.href = `workflow-composer.html?template=${templateId}`;
+}
+
+function openTemplatePreview(templateId) {
+    window.location.href = `template-preview.html?id=${templateId}`;
 }
 </script>
 <!-- Refund Method Settings -->
@@ -1127,9 +1117,9 @@ Sign Out
 </div>
 <div class="workbench-nav-item flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-50 mb-1" id="workflowNav">
 <div class="w-5 h-5 flex items-center justify-center mr-3 text-gray-500">
-<i class="ri-flow-chart"></i>
+<i class="ri-robot-line"></i>
 </div>
-<span class="text-sm font-medium">Workflow</span>
+<span class="text-sm font-medium">Automation</span>
 </div>
 <div class="workbench-nav-item flex items-center p-3 rounded-lg text-gray-700 hover:bg-gray-50 mb-1" id="reportNav">
 <div class="w-5 h-5 flex items-center justify-center mr-3 text-gray-500">
@@ -1179,8 +1169,8 @@ Get Support
 <p class="text-gray-600 mt-1">Manage your document templates and clinical workflows</p>
 </div>
 <div id="workflowHeader" class="hidden">
-<h1 class="text-2xl font-semibold text-gray-900">Workflows</h1>
-<p class="text-gray-600 mt-1">Design and manage your clinical process workflows</p>
+<h1 class="text-2xl font-semibold text-gray-900">Automation</h1>
+<p class="text-gray-600 mt-1">Manage workflows and programs that automate your clinical processes</p>
 </div>
 <div id="reportHeader" class="hidden">
 <h1 class="text-2xl font-semibold text-gray-900">Report Formats</h1>
@@ -1195,82 +1185,338 @@ Get Support
 <!-- Main Content -->
 <div class="p-6">
 <div id="workflowContent" class="grid grid-cols-1 gap-6 hidden">
+<!-- Automation Type Tabs -->
+<div class="flex space-x-1 bg-gray-100 p-1 rounded-lg w-fit">
+<button class="automation-type-tab active px-4 py-2 text-sm font-medium rounded-md bg-white text-gray-900 shadow-sm" data-type="all">
+All Automation
+</button>
+<button class="automation-type-tab px-4 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900" data-type="workflow">
+<i class="ri-flow-chart mr-1"></i>Workflows
+</button>
+<button class="automation-type-tab px-4 py-2 text-sm font-medium rounded-md text-gray-600 hover:text-gray-900" data-type="program">
+<i class="ri-heart-pulse-line mr-1"></i>Programs
+</button>
+</div>
+
+<!-- Active Automation Section -->
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
 <div class="p-6">
 <div class="flex items-center justify-between mb-6">
 <div>
-<h2 class="text-lg font-semibold text-gray-900">Active Workflows</h2>
-<p class="text-sm text-gray-600 mt-1">Patient workflows and practice-wide automation currently running</p>
+<h2 class="text-lg font-semibold text-gray-900">Active Automation</h2>
+<p class="text-sm text-gray-600 mt-1">Currently running workflows and programs</p>
 </div>
-<div class="flex space-x-3">
-<button id="createPatientWorkflowBtn" class="px-4 py-2 text-blue-600 border border-blue-200 bg-blue-50 rounded-button flex items-center whitespace-nowrap hover:bg-blue-100 transition-colors">
+<button id="createPatientWorkflowBtn" class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap hover:bg-primary/10 transition-colors">
 <div class="w-4 h-4 flex items-center justify-center mr-2">
 <i class="ri-add-line"></i>
 </div>
-Create Workflow
-</button>
-<button id="createPracticeWorkflowBtn" class="hidden px-4 py-2 text-green-600 border border-green-200 bg-green-50 rounded-button flex items-center whitespace-nowrap hover:bg-green-100 transition-colors">
-<div class="w-4 h-4 flex items-center justify-center mr-2">
-<i class="ri-building-line"></i>
-</div>
-Create Practice Workflow
+Create
 </button>
 </div>
+
+<!-- Workflows Section -->
+<div class="mb-6">
+<div class="flex items-center mb-3">
+<div class="w-6 h-6 bg-blue-100 rounded flex items-center justify-center mr-2">
+<i class="ri-flow-chart text-blue-600 text-sm"></i>
 </div>
-<div class="grid grid-cols-1 gap-4">
-<div class="border border-gray-200 rounded-lg p-4">
+<h3 class="text-sm font-semibold text-gray-700">Workflows</h3>
+<span class="ml-2 text-xs text-gray-500">Event-triggered automation sequences</span>
+</div>
+<div class="grid grid-cols-1 gap-3">
+<div class="automation-item border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors cursor-pointer" data-type="workflow">
 <div class="flex items-center justify-between">
 <div class="flex items-center">
-<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center mr-4">
-<div class="w-5 h-5 flex items-center justify-center text-primary">
-<i class="ri-flow-chart"></i>
-</div>
+<div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mr-4">
+<i class="ri-flow-chart text-blue-600"></i>
 </div>
 <div>
 <h3 class="text-sm font-medium text-gray-900">Patient Onboarding</h3>
-<p class="text-xs text-gray-500 mt-1">5 steps • 3 active patients</p>
+<p class="text-xs text-gray-500 mt-1">5 steps • 3 active patients • Triggered by: New patient registration</p>
 </div>
 </div>
-<button class="text-gray-400 hover:text-gray-600">
-<div class="w-4 h-4 flex items-center justify-center">
+<div class="flex items-center space-x-2">
+<span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded">Active</span>
+<button class="text-gray-400 hover:text-gray-600 p-1">
 <i class="ri-more-2-fill"></i>
-</div>
 </button>
 </div>
 </div>
-<div class="border border-gray-200 rounded-lg p-4">
+</div>
+<div class="automation-item border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors cursor-pointer" data-type="workflow">
 <div class="flex items-center justify-between">
 <div class="flex items-center">
-<div class="w-10 h-10 bg-primary/5 rounded-lg flex items-center justify-center mr-4">
-<div class="w-5 h-5 flex items-center justify-center text-primary">
-<i class="ri-flow-chart"></i>
+<div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mr-4">
+<i class="ri-flow-chart text-blue-600"></i>
 </div>
+<div>
+<h3 class="text-sm font-medium text-gray-900">Lab Results Follow-up</h3>
+<p class="text-xs text-gray-500 mt-1">3 steps • 8 active patients • Triggered by: Lab results received</p>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded">Active</span>
+<button class="text-gray-400 hover:text-gray-600 p-1">
+<i class="ri-more-2-fill"></i>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Programs Section -->
+<div>
+<div class="flex items-center mb-3">
+<div class="w-6 h-6 bg-rose-100 rounded flex items-center justify-center mr-2">
+<i class="ri-heart-pulse-line text-rose-600 text-sm"></i>
+</div>
+<h3 class="text-sm font-semibold text-gray-700">Programs</h3>
+<span class="ml-2 text-xs text-gray-500">Structured multi-week health journeys</span>
+</div>
+<div class="grid grid-cols-1 gap-3">
+<div class="automation-item border border-gray-200 rounded-lg p-4 hover:border-rose-300 transition-colors cursor-pointer" data-type="program">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center mr-4">
+<i class="ri-heart-pulse-line text-rose-600"></i>
+</div>
+<div>
+<h3 class="text-sm font-medium text-gray-900">Weight Management Program</h3>
+<p class="text-xs text-gray-500 mt-1">12 weeks • 15 enrolled patients • Next milestone: Week 4 check-in</p>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded">Active</span>
+<button class="text-gray-400 hover:text-gray-600 p-1">
+<i class="ri-more-2-fill"></i>
+</button>
+</div>
+</div>
+</div>
+<div class="automation-item border border-gray-200 rounded-lg p-4 hover:border-rose-300 transition-colors cursor-pointer" data-type="program">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center mr-4">
+<i class="ri-heart-pulse-line text-rose-600"></i>
+</div>
+<div>
+<h3 class="text-sm font-medium text-gray-900">Gut Health Restoration</h3>
+<p class="text-xs text-gray-500 mt-1">8 weeks • 7 enrolled patients • Next milestone: Diet assessment</p>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded">Active</span>
+<button class="text-gray-400 hover:text-gray-600 p-1">
+<i class="ri-more-2-fill"></i>
+</button>
+</div>
+</div>
+</div>
+<div class="automation-item border border-gray-200 rounded-lg p-4 hover:border-rose-300 transition-colors cursor-pointer" data-type="program">
+<div class="flex items-center justify-between">
+<div class="flex items-center">
+<div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center mr-4">
+<i class="ri-heart-pulse-line text-rose-600"></i>
 </div>
 <div>
 <h3 class="text-sm font-medium text-gray-900">Chronic Care Management</h3>
-<p class="text-xs text-gray-500 mt-1">8 steps • 12 active patients</p>
+<p class="text-xs text-gray-500 mt-1">Ongoing • 12 enrolled patients • Monthly check-ins</p>
 </div>
 </div>
-<button class="text-gray-400 hover:text-gray-600">
-<div class="w-4 h-4 flex items-center justify-center">
+<div class="flex items-center space-x-2">
+<span class="px-2 py-1 text-xs font-medium bg-green-100 text-green-700 rounded">Active</span>
+<button class="text-gray-400 hover:text-gray-600 p-1">
 <i class="ri-more-2-fill"></i>
-</div>
 </button>
 </div>
 </div>
 </div>
 </div>
 </div>
+</div>
+</div>
+
+<!-- Templates Section -->
 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
 <div class="p-6">
 <div class="flex items-center justify-between mb-6">
 <div>
-<h2 class="text-lg font-semibold text-gray-900">Popular Workflows</h2>
-<p class="text-sm text-gray-600 mt-1">Reusable workflow templates</p>
+<h2 class="text-lg font-semibold text-gray-900">Automation Templates</h2>
+<p class="text-sm text-gray-600 mt-1">Pre-built workflows and program templates</p>
 </div>
+<button id="viewMoreTemplatesBtn" class="px-4 py-2 text-primary border border-primary/20 bg-primary/5 rounded-button flex items-center whitespace-nowrap hover:bg-primary/10 transition-colors">
+<div class="w-4 h-4 flex items-center justify-center mr-2">
+<i class="ri-folder-open-line"></i>
+</div>
+View More in Library
+</button>
 </div>
 <div id="workflowTemplatesGrid" class="grid grid-cols-3 gap-4 auto-rows-auto">
 <!-- Templates will be loaded dynamically -->
+</div>
+</div>
+</div>
+</div>
+
+<!-- Template Library Modal -->
+<div id="templateLibraryModal" class="fixed inset-0 bg-gray-500 bg-opacity-50 hidden flex items-center justify-center z-50">
+<div class="bg-white rounded-lg w-[900px] max-h-[85vh] flex flex-col">
+<div class="p-6 border-b border-gray-200">
+<div class="flex items-center justify-between">
+<div>
+<h3 class="text-lg font-semibold text-gray-900">Template Library</h3>
+<p class="text-sm text-gray-500 mt-1">Browse all available automation templates</p>
+</div>
+<button id="closeTemplateLibrary" class="text-gray-400 hover:text-gray-600">
+<div class="w-6 h-6 flex items-center justify-center">
+<i class="ri-close-line text-xl"></i>
+</div>
+</button>
+</div>
+<!-- Filter Tabs -->
+<div class="flex space-x-2 mt-4">
+<button class="library-filter-tab active px-3 py-1.5 text-sm font-medium rounded-full bg-gray-900 text-white" data-filter="all">All</button>
+<button class="library-filter-tab px-3 py-1.5 text-sm font-medium rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200" data-filter="workflow">Workflows</button>
+<button class="library-filter-tab px-3 py-1.5 text-sm font-medium rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200" data-filter="program">Programs</button>
+</div>
+</div>
+<div class="p-6 overflow-y-auto flex-1">
+<div id="templateLibraryGrid" class="grid grid-cols-3 gap-4">
+<!-- Workflow Templates -->
+<div class="library-template-card border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-gray-50 transition-all" data-type="workflow">
+<div class="flex items-start justify-between mb-3">
+<div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+<i class="ri-flow-chart text-blue-600"></i>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">Workflow</span>
+</div>
+<h4 class="text-sm font-medium text-gray-900 mb-1">New Patient Onboarding</h4>
+<p class="text-xs text-gray-500 mb-2">Complete onboarding workflow for new patients</p>
+<div class="text-xs text-gray-400">Patient Registration</div>
+</div>
+<div class="library-template-card border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-gray-50 transition-all" data-type="workflow">
+<div class="flex items-start justify-between mb-3">
+<div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+<i class="ri-flow-chart text-blue-600"></i>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">Workflow</span>
+</div>
+<h4 class="text-sm font-medium text-gray-900 mb-1">90-Day Test Reminder</h4>
+<p class="text-xs text-gray-500 mb-2">Automated follow-up testing reminder</p>
+<div class="text-xs text-gray-400">Follow-up Care</div>
+</div>
+<div class="library-template-card border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-gray-50 transition-all" data-type="workflow">
+<div class="flex items-start justify-between mb-3">
+<div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+<i class="ri-flow-chart text-blue-600"></i>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">Workflow</span>
+</div>
+<h4 class="text-sm font-medium text-gray-900 mb-1">Annual Wellness Visit</h4>
+<p class="text-xs text-gray-500 mb-2">Pre-visit preparation and follow-up</p>
+<div class="text-xs text-gray-400">Preventive Care</div>
+</div>
+<div class="library-template-card border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-gray-50 transition-all" data-type="workflow">
+<div class="flex items-start justify-between mb-3">
+<div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+<i class="ri-flow-chart text-blue-600"></i>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">Workflow</span>
+</div>
+<h4 class="text-sm font-medium text-gray-900 mb-1">Questionnaire Nudge</h4>
+<p class="text-xs text-gray-500 mb-2">Automated reminder for incomplete forms</p>
+<div class="text-xs text-gray-400">Form Management</div>
+</div>
+<div class="library-template-card border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-gray-50 transition-all" data-type="workflow">
+<div class="flex items-start justify-between mb-3">
+<div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+<i class="ri-flow-chart text-blue-600"></i>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">Workflow</span>
+</div>
+<h4 class="text-sm font-medium text-gray-900 mb-1">Insurance Expiry Reminder</h4>
+<p class="text-xs text-gray-500 mb-2">Alert before insurance card expires</p>
+<div class="text-xs text-gray-400">Insurance Management</div>
+</div>
+<div class="library-template-card border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-gray-50 transition-all" data-type="workflow">
+<div class="flex items-start justify-between mb-3">
+<div class="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center">
+<i class="ri-flow-chart text-blue-600"></i>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded bg-blue-100 text-blue-700">Workflow</span>
+</div>
+<h4 class="text-sm font-medium text-gray-900 mb-1">Critical Lab Alert</h4>
+<p class="text-xs text-gray-500 mb-2">Urgent notification for critical results</p>
+<div class="text-xs text-gray-400">Clinical Alerts</div>
+</div>
+<!-- Program Templates -->
+<div class="library-template-card border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-gray-50 transition-all" data-type="program">
+<div class="flex items-start justify-between mb-3">
+<div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center">
+<i class="ri-heart-pulse-line text-rose-600"></i>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded bg-rose-100 text-rose-700">Program</span>
+</div>
+<h4 class="text-sm font-medium text-gray-900 mb-1">Weight Management Program</h4>
+<p class="text-xs text-gray-500 mb-2">12-week comprehensive weight loss journey</p>
+<div class="text-xs text-gray-400">Health Programs</div>
+</div>
+<div class="library-template-card border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-gray-50 transition-all" data-type="program">
+<div class="flex items-start justify-between mb-3">
+<div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center">
+<i class="ri-heart-pulse-line text-rose-600"></i>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded bg-rose-100 text-rose-700">Program</span>
+</div>
+<h4 class="text-sm font-medium text-gray-900 mb-1">Gut Health Restoration</h4>
+<p class="text-xs text-gray-500 mb-2">8-week digestive wellness program</p>
+<div class="text-xs text-gray-400">Health Programs</div>
+</div>
+<div class="library-template-card border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-gray-50 transition-all" data-type="program">
+<div class="flex items-start justify-between mb-3">
+<div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center">
+<i class="ri-heart-pulse-line text-rose-600"></i>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded bg-rose-100 text-rose-700">Program</span>
+</div>
+<h4 class="text-sm font-medium text-gray-900 mb-1">Diabetes Management</h4>
+<p class="text-xs text-gray-500 mb-2">Ongoing chronic care management</p>
+<div class="text-xs text-gray-400">Chronic Care</div>
+</div>
+<div class="library-template-card border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-gray-50 transition-all" data-type="program">
+<div class="flex items-start justify-between mb-3">
+<div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center">
+<i class="ri-heart-pulse-line text-rose-600"></i>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded bg-rose-100 text-rose-700">Program</span>
+</div>
+<h4 class="text-sm font-medium text-gray-900 mb-1">Sleep Optimization</h4>
+<p class="text-xs text-gray-500 mb-2">6-week sleep quality improvement</p>
+<div class="text-xs text-gray-400">Health Programs</div>
+</div>
+<div class="library-template-card border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-gray-50 transition-all" data-type="program">
+<div class="flex items-start justify-between mb-3">
+<div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center">
+<i class="ri-heart-pulse-line text-rose-600"></i>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded bg-rose-100 text-rose-700">Program</span>
+</div>
+<h4 class="text-sm font-medium text-gray-900 mb-1">Hormone Balance</h4>
+<p class="text-xs text-gray-500 mb-2">16-week hormonal optimization</p>
+<div class="text-xs text-gray-400">Health Programs</div>
+</div>
+<div class="library-template-card border border-gray-200 rounded-lg p-4 hover:border-primary/30 hover:bg-gray-50 transition-all" data-type="program">
+<div class="flex items-start justify-between mb-3">
+<div class="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center">
+<i class="ri-heart-pulse-line text-rose-600"></i>
+</div>
+<span class="text-xs font-medium px-2 py-0.5 rounded bg-rose-100 text-rose-700">Program</span>
+</div>
+<h4 class="text-sm font-medium text-gray-900 mb-1">Stress & Anxiety Relief</h4>
+<p class="text-xs text-gray-500 mb-2">8-week mental wellness program</p>
+<div class="text-xs text-gray-400">Mental Health</div>
+</div>
 </div>
 </div>
 </div>
@@ -2393,7 +2639,7 @@ Create Smart Block
 Create Template
 </button>
 <div id="templateTypeSelector" class="fixed inset-0 bg-gray-500 bg-opacity-50 hidden flex items-center justify-center z-50">
-<div class="bg-white rounded-lg w-[400px] max-h-[90vh] flex flex-col">
+<div class="bg-white rounded-lg w-[700px] max-h-[90vh] flex flex-col">
 <div class="p-4 border-b border-gray-200">
 <div class="flex items-center justify-between">
 <h3 class="text-base font-medium text-gray-900">Select Template Type</h3>
@@ -2555,13 +2801,14 @@ Create Template
 </div>
 </div>
 <div class="flex-1 pl-6">
-<div class="bg-gray-50 rounded-lg h-full p-6">
-<div class="bg-white rounded-lg h-full p-6 border border-gray-200">
-<div class="text-center text-gray-500 text-sm">
+<div class="bg-gray-50 rounded-lg h-full p-4 overflow-y-auto">
+<div id="formBuilderCanvas" class="bg-white rounded-lg min-h-full p-4 border border-gray-200 border-dashed">
+<div id="formBuilderPlaceholder" class="text-center text-gray-500 text-sm py-8">
 <i class="ri-drag-drop-line text-2xl mb-2"></i>
 <p>Drag and drop elements here</p>
 <p>or click elements from the left panel to add</p>
 </div>
+<div id="formBuilderContent" class="space-y-3"></div>
 </div>
 </div>
 </div>
@@ -3372,6 +3619,107 @@ if (createPracticeWorkflowBtn) {
     });
 }
 
+// Create Program button - links to program composer
+const createProgramBtn = document.getElementById('createProgramBtn');
+if (createProgramBtn) {
+    createProgramBtn.addEventListener('click', () => {
+        window.location.href = 'workflow-composer.html?type=program';
+    });
+}
+
+// Template Library Modal
+const viewMoreTemplatesBtn = document.getElementById('viewMoreTemplatesBtn');
+const templateLibraryModal = document.getElementById('templateLibraryModal');
+const closeTemplateLibrary = document.getElementById('closeTemplateLibrary');
+const libraryFilterTabs = document.querySelectorAll('.library-filter-tab');
+const libraryTemplateCards = document.querySelectorAll('.library-template-card');
+
+if (viewMoreTemplatesBtn) {
+    viewMoreTemplatesBtn.addEventListener('click', () => {
+        templateLibraryModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    });
+}
+
+if (closeTemplateLibrary) {
+    closeTemplateLibrary.addEventListener('click', () => {
+        templateLibraryModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    });
+}
+
+// Close modal when clicking outside
+templateLibraryModal?.addEventListener('click', (e) => {
+    if (e.target === templateLibraryModal) {
+        templateLibraryModal.classList.add('hidden');
+        document.body.style.overflow = '';
+    }
+});
+
+// Library filter tabs
+libraryFilterTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        // Update active tab styling
+        libraryFilterTabs.forEach(t => {
+            t.classList.remove('active', 'bg-gray-900', 'text-white');
+            t.classList.add('bg-gray-100', 'text-gray-600');
+        });
+        tab.classList.add('active', 'bg-gray-900', 'text-white');
+        tab.classList.remove('bg-gray-100', 'text-gray-600');
+
+        // Filter cards
+        const filterType = tab.dataset.filter;
+        libraryTemplateCards.forEach(card => {
+            if (filterType === 'all' || card.dataset.type === filterType) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+
+// Automation type tabs filtering
+const automationTypeTabs = document.querySelectorAll('.automation-type-tab');
+const automationItems = document.querySelectorAll('.automation-item');
+
+automationTypeTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+        // Update active tab styling
+        automationTypeTabs.forEach(t => {
+            t.classList.remove('active', 'bg-white', 'text-gray-900', 'shadow-sm');
+            t.classList.add('text-gray-600');
+        });
+        tab.classList.add('active', 'bg-white', 'text-gray-900', 'shadow-sm');
+        tab.classList.remove('text-gray-600');
+
+        // Filter items
+        const filterType = tab.dataset.type;
+        automationItems.forEach(item => {
+            if (filterType === 'all' || item.dataset.type === filterType) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        // Show/hide section headers based on filter
+        const workflowSection = document.querySelector('#workflowContent .mb-6');
+        const programSection = document.querySelector('#workflowContent > div:nth-child(2) > div > div:last-child');
+
+        if (filterType === 'workflow') {
+            if (workflowSection) workflowSection.style.display = 'block';
+            if (programSection) programSection.style.display = 'none';
+        } else if (filterType === 'program') {
+            if (workflowSection) workflowSection.style.display = 'none';
+            if (programSection) programSection.style.display = 'block';
+        } else {
+            if (workflowSection) workflowSection.style.display = 'block';
+            if (programSection) programSection.style.display = 'block';
+        }
+    });
+});
+
 closeWorkflowModalBtn.addEventListener('click', handleWorkflowModalClose);
 cancelWorkflow.addEventListener('click', handleWorkflowModalClose);
 const stepTypeSelector = document.getElementById('stepTypeSelector');
@@ -3469,6 +3817,107 @@ templateTypeSelector.classList.add('hidden');
 document.body.style.overflow = '';
 }
 });
+
+// Form Builder - Add element on click
+const formBuilderContent = document.getElementById('formBuilderContent');
+const formBuilderPlaceholder = document.getElementById('formBuilderPlaceholder');
+const elementBtns = document.querySelectorAll('#templateTypeSelector .element-btn');
+
+function createFormElement(elementType, iconClass, label) {
+const element = document.createElement('div');
+element.className = 'form-element group p-3 bg-gray-50 border border-gray-200 rounded-lg hover:border-primary/50 cursor-move relative';
+element.innerHTML = `
+<div class="flex items-center justify-between">
+  <div class="flex items-center">
+    <div class="w-8 h-8 bg-white rounded-lg flex items-center justify-center mr-3 shadow-sm">
+      <i class="${iconClass} text-primary"></i>
+    </div>
+    <div>
+      <span class="text-sm font-medium text-gray-900">${label}</span>
+      <p class="text-xs text-gray-500">${getElementDescription(elementType)}</p>
+    </div>
+  </div>
+  <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+    <button class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded" title="Settings">
+      <i class="ri-settings-3-line text-sm"></i>
+    </button>
+    <button class="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded" title="Duplicate">
+      <i class="ri-file-copy-line text-sm"></i>
+    </button>
+    <button class="delete-element p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded" title="Delete">
+      <i class="ri-delete-bin-line text-sm"></i>
+    </button>
+  </div>
+</div>
+${getElementPreview(elementType)}
+`;
+// Add delete functionality
+element.querySelector('.delete-element').addEventListener('click', (e) => {
+  e.stopPropagation();
+  element.remove();
+  if (formBuilderContent.children.length === 0) {
+    formBuilderPlaceholder.style.display = 'block';
+  }
+});
+return element;
+}
+
+function getElementDescription(type) {
+const descriptions = {
+  'title': 'Section heading',
+  'paragraph': 'Text content block',
+  'checklist': 'List of checkable items',
+  'question': 'Open-ended question',
+  'multiple-choice': 'Single selection options',
+  'checkboxes': 'Multiple selection options',
+  'image': 'Upload or embed image',
+  'video': 'Embed video content',
+  'file-upload': 'File attachment field',
+  'table': 'Data table',
+  'date-time': 'Date and time picker',
+  'signature': 'Digital signature field',
+  'chief-complaint': 'AI-assisted input',
+  'assessment-plan': 'Clinical assessment',
+  'history-present': 'Patient history',
+  'social-history': 'Social factors',
+  'family-history': 'Family medical history'
+};
+return descriptions[type] || 'Form element';
+}
+
+function getElementPreview(type) {
+const previews = {
+  'title': '<div class="mt-2 pt-2 border-t border-gray-100"><input type="text" class="w-full text-lg font-semibold text-gray-900 bg-transparent border-none focus:outline-none" placeholder="Enter section title..."></div>',
+  'paragraph': '<div class="mt-2 pt-2 border-t border-gray-100"><textarea class="w-full text-sm text-gray-600 bg-transparent border-none focus:outline-none resize-none" rows="2" placeholder="Enter paragraph text..."></textarea></div>',
+  'question': '<div class="mt-2 pt-2 border-t border-gray-100"><input type="text" class="w-full text-sm text-gray-600 bg-transparent border-none focus:outline-none" placeholder="Enter your question..."><div class="mt-2 p-2 bg-white rounded border border-gray-200 text-xs text-gray-400">Patient response area</div></div>',
+  'multiple-choice': '<div class="mt-2 pt-2 border-t border-gray-100 space-y-1"><div class="flex items-center"><input type="radio" class="mr-2" disabled><span class="text-sm text-gray-600">Option 1</span></div><div class="flex items-center"><input type="radio" class="mr-2" disabled><span class="text-sm text-gray-600">Option 2</span></div><div class="flex items-center"><input type="radio" class="mr-2" disabled><span class="text-sm text-gray-600">Option 3</span></div></div>',
+  'checkboxes': '<div class="mt-2 pt-2 border-t border-gray-100 space-y-1"><div class="flex items-center"><input type="checkbox" class="mr-2" disabled><span class="text-sm text-gray-600">Option 1</span></div><div class="flex items-center"><input type="checkbox" class="mr-2" disabled><span class="text-sm text-gray-600">Option 2</span></div></div>',
+  'checklist': '<div class="mt-2 pt-2 border-t border-gray-100 space-y-1"><div class="flex items-center"><input type="checkbox" class="mr-2"><span class="text-sm text-gray-600">Checklist item 1</span></div><div class="flex items-center"><input type="checkbox" class="mr-2"><span class="text-sm text-gray-600">Checklist item 2</span></div></div>',
+  'signature': '<div class="mt-2 pt-2 border-t border-gray-100"><div class="h-16 bg-white rounded border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400"><i class="ri-pen-nib-line mr-1"></i>Signature area</div></div>',
+  'date-time': '<div class="mt-2 pt-2 border-t border-gray-100"><input type="datetime-local" class="text-sm text-gray-600 bg-white border border-gray-200 rounded px-2 py-1"></div>',
+  'file-upload': '<div class="mt-2 pt-2 border-t border-gray-100"><div class="h-12 bg-white rounded border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400"><i class="ri-upload-2-line mr-1"></i>Drop files here or click to upload</div></div>',
+  'image': '<div class="mt-2 pt-2 border-t border-gray-100"><div class="h-20 bg-white rounded border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400"><i class="ri-image-line mr-1"></i>Image placeholder</div></div>',
+  'video': '<div class="mt-2 pt-2 border-t border-gray-100"><div class="h-20 bg-white rounded border border-dashed border-gray-300 flex items-center justify-center text-xs text-gray-400"><i class="ri-video-line mr-1"></i>Video placeholder</div></div>',
+  'table': '<div class="mt-2 pt-2 border-t border-gray-100"><div class="border border-gray-200 rounded overflow-hidden"><table class="w-full text-xs"><tr class="bg-gray-50"><th class="p-1 border-b border-r">Col 1</th><th class="p-1 border-b border-r">Col 2</th><th class="p-1 border-b">Col 3</th></tr><tr><td class="p-1 border-r">-</td><td class="p-1 border-r">-</td><td class="p-1">-</td></tr></table></div></div>'
+};
+return previews[type] || '';
+}
+
+elementBtns.forEach(btn => {
+btn.addEventListener('click', () => {
+  const label = btn.querySelector('span').textContent;
+  const iconClass = btn.querySelector('i').className;
+  const elementType = label.toLowerCase().replace(/\s+/g, '-').replace('&', 'and');
+
+  // Hide placeholder when first element is added
+  formBuilderPlaceholder.style.display = 'none';
+
+  // Create and add the element
+  const newElement = createFormElement(elementType, iconClass, label);
+  formBuilderContent.appendChild(newElement);
+});
+});
+
 closeTemplateModal.addEventListener('click', closeModal);
 cancelTemplate.addEventListener('click', closeModal);
 const formatButtons = document.querySelectorAll('[data-format]');

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Preview - Healthcare Platform</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4f46e5',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    borderRadius: {
+                        'button': '8px',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9fafb;
+        }
+        .workflow-line {
+            stroke: #9ca3af;
+            stroke-width: 2;
+            fill: none;
+        }
+        .workflow-line-arrow {
+            fill: #9ca3af;
+        }
+        .block-card {
+            transition: all 0.2s ease;
+        }
+        .block-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <a href="Healthcare-Provider-Workbench.html" class="flex items-center text-gray-500 hover:text-gray-700 mr-4">
+                        <i class="ri-arrow-left-line text-xl mr-2"></i>
+                        <span class="text-sm">Back to Workbench</span>
+                    </a>
+                    <div class="h-6 w-px bg-gray-300 mr-4"></div>
+                    <h1 id="templateTitle" class="text-lg font-semibold text-gray-900">Template Preview</h1>
+                </div>
+                <button id="copyToWorkbenchBtn" class="px-5 py-2.5 bg-primary text-white rounded-button flex items-center font-medium hover:bg-primary/90 transition-colors">
+                    <i class="ri-file-copy-line mr-2"></i>
+                    Copy to My Workbench
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-8">
+        <div class="grid grid-cols-3 gap-8">
+            <!-- Left: Flowchart -->
+            <div class="col-span-2">
+                <div class="bg-white rounded-xl border border-gray-200 p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-base font-semibold text-gray-900">Workflow Diagram</h2>
+                        <div id="templateTypeBadge" class="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700">
+                            Workflow
+                        </div>
+                    </div>
+
+                    <!-- Static Flowchart Container -->
+                    <div id="flowchartContainer" class="relative min-h-[500px] bg-gray-50 rounded-lg p-8 overflow-auto">
+                        <!-- Flowchart will be rendered here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Description -->
+            <div class="col-span-1">
+                <div class="bg-white rounded-xl border border-gray-200 p-6 sticky top-24">
+                    <div id="templateIcon" class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                        <i class="ri-flow-chart text-2xl text-blue-600"></i>
+                    </div>
+                    <h3 id="templateName" class="text-xl font-semibold text-gray-900 mb-2">New Patient Onboarding</h3>
+                    <p id="templateDescription" class="text-sm text-gray-600 mb-6">Complete onboarding workflow for new patients with welcome materials and forms</p>
+
+                    <div class="space-y-4 mb-6">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="ri-folder-line text-gray-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Category</div>
+                                <div id="templateCategory" class="text-sm font-medium text-gray-900">Patient Registration</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="ri-time-line text-gray-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Estimated Runtime</div>
+                                <div id="templateRuntime" class="text-sm font-medium text-gray-900">1-2 days</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="ri-stack-line text-gray-600"></i>
+                            </div>
+                            <div>
+                                <div class="text-xs text-gray-500">Complexity</div>
+                                <div id="templateComplexity" class="text-sm font-medium text-gray-900">Medium</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-200 pt-6">
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3">Steps Overview</h4>
+                        <div id="stepsOverview" class="space-y-2">
+                            <!-- Steps will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Success Toast -->
+    <div id="successToast" class="fixed bottom-6 right-6 bg-green-600 text-white px-6 py-4 rounded-lg shadow-lg hidden flex items-center">
+        <i class="ri-check-line text-xl mr-3"></i>
+        <div>
+            <div class="font-medium">Copied Successfully!</div>
+            <div class="text-sm text-green-100">Template added to your workbench</div>
+        </div>
+    </div>
+
+    <script>
+        // Template data (static for demo)
+        const templates = {
+            'new-patient-onboarding': {
+                name: 'New Patient Onboarding',
+                description: 'Complete onboarding workflow for new patients with welcome materials and forms. This workflow automates the entire patient registration process from initial contact to first appointment scheduling.',
+                type: 'workflow',
+                category: 'Patient Registration',
+                runtime: '1-2 days',
+                complexity: 'Medium',
+                blocks: [
+                    { id: 1, type: 'trigger', title: 'New Patient Created', description: 'Triggered when a new patient is added', icon: 'ri-user-add-line', color: 'green' },
+                    { id: 2, type: 'action', title: 'Welcome Message', description: 'Send welcome email with portal guide', icon: 'ri-mail-send-line', color: 'blue' },
+                    { id: 3, type: 'action', title: 'Send Forms', description: 'Auto-send intake and consent forms', icon: 'ri-file-list-line', color: 'orange' },
+                    { id: 4, type: 'action', title: 'Scheduling Link', description: 'Send appointment scheduling link', icon: 'ri-calendar-line', color: 'purple' }
+                ],
+                connections: [[1,2], [2,3], [3,4]]
+            },
+            'test-reminder-90day': {
+                name: '90-Day Test Reminder',
+                description: 'Automated reminder workflow for follow-up testing after order placement. Ensures patients receive timely reminders for their scheduled tests.',
+                type: 'workflow',
+                category: 'Follow-up Care',
+                runtime: '90+ days',
+                complexity: 'Medium',
+                blocks: [
+                    { id: 1, type: 'trigger', title: 'Order Placed', description: 'Triggered when a new order is created', icon: 'ri-shopping-cart-line', color: 'teal' },
+                    { id: 2, type: 'wait', title: 'Wait 90 Days', description: 'Delay workflow for 90 days', icon: 'ri-timer-line', color: 'gray' },
+                    { id: 3, type: 'condition', title: 'Check Order Status', description: 'Verify if follow-up is needed', icon: 'ri-git-branch-line', color: 'purple' },
+                    { id: 4, type: 'action', title: 'Send Test Reminder', description: 'Send reminder message to patient', icon: 'ri-notification-line', color: 'blue' }
+                ],
+                connections: [[1,2], [2,3], [3,4]]
+            },
+            'weight-management-program': {
+                name: 'Weight Management Program',
+                description: '12-week comprehensive weight loss program with weekly check-ins, milestone tracking, and personalized guidance. Includes dietary recommendations and progress monitoring.',
+                type: 'program',
+                category: 'Health Programs',
+                runtime: '12 weeks',
+                complexity: 'High',
+                blocks: [
+                    { id: 1, type: 'trigger', title: 'Program Enrollment', description: 'Patient enrolls in program', icon: 'ri-heart-pulse-line', color: 'rose' },
+                    { id: 2, type: 'action', title: 'Initial Assessment', description: 'Send health questionnaire', icon: 'ri-survey-line', color: 'blue' },
+                    { id: 3, type: 'action', title: 'Weekly Check-in', description: 'Automated weekly progress check', icon: 'ri-calendar-check-line', color: 'green' },
+                    { id: 4, type: 'condition', title: 'Milestone Check', description: 'Evaluate 4-week progress', icon: 'ri-flag-line', color: 'purple' },
+                    { id: 5, type: 'action', title: 'Adjust Plan', description: 'Personalize based on progress', icon: 'ri-settings-3-line', color: 'orange' },
+                    { id: 6, type: 'action', title: 'Completion', description: 'Program summary and next steps', icon: 'ri-trophy-line', color: 'amber' }
+                ],
+                connections: [[1,2], [2,3], [3,4], [4,5], [5,6]]
+            }
+        };
+
+        // Color mappings
+        const colorMap = {
+            'green': { bg: 'bg-green-100', text: 'text-green-600', border: 'border-green-200' },
+            'blue': { bg: 'bg-blue-100', text: 'text-blue-600', border: 'border-blue-200' },
+            'orange': { bg: 'bg-orange-100', text: 'text-orange-600', border: 'border-orange-200' },
+            'purple': { bg: 'bg-purple-100', text: 'text-purple-600', border: 'border-purple-200' },
+            'teal': { bg: 'bg-teal-100', text: 'text-teal-600', border: 'border-teal-200' },
+            'gray': { bg: 'bg-gray-100', text: 'text-gray-600', border: 'border-gray-200' },
+            'rose': { bg: 'bg-rose-100', text: 'text-rose-600', border: 'border-rose-200' },
+            'amber': { bg: 'bg-amber-100', text: 'text-amber-600', border: 'border-amber-200' }
+        };
+
+        function getTemplateIdFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id') || 'new-patient-onboarding';
+        }
+
+        function renderTemplate(templateId) {
+            const template = templates[templateId];
+            if (!template) {
+                window.location.href = 'Healthcare-Provider-Workbench.html';
+                return;
+            }
+
+            // Update header and sidebar info
+            document.getElementById('templateTitle').textContent = template.name + ' - Preview';
+            document.getElementById('templateName').textContent = template.name;
+            document.getElementById('templateDescription').textContent = template.description;
+            document.getElementById('templateCategory').textContent = template.category;
+            document.getElementById('templateRuntime').textContent = template.runtime;
+            document.getElementById('templateComplexity').textContent = template.complexity;
+
+            // Update type badge and icon
+            const isProgram = template.type === 'program';
+            const typeBadge = document.getElementById('templateTypeBadge');
+            const templateIcon = document.getElementById('templateIcon');
+
+            if (isProgram) {
+                typeBadge.className = 'px-3 py-1 text-xs font-medium rounded-full bg-rose-100 text-rose-700';
+                typeBadge.textContent = 'Program';
+                templateIcon.className = 'w-12 h-12 bg-rose-100 rounded-xl flex items-center justify-center mb-4';
+                templateIcon.innerHTML = '<i class="ri-heart-pulse-line text-2xl text-rose-600"></i>';
+            } else {
+                typeBadge.className = 'px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700';
+                typeBadge.textContent = 'Workflow';
+                templateIcon.className = 'w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4';
+                templateIcon.innerHTML = '<i class="ri-flow-chart text-2xl text-blue-600"></i>';
+            }
+
+            // Render steps overview
+            const stepsOverview = document.getElementById('stepsOverview');
+            stepsOverview.innerHTML = template.blocks.map((block, index) => `
+                <div class="flex items-center text-sm">
+                    <div class="w-5 h-5 rounded-full ${colorMap[block.color].bg} ${colorMap[block.color].text} flex items-center justify-center mr-2 text-xs font-medium">${index + 1}</div>
+                    <span class="text-gray-700">${block.title}</span>
+                </div>
+            `).join('');
+
+            // Render flowchart
+            renderFlowchart(template);
+        }
+
+        function renderFlowchart(template) {
+            const container = document.getElementById('flowchartContainer');
+            const blocks = template.blocks;
+            const blockWidth = 280;
+            const blockHeight = 80;
+            const verticalGap = 60;
+            const startX = 50;
+            const startY = 30;
+
+            let html = '<div class="relative">';
+
+            // Render connection lines (SVG)
+            const svgHeight = blocks.length * (blockHeight + verticalGap);
+            html += `<svg class="absolute top-0 left-0 w-full pointer-events-none" style="height: ${svgHeight}px;">
+                <defs>
+                    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                        <polygon points="0 0, 10 3.5, 0 7" class="workflow-line-arrow"/>
+                    </marker>
+                </defs>`;
+
+            template.connections.forEach(([fromId, toId]) => {
+                const fromIndex = blocks.findIndex(b => b.id === fromId);
+                const toIndex = blocks.findIndex(b => b.id === toId);
+                if (fromIndex !== -1 && toIndex !== -1) {
+                    const x = startX + blockWidth / 2;
+                    const y1 = startY + fromIndex * (blockHeight + verticalGap) + blockHeight;
+                    const y2 = startY + toIndex * (blockHeight + verticalGap);
+                    html += `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" class="workflow-line" marker-end="url(#arrowhead)"/>`;
+                }
+            });
+
+            html += '</svg>';
+
+            // Render blocks
+            blocks.forEach((block, index) => {
+                const y = startY + index * (blockHeight + verticalGap);
+                const colors = colorMap[block.color];
+
+                html += `
+                    <div class="block-card absolute bg-white border ${colors.border} rounded-lg p-4 shadow-sm"
+                         style="left: ${startX}px; top: ${y}px; width: ${blockWidth}px;">
+                        <div class="flex items-start">
+                            <div class="w-10 h-10 ${colors.bg} rounded-lg flex items-center justify-center mr-3 flex-shrink-0">
+                                <i class="${block.icon} ${colors.text}"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-sm font-medium text-gray-900">${block.title}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">${block.description}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+            container.style.minHeight = (blocks.length * (blockHeight + verticalGap) + startY + 50) + 'px';
+        }
+
+        // Copy to workbench functionality
+        document.getElementById('copyToWorkbenchBtn').addEventListener('click', () => {
+            const toast = document.getElementById('successToast');
+            toast.classList.remove('hidden');
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            const templateId = getTemplateIdFromUrl();
+            renderTemplate(templateId);
+        });
+    </script>
+</body>
+</html>
